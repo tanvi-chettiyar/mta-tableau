@@ -216,3 +216,29 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# User Ignore
+mta/*
+new/*
+
+# Large data files (exceed GitHub 100MB limit)
+mta.db
+datasets/MTA_Subway_Hourly_Ridership__2020-2024_20260427.csv
+
+# Large raw source files at repo root
+mta_hourly_2020_2024.csv
+mta_hourly_*.csv.gz
+datasets_old/*
+
+# v2 generated artifacts
+tableau_exports/*
+!tableau_exports/.gitkeep
+datasets/exports/*
+
+# v2 raw data — large CSVs and GTFS feed; do not commit
+datasets/MTA_Subway_Hourly_Ridership_*.csv
+datasets/*.txt
+
+# Session memory — not for version control
+.claude/

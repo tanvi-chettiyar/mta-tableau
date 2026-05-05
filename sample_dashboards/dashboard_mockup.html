@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Transfer of Stress — Dashboard Mockup</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0f172a; font-family: 'Segoe UI', sans-serif; color: #f1f5f9; padding: 20px; }
+
+/* ── Header ── */
+.header { margin-bottom: 18px; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.3px; }
+.header p  { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-end; }
+.year-pill { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 4px 14px; font-size: 12px; color: #94a3b8; }
+
+/* ── Grid ── */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: auto; gap: 12px; }
+
+.card {
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #273549;
+}
+.card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 10px; }
+.card-subtitle { font-size: 11px; color: #475569; margin-top: 4px; }
+
+/* ── KPI strip ── */
+.kpi-strip { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+.kpi-card { background: #1e293b; border-radius: 10px; padding: 16px 20px; border: 1px solid #273549; }
+.kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; }
+.kpi-value { font-size: 32px; font-weight: 700; line-height: 1.1; margin: 6px 0 4px; }
+.kpi-sub   { font-size: 12px; color: #64748b; }
+.red    { color: #ef4444; }
+.purple { color: #a78bfa; }
+.amber  { color: #fb923c; }
+.blue   { color: #38bdf8; }
+
+/* ── Chart areas ── */
+.span2 { grid-column: span 2; }
+.span3 { grid-column: span 3; }
+.span4 { grid-column: 1 / -1; }
+
+svg text { font-family: 'Segoe UI', sans-serif; }
+
+/* ── Legend pill ── */
+.legend { display: flex; gap: 14px; margin-bottom: 8px; }
+.leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #94a3b8; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <h1>The Jersey-to-NYC Transfer of Stress</h1>
+      <p>How signal &amp; track failures drive delays for NJ commuters &nbsp;·&nbsp; Lines 1/2/3 &amp; A/C/E at Penn Station &amp; WTC &nbsp;·&nbsp; 2024</p>
+    </div>
+    <div class="year-pill">Year: 2024 ▾</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- KPI STRIP -->
+  <div class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Monthly Riders at Penn</div>
+      <div class="kpi-value red">2.9M</div>
+      <div class="kpi-sub">1/2/3 + A/C/E combined</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Signal + Track Incidents</div>
+      <div class="kpi-value amber">624</div>
+      <div class="kpi-sub">77% of all delay-causing incidents</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Delay per Incident</div>
+      <div class="kpi-value purple">~18 min</div>
+      <div class="kpi-sub">proxy: delayed trains × 3 min headway</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Annual Train-Hours Delayed</div>
+      <div class="kpi-value blue">2,251</div>
+      <div class="kpi-sub">across 1/2/3 + A/C/E, all incident types</div>
+    </div>
+  </div>
+
+  <!-- ROW 2: Incidents over time + Ridership over time -->
+  <div class="card span2">
+    <div class="card-title">Incidents Over Time by Corridor</div>
+    <div class="legend">
+      <div class="leg"><div class="dot" style="background:#ef4444"></div>1/2/3</div>
+      <div class="leg"><div class="dot" style="background:#a78bfa"></div>A/C/E</div>
+    </div>
+    <svg id="incidents-chart" width="100%" height="180"></svg>
+  </div>
+
+  <div class="card span2">
+    <div class="card-title">Monthly Ridership at Penn Station</div>
+    <div class="legend">
+      <div class="leg"><div class="dot" style="background:#ef4444"></div>1/2/3</div>
+      <div class="leg"><div class="dot" style="background:#a78bfa"></div>A/C/E</div>
+    </div>
+    <svg id="ridership-chart" width="100%" height="180"></svg>
+  </div>
+
+  <!-- ROW 3: Sankey + Reliability -->
+  <div class="card span2">
+    <div class="card-title">What Causes Delays? — Incident Flow</div>
+    <div class="card-subtitle" style="margin-bottom:8px">Width = total delayed trains 2024</div>
+    <svg id="sankey-chart" width="100%" height="220"></svg>
+  </div>
+
+  <div class="card span2">
+    <div class="card-title">Service Reliability — Peak Weekday</div>
+    <div class="card-subtitle" style="margin-bottom:10px">Wait Assessment % (higher = more reliable)</div>
+    <svg id="reliability-chart" width="100%" height="220"></svg>
+  </div>
+
+  <!-- ROW 4: Heatmap full width -->
+  <div class="card span4">
+    <div class="card-title">When Do Delays Hit Hardest? — Penn Station Avg Hourly Ridership</div>
+    <div class="card-subtitle" style="margin-bottom:10px">Darker = more riders at risk &nbsp;·&nbsp; Tuesday 8 AM is peak exposure</div>
+    <svg id="heatmap-chart" width="100%" height="160"></svg>
+  </div>
+
+</div><!-- /grid -->
+
+<script>
+const RED = '#ef4444', PURPLE = '#a78bfa', AMBER = '#fb923c', BLUE = '#38bdf8';
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// ── helper: responsive width ──────────────────────────────────────────────
+function svgW(id) { return document.getElementById(id).parentElement.clientWidth - 32; }
+
+// ══ 1. INCIDENTS OVER TIME ════════════════════════════════════════════════
+(function() {
+  const r123 = [108,42,66,84,36,42,48,60,66,54,42,96];
+  const ace  = [42,36,84,48,42,54,42,54,42,36,54,72];
+  const W = svgW('incidents-chart'), H = 180;
+  const ml=28, mr=8, mt=8, mb=28;
+  const svg = d3.select('#incidents-chart').attr('width',W).attr('height',H);
+  const x = d3.scaleBand().domain(MONTHS).range([ml,W-mr]).padding(0.25);
+  const y = d3.scaleLinear().domain([0,130]).range([H-mb,mt]);
+  svg.append('g').attr('transform',`translate(0,${H-mb})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g => g.select('.domain').remove())
+    .selectAll('text').attr('fill','#64748b').attr('font-size',10);
+  svg.append('g').attr('transform',`translate(${ml},0)`)
+    .call(d3.axisLeft(y).ticks(4).tickSize(-(W-ml-mr)))
+    .call(g => g.select('.domain').remove())
+    .call(g => g.selectAll('.tick line').attr('stroke','#273549'))
+    .call(g => g.selectAll('.tick text').attr('fill','#64748b').attr('font-size',10));
+  const bw = x.bandwidth()/2 - 1;
+  MONTHS.forEach((m,i) => {
+    svg.append('rect').attr('x',x(m)).attr('y',y(r123[i])).attr('width',bw).attr('height',y(0)-y(r123[i])).attr('fill',RED).attr('opacity',0.85).attr('rx',2);
+    svg.append('rect').attr('x',x(m)+bw+2).attr('y',y(ace[i])).attr('width',bw).attr('height',y(0)-y(ace[i])).attr('fill',PURPLE).attr('opacity',0.85).attr('rx',2);
+  });
+})();
+
+// ══ 2. RIDERSHIP AREA CHART ═══════════════════════════════════════════════
+(function() {
+  const r123 = [1208,1208,1336,1330,1449,1332,1367,1335,1424,1609,1503,1411];
+  const ace  = [1484,1370,1570,1546,1611,1512,1533,1489,1567,1758,1543,1518];
+  const W = svgW('ridership-chart'), H = 180;
+  const ml=38, mr=8, mt=8, mb=28;
+  const svg = d3.select('#ridership-chart').attr('width',W).attr('height',H);
+  const x = d3.scalePoint().domain(MONTHS).range([ml,W-mr]);
+  const y = d3.scaleLinear().domain([0,2000]).range([H-mb,mt]);
+  const area = d3.area().x((_,i)=>x(MONTHS[i])).y0(H-mb).y1(d=>y(d)).curve(d3.curveCatmullRom);
+  const line = d3.line().x((_,i)=>x(MONTHS[i])).y(d=>y(d)).curve(d3.curveCatmullRom);
+  svg.append('g').attr('transform',`translate(0,${H-mb})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g=>g.select('.domain').remove())
+    .selectAll('text').attr('fill','#64748b').attr('font-size',10);
+  svg.append('g').attr('transform',`translate(${ml},0)`)
+    .call(d3.axisLeft(y).ticks(4).tickFormat(d=>`${d/1000}M`).tickSize(-(W-ml-mr)))
+    .call(g=>g.select('.domain').remove())
+    .call(g=>g.selectAll('.tick line').attr('stroke','#273549'))
+    .call(g=>g.selectAll('.tick text').attr('fill','#64748b').attr('font-size',10));
+  svg.append('path').datum(r123).attr('d',area).attr('fill',RED).attr('opacity',0.2);
+  svg.append('path').datum(r123).attr('d',line).attr('fill','none').attr('stroke',RED).attr('stroke-width',2);
+  svg.append('path').datum(ace).attr('d',area).attr('fill',PURPLE).attr('opacity',0.2);
+  svg.append('path').datum(ace).attr('d',line).attr('fill','none').attr('stroke',PURPLE).attr('stroke-width',2);
+})();
+
+// ══ 3. SANKEY ════════════════════════════════════════════════════════════
+(function() {
+  const W = svgW('sankey-chart'), H = 220;
+  const svg = d3.select('#sankey-chart').attr('width',W).attr('height',H);
+  const COLOR = {
+    'Signals':'#ef4444','Track':'#f97316',
+    'Persons on Trackbed':'#facc15','Subway Car':'#34d399',
+    'Stations & Structure':'#60a5fa','Other':'#a78bfa',
+    '1/2/3':'#ef4444','A/C/E':'#a78bfa'
+  };
+  const links = [
+    {source:'Signals',             target:'1/2/3', value:7364},
+    {source:'Signals',             target:'A/C/E', value:5547},
+    {source:'Persons on Trackbed', target:'1/2/3', value:6353},
+    {source:'Persons on Trackbed', target:'A/C/E', value:5857},
+    {source:'Other',               target:'1/2/3', value:3721},
+    {source:'Other',               target:'A/C/E', value:1296},
+    {source:'Subway Car',          target:'1/2/3', value:2718},
+    {source:'Subway Car',          target:'A/C/E', value:3486},
+    {source:'Track',               target:'1/2/3', value:2988},
+    {source:'Track',               target:'A/C/E', value:3203},
+    {source:'Stations & Structure',target:'1/2/3', value:1326},
+    {source:'Stations & Structure',target:'A/C/E', value:1158},
+  ];
+  const names = [...new Set(links.flatMap(l=>[l.source,l.target]))];
+  const ni = Object.fromEntries(names.map((n,i)=>[n,i]));
+  const {sankey, sankeyLinkHorizontal} = d3;
+  const sk = sankey().nodeWidth(14).nodePadding(8)
+    .extent([[130,8],[W-80,H-8]]);
+  const {nodes,links:skLinks} = sk({
+    nodes: names.map(n=>({name:n})),
+    links: links.map(l=>({...l,source:ni[l.source],target:ni[l.target]}))
+  });
+  svg.append('g').selectAll('path').data(skLinks).join('path')
+    .attr('d',sankeyLinkHorizontal()).attr('fill','none')
+    .attr('stroke',d=>COLOR[d.source.name]||'#888')
+    .attr('stroke-width',d=>Math.max(1,d.width)).attr('stroke-opacity',0.3);
+  svg.append('g').selectAll('rect').data(nodes).join('rect')
+    .attr('x',d=>d.x0).attr('y',d=>d.y0)
+    .attr('width',d=>d.x1-d.x0).attr('height',d=>d.y1-d.y0)
+    .attr('fill',d=>COLOR[d.name]||'#64748b').attr('rx',2);
+  svg.append('g').selectAll('text').data(nodes).join('text')
+    .attr('x',d=>d.x0<W/2?d.x0-6:d.x1+6)
+    .attr('y',d=>(d.y0+d.y1)/2).attr('dy','0.35em')
+    .attr('text-anchor',d=>d.x0<W/2?'end':'start')
+    .attr('fill','#e2e8f0').attr('font-size',11)
+    .text(d=>`${d.name}  ${d3.format(',')(Math.round(d.value))}`);
+})();
+
+// ══ 4. RELIABILITY BAR CHART ═════════════════════════════════════════════
+(function() {
+  const W = svgW('reliability-chart'), H = 220;
+  const ml=40, mr=12, mt=10, mb=50;
+  const svg = d3.select('#reliability-chart').attr('width',W).attr('height',H);
+  const waData = [
+    {month:'Jan',r123:70.7,ace:65.8},{month:'Feb',r123:71.2,ace:66.1},
+    {month:'Mar',r123:68.9,ace:64.5},{month:'Apr',r123:70.1,ace:65.2},
+    {month:'May',r123:69.5,ace:66.8},{month:'Jun',r123:68.2,ace:64.1},
+    {month:'Jul',r123:70.8,ace:67.2},{month:'Aug',r123:69.1,ace:65.9},
+    {month:'Sep',r123:71.3,ace:66.4},{month:'Oct',r123:70.4,ace:65.7},
+    {month:'Nov',r123:69.8,ace:64.9},{month:'Dec',r123:68.6,ace:65.3},
+  ];
+  const x = d3.scaleBand().domain(MONTHS).range([ml,W-mr]).padding(0.3);
+  const y = d3.scaleLinear().domain([60,75]).range([H-mb,mt]);
+  svg.append('g').attr('transform',`translate(0,${H-mb})`)
+    .call(d3.axisBottom(x).tickSize(0))
+    .call(g=>g.select('.domain').remove())
+    .selectAll('text').attr('fill','#64748b').attr('font-size',10);
+  svg.append('g').attr('transform',`translate(${ml},0)`)
+    .call(d3.axisLeft(y).ticks(4).tickFormat(d=>`${d}%`).tickSize(-(W-ml-mr)))
+    .call(g=>g.select('.domain').remove())
+    .call(g=>g.selectAll('.tick line').attr('stroke','#273549'))
+    .call(g=>g.selectAll('.tick text').attr('fill','#64748b').attr('font-size',10));
+  const bw = x.bandwidth()/2-1;
+  waData.forEach((d,i) => {
+    svg.append('rect').attr('x',x(MONTHS[i])).attr('y',y(d.r123)).attr('width',bw).attr('height',y(60)-y(d.r123)).attr('fill',RED).attr('opacity',0.85).attr('rx',2);
+    svg.append('rect').attr('x',x(MONTHS[i])+bw+2).attr('y',y(d.ace)).attr('width',bw).attr('height',y(60)-y(d.ace)).attr('fill',PURPLE).attr('opacity',0.85).attr('rx',2);
+  });
+  // Avg labels
+  svg.append('text').attr('x',W-mr).attr('y',y(69.6)-4).attr('text-anchor','end').attr('fill',RED).attr('font-size',11).text('1/2/3 avg 69.6%');
+  svg.append('text').attr('x',W-mr).attr('y',y(65.8)-4).attr('text-anchor','end').attr('fill',PURPLE).attr('font-size',11).text('A/C/E avg 65.8%');
+  svg.append('line').attr('x1',ml).attr('x2',W-mr).attr('y1',y(69.6)).attr('y2',y(69.6)).attr('stroke',RED).attr('stroke-dasharray','3,3').attr('stroke-width',1).attr('opacity',0.5);
+  svg.append('line').attr('x1',ml).attr('x2',W-mr).attr('y1',y(65.8)).attr('y2',y(65.8)).attr('stroke',PURPLE).attr('stroke-dasharray','3,3').attr('stroke-width',1).attr('opacity',0.5);
+  // Legend
+  const leg = svg.append('g').attr('transform',`translate(${ml},${H-20})`);
+  leg.append('rect').attr('width',10).attr('height',10).attr('fill',RED).attr('rx',2);
+  leg.append('text').attr('x',14).attr('y',9).attr('fill','#94a3b8').attr('font-size',10).text('1/2/3');
+  leg.append('rect').attr('x',50).attr('width',10).attr('height',10).attr('fill',PURPLE).attr('rx',2);
+  leg.append('text').attr('x',64).attr('y',9).attr('fill','#94a3b8').attr('font-size',10).text('A/C/E');
+})();
+
+// ══ 5. HEATMAP ═══════════════════════════════════════════════════════════
+(function() {
+  const W = svgW('heatmap-chart'), H = 160;
+  const ml=40, mr=12, mt=4, mb=24;
+  const raw = {"1,0":446,"1,1":185,"1,2":89,"1,3":52,"1,4":83,"1,5":679,"1,6":1956,"1,7":4121,"1,8":5301,"1,9":3719,"1,10":2278,"1,11":2003,"1,12":1975,"1,13":2163,"1,14":2316,"1,15":2621,"1,16":3178,"1,17":4480,"1,18":3606,"1,19":2445,"1,20":1866,"1,21":1886,"1,22":1454,"1,23":759,"2,0":466,"2,1":149,"2,2":69,"2,3":45,"2,4":86,"2,5":779,"2,6":2257,"2,7":5057,"2,8":7223,"2,9":4778,"2,10":2479,"2,11":2064,"2,12":1984,"2,13":2163,"2,14":2342,"2,15":2728,"2,16":3553,"2,17":5451,"2,18":4275,"2,19":2665,"2,20":1950,"2,21":2014,"2,22":1633,"2,23":869,"3,0":470,"3,1":151,"3,2":73,"3,3":47,"3,4":83,"3,5":767,"3,6":2204,"3,7":5010,"3,8":6982,"3,9":4792,"3,10":2452,"3,11":2094,"3,12":2051,"3,13":2223,"3,14":2383,"3,15":2755,"3,16":3585,"3,17":5402,"3,18":4326,"3,19":2725,"3,20":2023,"3,21":1881,"3,22":1574,"3,23":954,"4,0":463,"4,1":163,"4,2":78,"4,3":50,"4,4":88,"4,5":751,"4,6":2121,"4,7":4671,"4,8":6439,"4,9":4485,"4,10":2493,"4,11":2171,"4,12":2053,"4,13":2250,"4,14":2419,"4,15":2772,"4,16":3583,"4,17":5218,"4,18":4322,"4,19":2885,"4,20":2121,"4,21":2049,"4,22":1874,"4,23":1143,"5,0":628,"5,1":191,"5,2":91,"5,3":55,"5,4":83,"5,5":681,"5,6":1763,"5,7":3160,"5,8":3577,"5,9":2808,"5,10":2137,"5,11":2088,"5,12":2145,"5,13":2414,"5,14":2617,"5,15":2944,"5,16":3440,"5,17":4125,"5,18":3511,"5,19":2743,"5,20":2044,"5,21":1850,"5,22":1962,"5,23":1308,"6,0":774,"6,1":312,"6,2":147,"6,3":86,"6,4":93,"6,5":157,"6,6":474,"6,7":657,"6,8":977,"6,9":1406,"6,10":1782,"6,11":2153,"6,12":2405,"6,13":2542,"6,14":2497,"6,15":2685,"6,16":2737,"6,17":2778,"6,18":2725,"6,19":2286,"6,20":1844,"6,21":1734,"6,22":1801,"6,23":1349,"7,0":730,"7,1":335,"7,2":153,"7,3":84,"7,4":84,"7,5":113,"7,6":331,"7,7":474,"7,8":780,"7,9":1200,"7,10":1554,"7,11":1830,"7,12":2088,"7,13":2315,"7,14":2376,"7,15":2379,"7,16":2603,"7,17":2683,"7,18":2546,"7,19":2143,"7,20":1784,"7,21":1697,"7,22":1230,"7,23":808};
+
+  const vals = Object.values(raw);
+  const maxV = d3.max(vals);
+  const color = d3.scaleSequential(d3.interpolateRgb('#1e293b','#ef4444')).domain([0,maxV]);
+
+  const svg = d3.select('#heatmap-chart').attr('width',W).attr('height',H);
+  const cw = (W-ml-mr)/24;
+  const ch = (H-mt-mb)/7;
+
+  // Cells
+  for (let d=1; d<=7; d++) {
+    for (let h=0; h<24; h++) {
+      const v = raw[`${d},${h}`]||0;
+      svg.append('rect')
+        .attr('x', ml + h*cw).attr('y', mt + (d-1)*ch)
+        .attr('width', cw-1).attr('height', ch-1)
+        .attr('fill', color(v)).attr('rx', 1)
+        .append('title').text(`${DAYS[d-1]} ${h}:00 — ${d3.format(',')(v)} avg riders`);
+    }
+  }
+
+  // Highlight Tue 8AM
+  svg.append('rect')
+    .attr('x', ml+8*cw-1).attr('y', mt+1*(ch)-1)
+    .attr('width', cw+1).attr('height', ch+1)
+    .attr('fill','none').attr('stroke','#facc15').attr('stroke-width',2).attr('rx',2);
+  svg.append('text')
+    .attr('x', ml+8*cw+cw/2).attr('y', mt+ch/2-2)
+    .attr('text-anchor','middle').attr('fill','#facc15').attr('font-size',8).attr('font-weight','bold')
+    .text('PEAK');
+
+  // Y axis
+  svg.append('g').selectAll('text').data(DAYS).join('text')
+    .attr('x', ml-6).attr('y', (_,i)=> mt + i*ch + ch/2)
+    .attr('dy','0.35em').attr('text-anchor','end')
+    .attr('fill','#64748b').attr('font-size',10).text(d=>d);
+
+  // X axis
+  [0,4,8,12,16,20,23].forEach(h => {
+    svg.append('text')
+      .attr('x', ml+h*cw+cw/2).attr('y', H-mb+14)
+      .attr('text-anchor','middle').attr('fill','#64748b').attr('font-size',10)
+      .text(h===23?'11pm':`${h===0?'12am':h<12?h+'am':h===12?'12pm':(h-12)+'pm'}`);
+  });
+})();
+</script>
+</body>
+</html>

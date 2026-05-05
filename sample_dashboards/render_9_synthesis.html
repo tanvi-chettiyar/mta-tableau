@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Transfer of Stress — v3 Synthesis Mockup</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #faf8f4;
+  color: #1e293b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.dashboard { max-width: 1120px; margin: 0 auto; padding: 24px 28px 48px; }
+
+/* ── Header ── */
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.title  { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.subtitle { color: #64748b; font-size: 12px; margin-top: 3px; }
+.year-filters { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: 24px; }
+.pill {
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer;
+}
+.pill.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+/* ── Journey headline ── */
+.journey-headline {
+  background: white; border: 1px solid #e8e4de; border-radius: 8px;
+  padding: 14px 20px; margin-bottom: 12px;
+}
+.hl-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.09em; color: #94a3b8; margin-bottom: 5px; }
+.hl-text  { font-size: 17px; font-weight: 400; font-style: italic; color: #0f172a; line-height: 1.5; }
+
+/* ── KPI strip (dark, render_3 inspired) ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.kpi-card  { background: #0f172a; border-radius: 8px; padding: 16px 18px; }
+.kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 8px; }
+.kpi-num   { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; margin-bottom: 5px; }
+.kpi-desc  { font-size: 11px; color: #475569; line-height: 1.45; }
+.kpi-desc em { color: #334155; font-style: normal; }
+/* waffle chart for "months" KPI */
+.waffle { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 5px; }
+.wdot   { width: 10px; height: 10px; border-radius: 2px; }
+
+/* ── Cards / layout ── */
+.card { background: white; border: 1px solid #e8e4de; border-radius: 8px; padding: 16px 18px; }
+.card-title    { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.card-subtitle { font-size: 11px; color: #94a3b8; margin-bottom: 12px; line-height: 1.4; }
+.row   { display: grid; gap: 10px; margin-bottom: 10px; }
+.col-2 { grid-template-columns: 1fr 1fr; }
+.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+.full  { margin-bottom: 10px; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; vertical-align: middle; margin-left: 5px;
+}
+.b-yes  { background: #dcfce7; color: #166534; }
+.b-new  { background: #ede9fe; color: #5b21b6; }
+.b-adapt { background: #fef9c3; color: #854d0e; }
+
+/* ── Insight callout ── */
+.insight {
+  background: #fef2f2; border-left: 3px solid #ef4444;
+  padding: 7px 10px; border-radius: 0 4px 4px 0;
+  font-size: 11px; color: #7f1d1d; margin-top: 10px; line-height: 1.5;
+}
+.insight strong { color: #dc2626; }
+.insight-purple { background: #f5f3ff; border-left-color: #7c3aed; color: #4c1d95; }
+.insight-purple strong { color: #7c3aed; }
+
+/* ── Tableau hint ── */
+.t-hint { font-size: 10px; color: #94a3b8; margin-top: 8px; line-height: 1.4; }
+.t-hint code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; font-size: 9px; }
+
+/* ── Cause ladder ── */
+.cl-row    { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.cl-name   { width: 88px; font-size: 11px; color: #475569; text-align: right; flex-shrink: 0; }
+.cl-track  { flex: 1; height: 10px; background: #f1f5f9; border-radius: 5px; position: relative; }
+.cl-bar    { height: 10px; border-radius: 5px; position: absolute; left: 0; top: 0; }
+.cl-dot    {
+  width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,.13);
+  position: absolute; top: -1.5px; margin-left: -6.5px;
+}
+.cl-count  { font-size: 10px; color: #94a3b8; width: 20px; text-align: right; flex-shrink: 0; }
+
+/* ── Reliability bars ── */
+.rel-row   { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rel-label { width: 44px; font-size: 11px; color: #64748b; text-align: right; flex-shrink: 0; }
+.rel-bar   {
+  height: 22px; border-radius: 4px; display: flex; align-items: center;
+  padding-left: 8px; font-size: 11px; color: white; font-weight: 600;
+}
+
+/* ── Footer narrative ── */
+.footer {
+  background: #0f172a; border-radius: 8px; padding: 20px 24px;
+  color: #64748b; font-size: 13px; line-height: 1.8; margin-top: 2px;
+}
+.footer strong { color: #f1f5f9; }
+.footer em     { color: #f87171; font-style: normal; }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ── 1. HEADER ─────────────────────────────────────────────── -->
+  <div class="header">
+    <div>
+      <h1 class="title">The Jersey-to-NYC Transfer of Stress</h1>
+      <p class="subtitle">How Signal &amp; Track failures distribute risk across the Penn Station gateway corridor · 2024 · Lines 1/2/3 &amp; A/C/E</p>
+    </div>
+    <div class="year-filters">
+      <span style="font-size:10px;color:#94a3b8;">Year</span>
+      <button class="pill active">2024</button>
+      <button class="pill">Q1</button>
+      <button class="pill">Q2</button>
+      <button class="pill">Q3</button>
+      <button class="pill">Q4</button>
+    </div>
+  </div>
+
+  <!-- ── 2. JOURNEY HEADLINE (render_8 style) ─────────────────── -->
+  <div class="journey-headline">
+    <div class="hl-label">Journey headline</div>
+    <div class="hl-text">
+      Signal or Track failures hit Penn Station's gateway lines in 11 of 12 months in 2024 —
+      and the A/C/E corridor toward WTC carries 23% fewer signal incidents than the 1/2/3.
+    </div>
+  </div>
+
+  <!-- ── 3. KPI STRIP — render_3 inspired, metrics adapted for v2 ── -->
+  <div class="kpi-strip">
+
+    <!-- KPI 1: Commuters at risk -->
+    <div class="kpi-card">
+      <div class="kpi-label">Commuters in blast radius</div>
+      <div class="kpi-num" style="color:#ffffff;">~700K</div>
+      <div class="kpi-desc">riders/month across both Penn complexes<br><em>(318 + 164 combined)</em></div>
+    </div>
+
+    <!-- KPI 2: Incident months — waffle chart of 12 dots -->
+    <div class="kpi-card">
+      <div class="kpi-label">Incident months out of 12</div>
+      <div class="waffle">
+        <!-- 11 filled (red) = incident months, 1 open = clear -->
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#ef4444;"></div>
+        <div class="wdot" style="background:#1e3a5f; border:1px solid #334155;"></div>
+      </div>
+      <div class="kpi-num" style="color:#f87171;">11<span style="font-size:18px;font-weight:400;color:#334155;">/12</span></div>
+      <div class="kpi-desc">months with ≥1 Signal or Track failure<br><em>91.7% of 2024</em></div>
+    </div>
+
+    <!-- KPI 3: Avg delay per incident -->
+    <div class="kpi-card">
+      <div class="kpi-label">Avg delay per incident</div>
+      <div class="kpi-num" style="color:#fb923c;">18 min</div>
+      <div class="kpi-desc">trains-delayed ÷ incidents × 3 min headway<br><em>Signal failures hit 3× harder than avg</em></div>
+    </div>
+
+    <!-- KPI 4: WTC advantage -->
+    <div class="kpi-card">
+      <div class="kpi-label">A/C/E via WTC — signal advantage</div>
+      <div class="kpi-num" style="color:#c084fc;">−23%</div>
+      <div class="kpi-desc">fewer signal incidents on A/C/E<br><em>vs 1/2/3 lines · same 2024 window</em></div>
+    </div>
+
+  </div>
+
+  <!-- ── 4. CORRIDOR NARRATIVE (render_8 inspired, NYC side) ──── -->
+  <div class="card full">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="card-title">
+          Stress builds along the trip
+          <span class="badge b-adapt">Adapted from render_8</span>
+        </div>
+        <div class="card-subtitle">
+          Route-first narrative: as NJ commuters enter NYC through Penn Station, operational friction peaks —
+          routing via A/C/E toward WTC provides measurable relief ·
+          circle size = monthly ridership · color = corridor
+        </div>
+      </div>
+      <div style="font-size:10px;color:#94a3b8;text-align:right;line-height:1.8;flex-shrink:0;margin-left:20px;">
+        <span style="color:#94a3b8;">◯ PATH (no MTA data)</span><br>
+        <span style="color:#ef4444;">● 1/2/3 corridor</span><br>
+        <span style="color:#a78bfa;">● A/C/E corridor</span>
+      </div>
+    </div>
+
+    <svg viewBox="0 0 1000 185" style="width:100%;height:185px;display:block;margin-top:4px;">
+      <defs>
+        <!-- Stress gradient: gray (NJ) → red peak (Penn) → purple relief (WTC) -->
+        <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#94a3b8" stop-opacity="0.12"/>
+          <stop offset="28%"  stop-color="#fecaca" stop-opacity="0.35"/>
+          <stop offset="44%"  stop-color="#ef4444" stop-opacity="0.55"/>
+          <stop offset="58%"  stop-color="#fecaca" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.25"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Stress ribbon (area below the path line, peaks at Penn ~x=480) -->
+      <path d="M 55 125
+               C 150 123  240 115  330 103
+               C 390 95   435 72   480 52
+               C 525 72   580 90   660 105
+               C 740 118  830 124  940 126
+               L 940 148
+               C 830 146  740 142  660 130
+               C 580 117  525 100  480 80
+               C 435 100  390 122  330 133
+               C 240 145  150 148  55 148 Z"
+            fill="url(#sg)"/>
+
+      <!-- PATH divider line -->
+      <line x1="345" y1="28" x2="345" y2="158" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="262" y="24" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">← PATH territory (no MTA data)</text>
+      <text x="480" y="24" fill="#64748b" font-size="9" font-family="sans-serif" text-anchor="middle">NYC subway corridor ▼</text>
+
+      <!-- PATH corridor line (gray, dashed) -->
+      <line x1="68" y1="107" x2="345" y2="107" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7,4"/>
+
+      <!-- MTA line: Penn to 1/2/3 branch (uptown, curves up) -->
+      <path d="M 345 107 L 480 107 C 580 107 700 95 935 82" stroke="#ef4444" stroke-width="2.5" fill="none" opacity="0.7"/>
+      <!-- MTA line: Penn to A/C/E branch (downtown to WTC, curves slightly down) -->
+      <path d="M 480 107 C 560 107 660 115 780 120 C 840 122 890 123 940 123" stroke="#a78bfa" stroke-width="2.5" fill="none" opacity="0.7"/>
+
+      <!-- Zone labels -->
+      <text x="225" y="44" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle" font-style="italic">Low stress →</text>
+      <text x="420" y="44" fill="#ef4444" font-size="9" font-family="sans-serif" font-weight="600">▲ Rising friction</text>
+      <text x="720" y="44" fill="#a78bfa" font-size="9" font-family="sans-serif">→ Stress relief via A/C/E</text>
+
+      <!-- ── STATIONS ── -->
+
+      <!-- Journal Square (PATH, gray, small) -->
+      <circle cx="70" cy="107" r="6" fill="#94a3b8" opacity="0.4"/>
+      <text x="70" y="124" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Journal</text>
+      <text x="70" y="134" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Square</text>
+
+      <!-- Newport (PATH) -->
+      <circle cx="175" cy="107" r="5" fill="#94a3b8" opacity="0.4"/>
+      <text x="175" y="124" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Newport</text>
+
+      <!-- Hoboken (PATH) -->
+      <circle cx="285" cy="107" r="7" fill="#94a3b8" opacity="0.4"/>
+      <text x="285" y="124" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Hoboken</text>
+
+      <!-- Penn Station — peak stress, BIG -->
+      <circle cx="480" cy="107" r="22" fill="#ef4444" opacity="0.1"/>
+      <circle cx="480" cy="107" r="15" fill="#ef4444" opacity="0.22"/>
+      <circle cx="480" cy="107" r="9"  fill="#ef4444"/>
+      <circle cx="480" cy="107" r="3"  fill="white"/>
+      <text x="480" y="130" fill="#ef4444" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="700">Penn Station</text>
+      <text x="480" y="141" fill="#94a3b8" font-size="9"  font-family="sans-serif" text-anchor="middle">34 St (1/2/3 · A/C/E)</text>
+
+      <!-- Peak annotation callout -->
+      <rect x="388" y="55" width="184" height="22" rx="4" fill="#fff1f2" stroke="#fecaca" stroke-width="1"/>
+      <text x="480" y="70" fill="#dc2626" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="600">▲ Peak: 700K riders/month exposed</text>
+      <line x1="480" y1="77" x2="480" y2="92" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"/>
+
+      <!-- 1/2/3 branch stations (uptown) -->
+      <!-- 23rd St -->
+      <circle cx="580" cy="101" r="5" fill="#ef4444" opacity="0.65"/>
+      <text x="580" y="94" fill="#ef4444" font-size="9" font-family="sans-serif" text-anchor="middle">23 St</text>
+
+      <!-- Times Sq 42nd St -->
+      <circle cx="700" cy="94" r="8" fill="#ef4444" opacity="0.75"/>
+      <text x="700" y="87" fill="#ef4444" font-size="9" font-family="sans-serif" text-anchor="middle">Times Sq</text>
+
+      <!-- Columbus Circle / uptown label -->
+      <circle cx="820" cy="87" r="5" fill="#ef4444" opacity="0.55"/>
+      <text x="820" y="80" fill="#ef4444" font-size="9" font-family="sans-serif" text-anchor="middle">Columbus</text>
+      <text x="820" y="90" fill="#ef4444" font-size="9" font-family="sans-serif" text-anchor="middle">Circle →</text>
+
+      <!-- A/C/E branch stations (downtown) -->
+      <!-- 14th St 8 Av -->
+      <circle cx="580" cy="116" r="5" fill="#a78bfa" opacity="0.7"/>
+      <text x="580" y="130" fill="#a78bfa" font-size="9" font-family="sans-serif" text-anchor="middle">14 St</text>
+
+      <!-- W 4th St -->
+      <circle cx="680" cy="120" r="5" fill="#a78bfa" opacity="0.7"/>
+      <text x="680" y="134" fill="#a78bfa" font-size="9" font-family="sans-serif" text-anchor="middle">W 4 St</text>
+
+      <!-- WTC / Chambers — medium purple, "relief" -->
+      <circle cx="800" cy="122" r="14" fill="#a78bfa" opacity="0.12"/>
+      <circle cx="800" cy="122" r="9"  fill="#a78bfa" opacity="0.3"/>
+      <circle cx="800" cy="122" r="5"  fill="#a78bfa"/>
+      <circle cx="800" cy="122" r="2"  fill="white"/>
+      <text x="800" y="140" fill="#a78bfa" font-size="10" font-family="sans-serif" text-anchor="middle" font-weight="700">WTC</text>
+      <!-- WTC advantage callout -->
+      <rect x="818" y="100" width="112" height="30" rx="4" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="1"/>
+      <text x="874" y="114" fill="#5b21b6" font-size="9" font-family="sans-serif" text-anchor="middle" font-weight="600">23% fewer</text>
+      <text x="874" y="124" fill="#7c3aed" font-size="9" font-family="sans-serif" text-anchor="middle">signal incidents</text>
+
+      <!-- Tableau note at bottom -->
+      <text x="10" y="175" fill="#94a3b8" font-size="9" font-family="sans-serif">📌 Tableau: scatter on dim_corridor_complexes.csv · x = longitude (sorted) · size = SUM(ridership) from monthly_ridership.csv · PATH stations greyed out · no new export needed</text>
+    </svg>
+  </div>
+
+  <!-- ── 5. CAUSE LADDER + TIME PATTERN STRIP ────────────────── -->
+  <div class="row col-2">
+
+    <!-- Cause Ladder -->
+    <div class="card">
+      <div class="card-title">Cause ladder <span class="badge b-adapt">Adapted from render_8</span></div>
+      <div class="card-subtitle">Frequency (bar width) and severity (● dot position) in one panel — combines current Sheets 4 + 5</div>
+
+      <!-- axis labels -->
+      <div style="display:flex;margin-left:96px;margin-bottom:6px;font-size:9px;color:#94a3b8;">
+        <span style="flex:1;">← frequency (incident count)</span>
+        <span>● severity (trains delayed / incident)</span>
+      </div>
+
+      <!-- Signals -->
+      <div class="cl-row">
+        <span class="cl-name">Signals</span>
+        <div class="cl-track">
+          <div class="cl-bar" style="width:82%;background:#ef4444;opacity:0.7;"></div>
+          <div class="cl-dot" style="background:#ef4444;left:68%;"></div>
+        </div>
+        <span class="cl-count">18</span>
+      </div>
+
+      <!-- Track -->
+      <div class="cl-row">
+        <span class="cl-name">Track</span>
+        <div class="cl-track">
+          <div class="cl-bar" style="width:70%;background:#f59e0b;opacity:0.7;"></div>
+          <div class="cl-dot" style="background:#f59e0b;left:53%;"></div>
+        </div>
+        <span class="cl-count">15</span>
+      </div>
+
+      <!-- Persons on Track -->
+      <div class="cl-row">
+        <span class="cl-name">Persons</span>
+        <div class="cl-track">
+          <div class="cl-bar" style="width:38%;background:#94a3b8;opacity:0.6;"></div>
+          <div class="cl-dot" style="background:#64748b;left:36%;"></div>
+        </div>
+        <span class="cl-count">8</span>
+      </div>
+
+      <!-- Subway Car -->
+      <div class="cl-row">
+        <span class="cl-name">Subway Car</span>
+        <div class="cl-track">
+          <div class="cl-bar" style="width:33%;background:#94a3b8;opacity:0.5;"></div>
+          <div class="cl-dot" style="background:#94a3b8;left:28%;"></div>
+        </div>
+        <span class="cl-count">7</span>
+      </div>
+
+      <!-- Stations -->
+      <div class="cl-row">
+        <span class="cl-name">Stations</span>
+        <div class="cl-track">
+          <div class="cl-bar" style="width:14%;background:#cbd5e1;opacity:0.6;"></div>
+          <div class="cl-dot" style="background:#cbd5e1;left:18%;"></div>
+        </div>
+        <span class="cl-count">3</span>
+      </div>
+
+      <!-- x axis ticks -->
+      <div style="display:flex;margin-left:96px;margin-top:2px;font-size:8px;color:#cbd5e1;">
+        <div style="flex:1;">0</div>
+        <div style="flex:1;text-align:center;">10</div>
+        <div style="text-align:right;">20</div>
+      </div>
+
+      <div class="insight">
+        <strong>Signal + Track = 77%</strong> of incidents · Signals are both the most frequent <em>and</em> most severe: the dot sits furthest right — 3.2× harder per incident than any other category.
+      </div>
+      <div class="t-hint">📌 Tableau: Gantt Bar — bar = <code>SUM(incident_count)</code>, circle overlay = <code>delay_count/NULLIF(incident_count,0)</code> on dual axis. Replaces Sheets 4+5 if space is tight.</div>
+    </div>
+
+    <!-- Time Pattern Strip -->
+    <div class="card">
+      <div class="card-title">Monthly incident pattern <span class="badge b-adapt">Adapted from render_8 strip</span></div>
+      <div class="card-subtitle">Which months were hit? — clusters visible at a glance without a dual-axis argument · darker = more incidents</div>
+
+      <!-- month labels -->
+      <div style="display:grid;grid-template-columns:40px repeat(12,1fr);gap:3px;margin-bottom:3px;">
+        <div></div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Jan</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Feb</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Mar</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Apr</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">May</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Jun</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Jul</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Aug</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Sep</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Oct</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Nov</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">Dec</div>
+      </div>
+
+      <!-- 1/2/3 row (incident intensity, illustrative) -->
+      <div style="display:grid;grid-template-columns:40px repeat(12,1fr);gap:3px;margin-bottom:4px;align-items:center;">
+        <div style="font-size:10px;color:#ef4444;text-align:right;padding-right:4px;">1/2/3</div>
+        <div style="height:30px;border-radius:3px;background:#fca5a5;"></div>
+        <div style="height:30px;border-radius:3px;background:#ef4444;"></div>
+        <div style="height:30px;border-radius:3px;background:#fecaca;"></div>
+        <div style="height:30px;border-radius:3px;background:#ef4444;"></div>
+        <div style="height:30px;border-radius:3px;background:#fca5a5;"></div>
+        <div style="height:30px;border-radius:3px;background:#fee2e2;opacity:0.5;"></div><!-- clear -->
+        <div style="height:30px;border-radius:3px;background:#fca5a5;"></div>
+        <div style="height:30px;border-radius:3px;background:#ef4444;"></div>
+        <div style="height:30px;border-radius:3px;background:#fee2e2;opacity:0.4;border:1px solid #fecaca;"></div><!-- clear month -->
+        <div style="height:30px;border-radius:3px;background:#fca5a5;"></div>
+        <div style="height:30px;border-radius:3px;background:#ef4444;"></div>
+        <div style="height:30px;border-radius:3px;background:#fca5a5;"></div>
+      </div>
+
+      <!-- A/C/E row -->
+      <div style="display:grid;grid-template-columns:40px repeat(12,1fr);gap:3px;margin-bottom:10px;align-items:center;">
+        <div style="font-size:10px;color:#a78bfa;text-align:right;padding-right:4px;">A/C/E</div>
+        <div style="height:30px;border-radius:3px;background:#ede9fe;opacity:0.5;border:1px solid #ddd6fe;"></div><!-- clear -->
+        <div style="height:30px;border-radius:3px;background:#a78bfa;"></div>
+        <div style="height:30px;border-radius:3px;background:#ddd6fe;"></div>
+        <div style="height:30px;border-radius:3px;background:#ede9fe;opacity:0.5;border:1px solid #ddd6fe;"></div><!-- clear -->
+        <div style="height:30px;border-radius:3px;background:#a78bfa;"></div>
+        <div style="height:30px;border-radius:3px;background:#ddd6fe;"></div>
+        <div style="height:30px;border-radius:3px;background:#ede9fe;opacity:0.5;border:1px solid #ddd6fe;"></div><!-- clear -->
+        <div style="height:30px;border-radius:3px;background:#ddd6fe;"></div>
+        <div style="height:30px;border-radius:3px;background:#a78bfa;"></div>
+        <div style="height:30px;border-radius:3px;background:#ddd6fe;"></div>
+        <div style="height:30px;border-radius:3px;background:#ddd6fe;"></div>
+        <div style="height:30px;border-radius:3px;background:#a78bfa;"></div>
+      </div>
+
+      <!-- Legend -->
+      <div style="display:flex;gap:14px;font-size:9px;color:#94a3b8;">
+        <span style="display:flex;align-items:center;gap:3px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#fee2e2;border:1px solid #fecaca;display:inline-block;"></span> Clear month
+        </span>
+        <span style="display:flex;align-items:center;gap:3px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#fca5a5;display:inline-block;"></span> Low
+        </span>
+        <span style="display:flex;align-items:center;gap:3px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#ef4444;display:inline-block;"></span> High (1/2/3)
+        </span>
+        <span style="display:flex;align-items:center;gap:3px;">
+          <span style="width:10px;height:10px;border-radius:2px;background:#a78bfa;display:inline-block;"></span> High (A/C/E)
+        </span>
+      </div>
+
+      <div class="insight insight-purple" style="margin-top:10px;">
+        <strong>A/C/E and 1/2/3 high-incident months don't always coincide</strong> — disruptions are corridor-specific. Sep is clear for 1/2/3 but heavy for A/C/E; this makes the routing-choice argument more nuanced.
+      </div>
+      <div class="t-hint">📌 Tableau: Text table — <code>MONTH([month])</code> on Columns, <code>line_group</code> on Rows, <code>SUM(incident_count)</code> as Color. No new export needed.</div>
+    </div>
+
+  </div>
+
+  <!-- ── 6. INCIDENT TIMELINE × RIDERSHIP — small multiples ───── -->
+  <div class="card full">
+    <div class="card-title">Incident Timeline vs Ridership — by Line Group <span class="badge b-yes">✓ Sheets 2 + 3</span></div>
+    <div class="card-subtitle">Separate scales eliminate misleading dual-axis correlation · Incidents (bars) and Ridership (area) on aligned x-axes so spikes can be compared vertically</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- 1/2/3 incidents -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#ef4444;margin-bottom:5px;">Lines 1/2/3 — Incidents</div>
+        <div style="height:56px;display:flex;align-items:flex-end;gap:3px;">
+          <div style="flex:1;height:45%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.75;"></div>
+          <div style="flex:1;height:80%;background:#ef4444;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:30%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.6;"></div>
+          <div style="flex:1;height:70%;background:#ef4444;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:50%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.7;"></div>
+          <div style="flex:1;height:15%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.35;"></div>
+          <div style="flex:1;height:55%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.7;"></div>
+          <div style="flex:1;height:90%;background:#ef4444;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:12%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.28;"></div>
+          <div style="flex:1;height:65%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.8;"></div>
+          <div style="flex:1;height:85%;background:#ef4444;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:60%;background:#ef4444;border-radius:2px 2px 0 0;opacity:0.75;"></div>
+        </div>
+      </div>
+
+      <!-- A/C/E incidents -->
+      <div>
+        <div style="font-size:11px;font-weight:600;color:#a78bfa;margin-bottom:5px;">Lines A/C/E — Incidents</div>
+        <div style="height:56px;display:flex;align-items:flex-end;gap:3px;">
+          <div style="flex:1;height:10%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.3;"></div>
+          <div style="flex:1;height:65%;background:#a78bfa;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:40%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.65;"></div>
+          <div style="flex:1;height:10%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.25;"></div>
+          <div style="flex:1;height:75%;background:#a78bfa;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:35%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.6;"></div>
+          <div style="flex:1;height:10%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.25;"></div>
+          <div style="flex:1;height:55%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.7;"></div>
+          <div style="flex:1;height:80%;background:#a78bfa;border-radius:2px 2px 0 0;"></div>
+          <div style="flex:1;height:30%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.5;"></div>
+          <div style="flex:1;height:45%;background:#a78bfa;border-radius:2px 2px 0 0;opacity:0.65;"></div>
+          <div style="flex:1;height:70%;background:#a78bfa;border-radius:2px 2px 0 0;"></div>
+        </div>
+      </div>
+
+      <!-- 1/2/3 ridership (area) -->
+      <div>
+        <div style="font-size:11px;color:#ef4444;opacity:0.7;margin-bottom:5px;">Lines 1/2/3 — Ridership</div>
+        <svg width="100%" height="56" viewBox="0 0 400 56" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="g123" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ef4444" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#ef4444" stop-opacity="0.04"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 48 C 50 46 100 41 150 35 C 200 29 250 22 300 17 C 340 13 370 11 400 10 L 400 56 L 0 56 Z" fill="url(#g123)"/>
+          <path d="M0 48 C 50 46 100 41 150 35 C 200 29 250 22 300 17 C 340 13 370 11 400 10" stroke="#ef4444" stroke-width="1.5" fill="none" opacity="0.6"/>
+        </svg>
+      </div>
+
+      <!-- A/C/E ridership (area) -->
+      <div>
+        <div style="font-size:11px;color:#a78bfa;opacity:0.7;margin-bottom:5px;">Lines A/C/E — Ridership</div>
+        <svg width="100%" height="56" viewBox="0 0 400 56" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gACE" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.04"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 52 C 50 50 100 47 150 43 C 200 38 250 32 300 26 C 350 20 380 16 400 14 L 400 56 L 0 56 Z" fill="url(#gACE)"/>
+          <path d="M0 52 C 50 50 100 47 150 43 C 200 38 250 32 300 26 C 350 20 380 16 400 14" stroke="#a78bfa" stroke-width="1.5" fill="none" opacity="0.6"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── 7. RELIABILITY + DELAY DURATION ────────────────────── -->
+  <div class="row col-2">
+
+    <!-- Reliability comparison — Sheet 6 NEW -->
+    <div class="card">
+      <div class="card-title">Reliability Comparison: A/C/E vs 1/2/3 <span class="badge b-new">NEW — Sheet 6</span></div>
+      <div class="card-subtitle">Which line do you trust? · Peak weekday · Wait Assessment % + Terminal OTP % · source: service_quality.csv</div>
+
+      <div style="font-size:11px;font-weight:600;color:#0f172a;margin-bottom:8px;">Wait Assessment % (% trains within target headway)</div>
+
+      <div class="rel-row">
+        <span class="rel-label" style="color:#a78bfa;">A/C/E</span>
+        <div style="flex:1;">
+          <div class="rel-bar" style="width:83%;background:linear-gradient(90deg,#7c3aed,#a78bfa);">83%</div>
+        </div>
+      </div>
+      <div class="rel-row">
+        <span class="rel-label" style="color:#ef4444;">1/2/3</span>
+        <div style="flex:1;">
+          <div class="rel-bar" style="width:79%;background:linear-gradient(90deg,#dc2626,#ef4444);">79%</div>
+        </div>
+      </div>
+      <div style="margin-left:52px;font-size:9px;color:#94a3b8;margin-bottom:14px;">— system avg: 81%</div>
+
+      <div style="font-size:11px;font-weight:600;color:#0f172a;margin-bottom:8px;">Terminal On-Time Performance %</div>
+
+      <div class="rel-row">
+        <span class="rel-label" style="color:#a78bfa;">A/C/E</span>
+        <div style="flex:1;">
+          <div class="rel-bar" style="width:88%;background:linear-gradient(90deg,#7c3aed,#a78bfa);">88%</div>
+        </div>
+      </div>
+      <div class="rel-row">
+        <span class="rel-label" style="color:#ef4444;">1/2/3</span>
+        <div style="flex:1;">
+          <div class="rel-bar" style="width:84%;background:linear-gradient(90deg,#dc2626,#ef4444);">84%</div>
+        </div>
+      </div>
+
+      <div class="insight insight-purple" style="margin-top:12px;">
+        <strong>A/C/E shows +4 pp better peak Wait Assessment</strong> than 1/2/3 — the sourced, reproducible case for routing via WTC. This panel didn't exist in v1.
+      </div>
+    </div>
+
+    <!-- Delay Duration Distribution — Sheet 5 -->
+    <div class="card">
+      <div class="card-title">Delay Duration Distribution <span class="badge b-yes">✓ Sheet 5</span></div>
+      <div class="card-subtitle">Trains delayed per incident · severity not just count · median + IQR + full range · weekday only</div>
+
+      <svg viewBox="0 0 420 180" style="width:100%;height:180px;">
+        <!-- grid lines -->
+        <line x1="90" y1="165" x2="410" y2="165" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="170" y1="10" x2="170" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="250" y1="10" x2="250" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="330" y1="10" x2="330" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+
+        <!-- axis labels -->
+        <text x="85" y="30"  fill="#64748b" font-size="11" font-family="sans-serif" text-anchor="end">Signals</text>
+        <text x="85" y="72"  fill="#64748b" font-size="11" font-family="sans-serif" text-anchor="end">Track</text>
+        <text x="85" y="114" fill="#64748b" font-size="11" font-family="sans-serif" text-anchor="end">Persons</text>
+        <text x="85" y="149" fill="#64748b" font-size="11" font-family="sans-serif" text-anchor="end">Subway Car</text>
+
+        <text x="90"  y="175" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">0</text>
+        <text x="170" y="175" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">15</text>
+        <text x="250" y="175" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">30</text>
+        <text x="330" y="175" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">45</text>
+        <text x="400" y="175" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">60+</text>
+
+        <!-- Signals (red) — wide IQR, outlier at ~52 min -->
+        <line x1="95"  y1="22" x2="375" y2="22" stroke="#fca5a5" stroke-width="1.5"/>
+        <rect x="122" y="15" width="118" height="15" rx="2" fill="#ef4444" opacity="0.2"/>
+        <line x1="185" y1="15" x2="185" y2="30" stroke="#ef4444" stroke-width="2.5"/>
+        <circle cx="375" cy="22" r="4" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="382" y="26" fill="#94a3b8" font-size="8" font-family="sans-serif">52 min</text>
+
+        <!-- Track (amber) -->
+        <line x1="95"  y1="64" x2="290" y2="64" stroke="#fcd34d" stroke-width="1.5"/>
+        <rect x="118" y="57" width="88" height="15" rx="2" fill="#f59e0b" opacity="0.2"/>
+        <line x1="163" y1="57" x2="163" y2="72" stroke="#f59e0b" stroke-width="2.5"/>
+
+        <!-- Persons (slate) -->
+        <line x1="95"  y1="106" x2="258" y2="106" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="113" y="99"  width="72"  height="15" rx="2" fill="#94a3b8" opacity="0.2"/>
+        <line x1="152" y1="99"  x2="152" y2="114" stroke="#94a3b8" stroke-width="2.5"/>
+
+        <!-- Subway Car -->
+        <line x1="95"  y1="141" x2="218" y2="141" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="109" y="134" width="58"  height="15" rx="2" fill="#94a3b8" opacity="0.15"/>
+        <line x1="140" y1="134" x2="140" y2="149" stroke="#94a3b8" stroke-width="2"/>
+
+        <!-- Legend -->
+        <line x1="95" y1="186" x2="110" y2="186" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="113" y="189" fill="#94a3b8" font-size="8" font-family="sans-serif">median</text>
+        <rect x="145" y="182" width="14" height="8" rx="1" fill="#94a3b8" opacity="0.2"/>
+        <text x="162" y="189" fill="#94a3b8" font-size="8" font-family="sans-serif">IQR (25–75th)</text>
+        <line x1="220" y1="186" x2="235" y2="186" stroke="#94a3b8" stroke-width="1"/>
+        <text x="238" y="189" fill="#94a3b8" font-size="8" font-family="sans-serif">full range</text>
+        <circle cx="285" cy="186" r="3" fill="none" stroke="#94a3b8" stroke-width="1"/>
+        <text x="290" y="189" fill="#94a3b8" font-size="8" font-family="sans-serif">outlier</text>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- ── 8. WHERE + WHEN ─────────────────────────────────────── -->
+  <div class="row col-2">
+
+    <!-- Map — Sheet 7 -->
+    <div class="card">
+      <div class="card-title">Where Are Delays Concentrated? <span class="badge b-yes">✓ Sheet 7</span></div>
+      <div class="card-subtitle">NJ commuter-relevant stations · dot size = total delay duration · PATH entry points shown for context</div>
+
+      <svg viewBox="0 0 400 215" style="width:100%;height:215px;">
+        <!-- NJ -->
+        <path d="M 18 45 L 110 28 L 116 82 L 108 138 L 82 172 L 18 172 Z" fill="#ecfdf5" stroke="#d1fae5" stroke-width="1"/>
+        <text x="62" y="110" fill="#6ee7b7" font-size="11" font-family="sans-serif" text-anchor="middle" opacity="0.6">New Jersey</text>
+        <!-- Manhattan -->
+        <path d="M 162 8 L 262 18 L 268 85 L 252 155 L 222 195 L 196 195 L 174 162 L 154 100 Z" fill="#eff6ff" stroke="#dbeafe" stroke-width="1"/>
+        <text x="218" y="58" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle">Manhattan</text>
+        <!-- Brooklyn -->
+        <path d="M 222 195 L 262 190 L 350 178 L 358 210 L 202 210 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="295" y="205" fill="#94a3b8" font-size="9" font-family="sans-serif" text-anchor="middle">Brooklyn</text>
+        <!-- PATH line dashed -->
+        <line x1="108" y1="92" x2="185" y2="106" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <text x="148" y="93" fill="#94a3b8" font-size="8" font-family="sans-serif" text-anchor="middle">PATH →</text>
+        <!-- 42nd St -->
+        <circle cx="218" cy="38" r="4" fill="#ef4444" opacity="0.65"/>
+        <text x="234" y="42" fill="#ef4444" font-size="8" font-family="sans-serif">42nd St (5)</text>
+        <!-- Penn Station — large red -->
+        <circle cx="208" cy="92" r="16" fill="#ef4444" opacity="0.1"/>
+        <circle cx="208" cy="92" r="11" fill="#ef4444" opacity="0.25"/>
+        <circle cx="208" cy="92" r="6"  fill="#ef4444"/>
+        <text x="228" y="90" fill="#ef4444" font-size="9" font-family="sans-serif" font-weight="600">Penn Station</text>
+        <text x="228" y="100" fill="#94a3b8" font-size="8" font-family="sans-serif">14 incidents · 312 min total</text>
+        <!-- 14th St -->
+        <circle cx="204" cy="116" r="4" fill="#ef4444" opacity="0.6"/>
+        <text x="218" y="120" fill="#64748b" font-size="8" font-family="sans-serif">14th St (6)</text>
+        <!-- Chambers / WTC — medium purple -->
+        <circle cx="204" cy="160" r="10" fill="#a78bfa" opacity="0.15"/>
+        <circle cx="204" cy="160" r="7"  fill="#a78bfa" opacity="0.35"/>
+        <circle cx="204" cy="160" r="4"  fill="#a78bfa"/>
+        <text x="220" y="158" fill="#a78bfa" font-size="9" font-family="sans-serif" font-weight="600">WTC / Fulton</text>
+        <text x="220" y="168" fill="#94a3b8" font-size="8" font-family="sans-serif">9 incidents · 188 min</text>
+        <!-- Legend -->
+        <circle cx="18" cy="200" r="4" fill="#ef4444"/>
+        <text x="25" y="204" fill="#64748b" font-size="8" font-family="sans-serif">Lines 1/2/3</text>
+        <circle cx="95" cy="200" r="4" fill="#a78bfa"/>
+        <text x="102" y="204" fill="#64748b" font-size="8" font-family="sans-serif">Lines A/C/E</text>
+        <circle cx="175" cy="202" r="2"  fill="#94a3b8" opacity="0.5"/>
+        <circle cx="190" cy="200" r="4"  fill="#94a3b8" opacity="0.4"/>
+        <circle cx="210" cy="198" r="6"  fill="#94a3b8" opacity="0.3"/>
+        <text x="220" y="204" fill="#94a3b8" font-size="8" font-family="sans-serif">dot size = delay</text>
+      </svg>
+    </div>
+
+    <!-- Day × Hour Heatmap — Sheet 8 -->
+    <div class="card">
+      <div class="card-title">When Do Delays Hit Hardest? <span class="badge b-yes">✓ Sheet 8</span></div>
+      <div class="card-subtitle">Day × hour heatmap at Penn Station complexes · darker = more riders at risk · NJ rush hours highlighted</div>
+
+      <!-- hour headers -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div></div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">5a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">6a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">7a</div>
+        <div style="font-size:8px;color:#c2410c;text-align:center;background:#fff7ed;border-radius:2px;font-weight:700;">8a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">9a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">10a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">11a</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">12p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">1p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">2p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">3p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">4p</div>
+        <div style="font-size:8px;color:#c2410c;text-align:center;background:#fff7ed;border-radius:2px;font-weight:700;">5p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">6p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">7p</div>
+        <div style="font-size:8px;color:#94a3b8;text-align:center;">8p</div>
+      </div>
+
+      <!-- helper macro: h = heatmap cell color by intensity 0-9 -->
+      <style>
+        .h0{background:#fef2f2;} .h1{background:#fecaca;} .h2{background:#fca5a5;}
+        .h3{background:#f87171;} .h4{background:#ef4444;} .h5{background:#dc2626;}
+        .h6{background:#b91c1c;} .h7{background:#991b1b;}
+        .hx{background:#f1f5f9;} /* weekend / low */
+        .hcell{height:20px;border-radius:2px;}
+      </style>
+
+      <!-- Mon -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Mon</div>
+        <div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h4"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h3"></div><div class="hcell h4"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div>
+      </div>
+      <!-- Tue — PEAK -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Tue</div>
+        <div class="hcell h2"></div><div class="hcell h3"></div>
+        <div class="hcell h5"></div><div class="hcell h7"></div><div class="hcell h4"></div>
+        <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h3"></div>
+        <div class="hcell h4"></div><div class="hcell h6"></div><div class="hcell h4"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div>
+      </div>
+      <!-- Wed -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Wed</div>
+        <div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h4"></div><div class="hcell h6"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div>
+      </div>
+      <!-- Thu -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Thu</div>
+        <div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div>
+      </div>
+      <!-- Fri -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Fri</div>
+        <div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h3"></div><div class="hcell h4"></div><div class="hcell h2"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h2"></div><div class="hcell h4"></div><div class="hcell h3"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div>
+      </div>
+      <!-- Sat -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+        <div style="font-size:10px;color:#94a3b8;display:flex;align-items:center;">Sat</div>
+        <div class="hcell hx"></div><div class="hcell hx"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h2"></div>
+        <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h2"></div>
+        <div class="hcell h1"></div><div class="hcell hx"></div>
+      </div>
+      <!-- Sun -->
+      <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:8px;">
+        <div style="font-size:10px;color:#94a3b8;display:flex;align-items:center;">Sun</div>
+        <div class="hcell hx"></div><div class="hcell hx"></div>
+        <div class="hcell hx"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div>
+        <div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+        <div class="hcell hx"></div><div class="hcell hx"></div>
+      </div>
+
+      <!-- Rush labels -->
+      <div style="display:flex;gap:6px;font-size:9px;color:#94a3b8;margin-bottom:6px;">
+        <div style="background:#fff7ed;padding:2px 6px;border-radius:3px;color:#c2410c;">AM Rush 7–9a</div>
+        <div style="background:#fff7ed;padding:2px 6px;border-radius:3px;color:#c2410c;">PM Rush 4–6p</div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:4px;">
+          <span style="width:40px;height:8px;border-radius:2px;background:linear-gradient(90deg,#fee2e2,#991b1b);display:inline-block;"></span>
+          Less → More delay
+        </div>
+      </div>
+
+      <div class="insight">
+        <strong>Tue 8–9 AM is peak risk: 3.2× the weekday average.</strong> NJ commuters arriving at Penn Station Tuesday mornings face the highest concentration of ridership + incident frequency.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── 9. NARRATIVE FOOTER (render_3 inspired) ───────────── -->
+  <div class="footer">
+    A Signal or Track failure at Penn Station is not a rare edge case —
+    it happened in <strong>11 of 12 months in 2024</strong>, and every one of those
+    <em>~700K monthly riders</em> entered a network where the primary gateway had already failed that month.
+    The A/C/E corridor toward WTC delivers <strong>+4 pp better peak Wait Assessment</strong> and
+    carries <strong>23% fewer signal incidents</strong> than the 1/2/3 lines over the same window.
+    That is the data-backed routing advantage available to any commuter who knows to take it.
+  </div>
+
+  <!-- ── Design note ──────────────────────────────────────── -->
+  <div style="margin-top:16px;padding:12px 16px;background:#f8fafc;border-radius:6px;font-size:10px;color:#94a3b8;line-height:1.7;border:1px solid #e2e8f0;">
+    <strong style="color:#475569;">Mockup notes:</strong>
+    All chart data is illustrative — actual values will differ once computed from the Postgres exports.
+    Green <span style="background:#dcfce7;color:#166534;padding:1px 4px;border-radius:8px;font-size:9px;font-weight:600;">✓ Already planned</span> = no SQL changes needed.
+    Yellow <span style="background:#fef9c3;color:#854d0e;padding:1px 4px;border-radius:8px;font-size:9px;font-weight:600;">Adapted</span> = buildable from existing exports with a design change.
+    Purple <span style="background:#ede9fe;color:#5b21b6;padding:1px 4px;border-radius:8px;font-size:9px;font-weight:600;">NEW</span> = new data source (service_quality.csv, already exported in v2).
+    The corridor narrative (render_8 adaptation) uses <code>dim_corridor_complexes.csv</code> + <code>monthly_ridership.csv</code> — no new export query required for the ridership-as-stress version.
+    PATH stations (Journal Square, Newport, Hoboken) appear for narrative context only — no MTA data exists for them in this pipeline.
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Sankey — Incident Category → Line Group</title>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3/dist/d3-sankey.min.js"></script>
+<style>
+  body { margin: 0; background: #0f0f0f; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 32px; }
+  h2   { color: #f1f5f9; font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  p    { color: #94a3b8; font-size: 13px; margin: 0 0 24px; }
+</style>
+</head>
+<body>
+<h2>What Causes Delays? — Incident Category → Corridor</h2>
+<p>Width of each flow = total delayed trains, 2024 · Penn Station corridors only</p>
+<svg id="chart"></svg>
+<script>
+const W = 780, H = 480, PAD = { top: 20, right: 160, bottom: 20, left: 180 };
+
+const COLOR = {
+  'Signals':                              '#ef4444',
+  'Track':                                '#f97316',
+  'Persons on Trackbed/Police/Medical':   '#facc15',
+  'Subway Car':                           '#34d399',
+  'Stations and Structure':               '#60a5fa',
+  'Other':                                '#a78bfa',
+  '1/2/3':                                '#ef4444',
+  'A/C/E':                                '#a78bfa',
+};
+
+const links = [
+  {source:'Signals',                             target:'1/2/3', value:7364},
+  {source:'Signals',                             target:'A/C/E', value:5547},
+  {source:'Persons on Trackbed/Police/Medical',  target:'1/2/3', value:6353},
+  {source:'Persons on Trackbed/Police/Medical',  target:'A/C/E', value:5857},
+  {source:'Other',                               target:'1/2/3', value:3721},
+  {source:'Other',                               target:'A/C/E', value:1296},
+  {source:'Subway Car',                          target:'1/2/3', value:2718},
+  {source:'Subway Car',                          target:'A/C/E', value:3486},
+  {source:'Track',                               target:'1/2/3', value:2988},
+  {source:'Track',                               target:'A/C/E', value:3203},
+  {source:'Stations and Structure',              target:'1/2/3', value:1326},
+  {source:'Stations and Structure',              target:'A/C/E', value:1158},
+];
+
+const nodeNames = [...new Set(links.flatMap(l => [l.source, l.target]))];
+const nodeIndex = Object.fromEntries(nodeNames.map((n,i) => [n,i]));
+const nodes = nodeNames.map(name => ({name}));
+const sankeyLinks = links.map(l => ({...l, source: nodeIndex[l.source], target: nodeIndex[l.target]}));
+
+const svg = d3.select('#chart').attr('width', W).attr('height', H);
+
+const {sankey, sankeyLinkHorizontal} = d3;
+const sk = sankey()
+  .nodeWidth(18)
+  .nodePadding(14)
+  .extent([[PAD.left, PAD.top], [W - PAD.right, H - PAD.bottom]]);
+
+const {nodes: skNodes, links: skLinks} = sk({nodes: structuredClone(nodes), links: structuredClone(sankeyLinks)});
+
+// Links
+svg.append('g').selectAll('path')
+  .data(skLinks).join('path')
+  .attr('d', sankeyLinkHorizontal())
+  .attr('fill', 'none')
+  .attr('stroke', d => COLOR[d.source.name] || '#888')
+  .attr('stroke-width', d => Math.max(1, d.width))
+  .attr('stroke-opacity', 0.35);
+
+// Nodes
+svg.append('g').selectAll('rect')
+  .data(skNodes).join('rect')
+  .attr('x', d => d.x0).attr('y', d => d.y0)
+  .attr('width', d => d.x1 - d.x0).attr('height', d => d.y1 - d.y0)
+  .attr('fill', d => COLOR[d.name] || '#64748b')
+  .attr('rx', 3);
+
+// Labels
+svg.append('g').selectAll('text')
+  .data(skNodes).join('text')
+  .attr('x', d => d.x0 < W / 2 ? d.x0 - 8 : d.x1 + 8)
+  .attr('y', d => (d.y0 + d.y1) / 2)
+  .attr('dy', '0.35em')
+  .attr('text-anchor', d => d.x0 < W / 2 ? 'end' : 'start')
+  .attr('fill', '#f1f5f9')
+  .attr('font-size', 13)
+  .text(d => `${d.name}  ${d3.format(',')(Math.round(d.value))}`);
+</script>
+</body>
+</html>

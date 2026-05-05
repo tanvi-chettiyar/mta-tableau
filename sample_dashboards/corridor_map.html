@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>MTA Corridor Map — All Lines</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  body { margin: 0; font-family: sans-serif; background: #111; }
+  #map { height: 100vh; }
+  .legend { background: #1a1a1a; color: #eee; padding: 12px 16px; border-radius: 6px; line-height: 2; font-size: 13px; }
+  .legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+const map = L.map('map').setView([40.730, -73.985], 12);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CartoDB',
+  maxZoom: 19
+}).addTo(map);
+
+const COLORS = {
+  '1/2/3':  '#ef4444',
+  'A/C/E':  '#a78bfa',
+  '4/5/6':  '#22c55e',
+  'B/D/F/M':'#f97316',
+};
+
+const stations = [
+  // 1/2/3 — Columbus Circle → South Ferry
+  {id:614, name:'59 St-Columbus Circle (1,A,C,B,D)',          lat:40.768272, lon:-73.981833, line:'1/2/3', hub:true},
+  {id:611, name:'Times Sq-42 St (1,2,3,A,C,E,N,Q,R,W,7)',    lat:40.755746, lon:-73.987581, line:'1/2/3', hub:true},
+  {id:318, name:'34 St-Penn Station (1,2,3)',                 lat:40.750373, lon:-73.991057, line:'1/2/3', hub:true},
+  {id:319, name:'28 St (1)',                                  lat:40.747215, lon:-73.993365, line:'1/2/3'},
+  {id:320, name:'23 St (1)',                                  lat:40.744081, lon:-73.995657, line:'1/2/3'},
+  {id:321, name:'18 St (1)',                                  lat:40.741040, lon:-73.997871, line:'1/2/3'},
+  {id:601, name:'14 St/6 Av (1,2,3,F,M,L)',                  lat:40.737796, lon:-73.997732, line:'1/2/3'},
+  {id:323, name:'Christopher St-Stonewall (1)',               lat:40.733422, lon:-74.002906, line:'1/2/3'},
+  {id:324, name:'Houston St (1)',                             lat:40.728251, lon:-74.005367, line:'1/2/3'},
+  {id:325, name:'Canal St (1)',                               lat:40.722854, lon:-74.006277, line:'1/2/3'},
+  {id:327, name:'Chambers St (1,2,3)',                        lat:40.715478, lon:-74.009266, line:'1/2/3'},
+  {id:328, name:'WTC Cortlandt (1)',                          lat:40.711835, lon:-74.012188, line:'1/2/3', hub:true},
+  {id:329, name:'Rector St (1)',                              lat:40.707513, lon:-74.013783, line:'1/2/3'},
+  {id:635, name:'Whitehall St-South Ferry (1,R,W)',           lat:40.702578, lon:-74.013329, line:'1/2/3'},
+
+  // A/C/E — Penn → Jay St (Brooklyn)
+  {id:164, name:'34 St-Penn Station (A,C,E)',                 lat:40.752287, lon:-73.993391, line:'A/C/E', hub:true},
+  {id:165, name:'23 St (C,E)',                                lat:40.745906, lon:-73.998041, line:'A/C/E'},
+  {id:618, name:'14 St/8 Av (A,C,E,L)',                      lat:40.740335, lon:-74.002134, line:'A/C/E'},
+  {id:167, name:'W 4 St-Wash Sq (A,C,E,B,D,F,M)',            lat:40.732338, lon:-74.000495, line:'A/C/E'},
+  {id:168, name:'Spring St (C,E)',                            lat:40.726227, lon:-74.003739, line:'A/C/E'},
+  {id:169, name:'Canal St (A,C,E)',                           lat:40.720824, lon:-74.005229, line:'A/C/E'},
+  {id:624, name:'Chambers St/WTC (2,3,A,C,E,R,W)',            lat:40.712603, lon:-74.009552, line:'A/C/E', hub:true},
+  {id:628, name:'Fulton St (2,3,4,5,A,C,J,Z)',                lat:40.710089, lon:-74.007838, line:'A/C/E'},
+  {id:636, name:'Jay St-MetroTech (A,C,F,R)',                 lat:40.692259, lon:-73.986642, line:'A/C/E'},
+
+  // 4/5/6 — 125 St → Flatbush Av (Brooklyn)
+  {id:613, name:'Lexington Av/59 St (4,5,6,N,R,W)',          lat:40.762593, lon:-73.967613, line:'4/5/6'},
+  {id:610, name:'Grand Central-42 St (4,5,6,7,S)',            lat:40.751992, lon:-73.977359, line:'4/5/6', hub:true},
+  {id:602, name:'14 St-Union Sq (4,5,6,L,N,Q,R,W)',          lat:40.735066, lon:-73.990416, line:'4/5/6', hub:true},
+  {id:619, name:'Broadway-Lafayette/Bleecker St (6,B,D,F,M)', lat:40.725606, lon:-73.995432, line:'4/5/6'},
+  {id:337, name:'Nevins St (2,3,4,5)',                        lat:40.688246, lon:-73.980492, line:'4/5/6'},
+  {id:620, name:'Borough Hall/Court St (2,3,4,5,R)',          lat:40.693241, lon:-73.990642, line:'4/5/6', hub:true},
+  {id:617, name:'Atlantic Av-Barclays Ctr (2,3,4,5,B,D,N,Q,R)', lat:40.684162, lon:-73.977789, line:'4/5/6', hub:true},
+
+  // B/D/F/M — Rockefeller Ctr → DeKalb Av (Brooklyn)
+  {id:225, name:'47-50 Sts-Rockefeller Ctr (B,D,F,M)',       lat:40.758663, lon:-73.981329, line:'B/D/F/M'},
+  {id:609, name:'42 St-Bryant Pk/5 Av (7,B,D,F,M)',          lat:40.754022, lon:-73.983266, line:'B/D/F/M'},
+  {id:607, name:'34 St-Herald Sq (B,D,F,M,N,Q,R,W)',         lat:40.749643, lon:-73.987887, line:'B/D/F/M'},
+  {id:231, name:'Grand St (B,D)',                             lat:40.718267, lon:-73.993753, line:'B/D/F/M'},
+  {id:26,  name:'DeKalb Av (B,Q,R)',                         lat:40.690635, lon:-73.981824, line:'B/D/F/M'},
+
+];
+
+// Draw corridor lines (sorted north→south by lat)
+const byLine = {};
+stations.forEach(s => { (byLine[s.line] = byLine[s.line] || []).push(s); });
+Object.entries(byLine).forEach(([line, stops]) => {
+  const sorted = stops.slice().sort((a,b) => b.lat - a.lat);
+  L.polyline(sorted.map(s => [s.lat, s.lon]), {
+    color: COLORS[line], weight: 4, opacity: 0.5
+  }).addTo(map);
+});
+
+// Draw station markers
+stations.forEach(s => {
+  const color  = COLORS[s.line] || '#888';
+  const radius = s.hub ? 10 : 7;
+  const weight = s.hub ? 3 : 2;
+  L.circleMarker([s.lat, s.lon], {
+    radius, color: 'white', weight, fill: true,
+    fillColor: color, fillOpacity: 1.0
+  })
+  .bindTooltip(`<b>${s.name}</b><br>Complex ID: ${s.id}<br>${s.line}`, {sticky: true})
+  .addTo(map);
+});
+
+// Legend
+const legend = L.control({position: 'bottomleft'});
+legend.onAdd = () => {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `<b>MTA Dashboard — Station Corridors</b><br><br>` +
+    Object.entries(COLORS).map(([line, c]) => {
+      const count = stations.filter(s => s.line === line).length;
+      return `<span class="legend-dot" style="background:${c}"></span> ${line} (${count} stations)`;
+    }).join('<br>') +
+    `<br><br><small>Larger circles = major hubs<br>Hover for station details</small>`;
+  return div;
+};
+legend.addTo(map);
+</script>
+</body>
+</html>
