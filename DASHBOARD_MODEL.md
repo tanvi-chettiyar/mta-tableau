@@ -12,7 +12,7 @@ Sheet-by-sheet specs and design decisions for the v2 Tableau dashboard.
 > **The Jersey-to-NYC Transfer of Stress**
 > *How signal & track failures drive delays for NJ commuters · 2024 · Lines 1/2/3 & A/C/E at Penn Station & WTC*
 
-The dashboard answers four questions in sequence:
+The dashboard answers five questions in sequence:
 
 1. **How many people are at risk?** (Journey headline + KPI strip)
 2. **Where does the stress build along the journey?** (Corridor narrative scatter)
@@ -40,6 +40,9 @@ Each section raises the question the next one answers — that's what makes it c
 │ Cause Ladder           │ Sankey — Delay Flow                │
 │ (Gantt bar + dot)      │ (Category → Line Group)            │
 ├────────────────────────┴────────────────────────────────────┤
+│ Monthly Incident Pattern — Quilt (C-1 above C-2)            │
+│  1/2/3 row (red palette) + A/C/E row (purple palette)       │
+├─────────────────────────────────────────────────────────────┤
 │ Incident Timeline (stacked bar) + Ridership (stacked area)  │
 │  Both corridors stacked by Line Group color                  │
 ├────────────────────────┬────────────────────────────────────┤
@@ -128,14 +131,19 @@ Background per tile: `#0f172a`. Text colors listed per tile. All use very large 
 **KPI 2 waffle approach in Tableau:** Use a 12-row scaffold (a separate 12-row hand-built CSV: `month_num, is_incident` where 11 rows = 1 and 1 row = 0) as a Shape mark. Set shape to filled square, color to `#ef4444` for 1, `#1e3a5f` for 0. Arrange 12 cells in a grid with `month_num` on columns. Alternatively, simplify to text-only "11/12" if building time is short.
 
 **Build each KPI as a Text sheet:**
-- Source: `monthly_incidents_delays` (KPI 1, 2, 3) or `service_quality` (KPI 4)
-- Mark type: Text
-- Place the calculated value on the Text card
-- Drag `line_group` to the Filters shelf, select `1/2/3` and `A/C/E` only
+
+| KPI | Data source | Filter |
+|-----|-------------|--------|
+| KPI 1 (Commuters) | `monthly_ridership` | `Complex Id IN (318, 164)`, `Line Group IN ("1/2/3","A/C/E")` |
+| KPI 2 (Incident months) | `monthly_incidents_delays` | `Line Group IN ("1/2/3","A/C/E")`, `Category IN ("Signals","Track")` |
+| KPI 3 (Avg delay) | `monthly_incidents_delays` | `Line Group IN ("1/2/3","A/C/E")`, `Day Type = 1`, `Category IN ("Signals","Track")` |
+| KPI 4 (Signal advantage) | `monthly_incidents_delays` | **No filter** — the `Signal Incident Advantage` calculated field references both line groups internally; filtering would break the comparison |
+
+Mark type: Text. Place the calculated value on the Text card.
 
 ---
 
-## Corridor Narrative — "Stress builds along the trip" (Sheet A)
+## Corridor Narrative — "Stress builds along the trip" (Sheet N)
 
 **Source:** `dim_corridor_complexes.csv` joined to `monthly_ridership.csv` on `complex_id`
 
@@ -175,25 +183,31 @@ Background per tile: `#0f172a`. Text colors listed per tile. All use very large 
 
 **If keeping Sheets 4 + 5 separate:** use old DASHBOARD_MODEL specs below.
 - Sheet 4: sorted horizontal bar (`SUM(incident_count)` on x, `category` on y, same filters)
-- Sheet 5: box plot (`delay_per_incident` on x, `category` on y; mark type Box-and-Whisker; filter `incident_count > 0`)
+- Sheet 5: box plot (`delay_per_incident` on x, `category` on y; Circle marks + Box Plot overlay; filter `Incident Count` Range of Values, min = 1 — Tableau filter, not SQL)
 
 ---
 
-## Monthly Incident Pattern — "Quilt" (Sheet C)
+## Monthly Incident Pattern — "Quilt" (Sheets C-1 + C-2)
 
 **Source:** `monthly_incidents_delays.csv`
 
-**Purpose:** Which months were hit? — corridor-specific pattern visible at a glance. Replaces the line-over-time view when space is tight.
+**Purpose:** Which months were hit? — corridor-specific pattern visible at a glance. Two sheets stacked because Tableau only allows one sequential palette per measure per sheet.
 
-**Build (Highlight Table):**
+**Sheet C-1 (1/2/3 corridor):**
+- Mark type: Square (highlight table)
 - Columns: `MONTH([month])` — discrete, Jan–Dec
-- Rows: `[line_group]` — discrete (1/2/3 on top, A/C/E below)
-- Color: `SUM([incident_count])` with sequential palette (`#fef2f2` → `#ef4444` for 1/2/3, `#f5f3ff` → `#7c3aed` for A/C/E)
-- Mark type: Square
-- Filter: `line_group IN ("1/2/3","A/C/E")` and `category IN ("Signals","Track")`
+- Rows: `Line Group` — discrete
+- Color: `SUM([Signal+Track Incidents])` → Custom Sequential palette `#fee2e2` → `#ef4444`
+- Filter: `Line Group = "1/2/3"`, `Category IN ("Signals","Track")`
+- Hide column headers (will appear on C-2 below)
 
-**Alternative — full time series (Sheets 2 + 3):**
-Keep the original small-multiples approach (incidents as bars, ridership as areas) when dashboard height permits. See render_9 section 6.
+**Sheet C-2 (A/C/E corridor):**
+- Same structure as C-1
+- Filter: `Line Group = "A/C/E"`
+- Color palette: `#f5f3ff` → `#7c3aed`
+- Keep column headers (months) on this sheet
+
+**Dashboard assembly:** stack C-1 directly above C-2 in a vertical container with 0px gap so they read as one chart. Per-corridor palettes need separate sheets — this is a Tableau limitation, not a design choice.
 
 ---
 

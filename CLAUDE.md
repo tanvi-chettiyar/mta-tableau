@@ -113,7 +113,7 @@ KPI tiles on Sheet 1 use Tableau calculated fields on `monthly_incidents_delays.
 | Complex ID | Name | Lines | Role |
 |-----------|------|-------|------|
 | **318** | 34 St-Penn Station | 1, 2, 3 | Penn red corridor |
-| **164** | 34 St-Penn Station | A, C, E | Penn blue corridor |
+| **164** | 34 St-Penn Station | A, C, E | Penn purple corridor |
 | **328** | Fulton St | 2, 3, 4, 5, A, C, J, Z | WTC-area hub |
 | **624** | Chambers St-WTC / Park Pl / Cortlandt | A, C, E, 2, 3, R, W | WTC complex |
 
@@ -141,9 +141,11 @@ Full join gap analysis: bottom of `postgres/2_schema.sql`.
 
 ---
 
-## Dashboard (8 sheets)
+## Dashboard sheets (~14 Tableau sheets across 9 dashboard sections)
 
 Canonical layout: `sample_dashboards/render_9_synthesis.html`. Sheet-by-sheet specs: `DASHBOARD_MODEL.md`. Step-by-step Tableau build instructions: `TABLEAU_BUILD_GUIDE.md`.
+
+The numbered rows below are dashboard sections; KPI strip is 4 sheets, Quilt is 2 sheets (C-1/C-2). Lettered rows (N, C, San) are additional charts placed alongside the numbered sections.
 
 | # | Sheet | Chart |
 |---|-------|-------|
@@ -166,5 +168,7 @@ Canonical layout: `sample_dashboards/render_9_synthesis.html`. Sheet-by-sheet sp
 - The 2024 time filter lives in `3_transform.sql` only — facts are filtered at staging→fact step.
 - Comma-formatted numbers (`"17,864"`) and percent strings (`"78.91%"`) are stripped/cast in `transform.sql`, never in Tableau.
 - Three source date formats (`YYYY-MM-DD`, `MM/DD/YYYY`, `YYYY-MM-DDThh:mm:ss`) all normalize to ISO `DATE`/`TIMESTAMP` in fact tables.
-- `line_group` derived in `transform.sql`: `'1/2/3'` for routes 1,2,3; `'A/C/E'` for A,C,E; `'Other'` otherwise. Exports filter to non-Other.
-- Color system: red `#ef4444` = 1/2/3 corridor + Signal/Track incidents; purple `#a78bfa` = A/C/E corridor + ridership; background `#ffffff`.
+- `line_group` is derived in `4_export.sql` (not `3_transform.sql`) per export. **Two definitions in use:**
+  - **Route-based** (`monthly_incidents_delays`, `service_quality`, `dim_corridor_complexes`): `'1/2/3'` for routes 1,2,3; `'A/C/E'` for A,C,E; `'Other'` otherwise. The WHERE clause keeps only Penn corridor routes.
+  - **Complex-based** (`monthly_ridership`, `hourly_ridership_corridor`): four corridors — `'1/2/3'`, `'A/C/E'`, `'4/5/6'`, `'B/D/F/M'` — derived from `complex_id`. The corridor was expanded to 35 stations across Manhattan + immediate Brooklyn for richer ridership context.
+- Color system: red `#ef4444` = 1/2/3 corridor + Signal/Track incidents; purple `#a78bfa` = A/C/E corridor + ridership; background `#faf8f4` (warm off-white per dashboard).

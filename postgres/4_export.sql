@@ -1,7 +1,7 @@
 -- =============================================================
 -- export.sql — star schema → wide CSVs in C:\temp\exports\
 -- Run from repo root: psql mta -f postgres/export.sql
--- Produces 6 CSVs that the Tableau workbook joins via relationships.
+-- Produces 5 CSVs that the Tableau workbook joins via relationships.
 -- =============================================================
 
 -- ----------------------------------------------------------------

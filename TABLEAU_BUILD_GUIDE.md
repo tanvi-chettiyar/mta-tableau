@@ -609,6 +609,7 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 | Full width, 4 cols | KPI 1 · KPI 2 · KPI 3 · KPI 4 | Horizontal container, 4 sheets |
 | Full width | Corridor Narrative (Sheet N) | Tiled, fixed height 220px |
 | Half + half | Cause Ladder (Sheet B) · Sankey — Flow by corridor (Sheet San) | Horizontal container |
+| Full width | Monthly Quilt (Sheet C-1 above C-2, 0px gap) | Vertical container |
 | Full width | Incidents (Sheet 2) · Ridership (Sheet 3) | Vertical container |
 | Half + half | Reliability (Sheet D) · Box Plot (Sheet E) | Horizontal container |
 | Half + half | Map (Sheet F) · Heatmap (Sheet G) | Horizontal container |
