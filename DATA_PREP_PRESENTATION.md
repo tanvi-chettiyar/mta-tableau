@@ -1,8 +1,16 @@
 # MTA "Transfer of Stress" — Data Preparation Walkthrough
 
-**Project:** Tableau dashboard for The Data School application  
-**Question:** When Signal or Track incidents hit lines serving Penn Station, how many thousands of commuters were exposed?  
+**Project:** Tableau dashboard for The Data School application
+**Question:** When Signal or Track incidents hit lines serving Penn Station, how many thousands of commuters were exposed?
 **Prepared:** April 2026
+
+> ⚠ **Historical artifact.** This slide deck documents the *data preparation work* for the v1 walkthrough presentation (April 2026). The data prep approach described here (bridge table, line→complex join, three-way overlap) is still the active pipeline. **The dashboard narrative has since pivoted twice:**
+>
+> - **v2** (post-April 2026): Penn + WTC corridor narrative — see archived spec in `DASHBOARD_MODEL.md` § "What changed from v2 → v3" and `sample_dashboards/render_9_synthesis.html`.
+> - **v3** (current, primary): "Inside Penn — Two Platforms, Two Reliability Stories" — see `CLAUDE.md`, `DASHBOARD_MODEL.md`, `TABLEAU_BUILD_GUIDE.md`, `sample_dashboards/render_11_option3_platforms.html`.
+> - **v3 backup:** "What It Costs to Enter NYC Through Penn Station" — `sample_dashboards/render_10_option2_cost.html`.
+>
+> Slide 14 of this deck describes the v1 dashboard layout/KPIs and is preserved for the historical record. For current dashboard guidance, treat the docs above as the source of truth.
 
 ---
 
@@ -742,29 +750,41 @@ WHERE EXTRACT(YEAR FROM month::DATE) = 2024
 
 ---
 
-## Slide 21 — Severity proxy: an honest assumption
+## Slide 21 — KPI 3: from broken proxy to honest count
 
-The dashboard's "18 min avg delay per incident" KPI deserves a footnote.
+The dashboard *originally* shipped a "~18 min avg delay per incident" KPI. We dropped it
+and reframed KPI 3 as an absolute count — `99` Signal/Track major outages on the corridor
+(2024, weekday). Here's why.
 
-**The source data has no column for delay duration in minutes.** What the data has:
-- `fact_major_incidents.incident_count` — number of incidents per (month, line, day_type, category)
-- `fact_delay_causing_incidents.delay_count` — number of trains delayed per (month, line, day_type, reporting_category)
+**What I thought the data had:**
+- `fact_delay_causing_incidents.delay_count` = number of trains delayed
 
-The proxy:
+**What the data actually has:**
+- `delay_count` is loaded from `MTA_Subway_Delay-Causing_Incidents.csv` `Incidents` column —
+  it's the count of delay-causing **incidents**, not the count of trains delayed. The
+  trains-delayed dataset (`MTA_Subway_Trains_Delayed`) is on disk but never loaded.
 
-```
-delay_per_incident_minutes = (delay_count / incident_count) × 3-min avg train headway
-```
+**Plus a structural bug in the export.** `monthly_incidents_delays.csv` is built from a
+`LEFT JOIN` between `fact_major_incidents` (per `category`) and `fact_delay_causing_incidents`
+(per `reporting_category`) on `(month, line, day_type)` only. The two facts use different
+category systems, so each (m,l,d) becomes a Cartesian product — `incident_count` repeats
+M times, `delay_count` repeats N times. A row-level ratio averages noise.
 
-The first term is honest — it's "trains delayed per incident," a count ratio. The
-×3 step assumes one delayed train ≈ 3 minutes of cascade impact based on the average
-midday subway headway. Documented in the dashboard footnote and `DASHBOARD_MODEL.md`.
+The original `~18 min` figure happened to fall out of `AVG([delay_count] / [incident_count]) × 3`
+on the duplicated rows. Once I deduplicated with FIXED LODs (`Real Inc`, `Real Delay`) and
+divided correctly, the corridor-weekday ratio came out at **136 secondary delay-causing
+incidents per Signal/Track major incident** — which has no minutes interpretation at all.
 
-If the reviewer pushes back on the assumption, the fallback is to relabel the KPI as
-**"trains delayed per incident"** (no minutes) — same chart, different y-axis label.
+**The fix:** drop the minutes framing. KPI 3 is now `99` — the count of major Signal/Track
+outages, no proxy. The story is unambiguous and the math defends itself.
 
-The Sheet 5 box plot uses the count ratio directly, no scaling, so its severity
-ranking is robust to the headway assumption.
+**What survived:** the box plot (Sheet E) still uses a deduplicated severity ratio per
+month per category, but as a relative shape — Signals' tail is longest, regardless of
+the units. The thesis (*Signals hit hardest*) doesn't depend on a minute conversion.
+
+**What I'd build differently next time:** load `MTA_Subway_Trains_Delayed.csv` first,
+re-derive a real "trains delayed per incident × headway" minute proxy on a clean grain,
+and only then put a "minutes" KPI on the strip.
 
 ---
 

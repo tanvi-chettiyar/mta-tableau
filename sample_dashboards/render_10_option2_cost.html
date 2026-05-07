@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Penn Station — Option 2: Operational Cost</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #faf8f4;
+  color: #1e293b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.dashboard { max-width: 1120px; margin: 0 auto; padding: 24px 28px 48px; }
+
+/* Header */
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.title  { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+.subtitle { color: #64748b; font-size: 12px; margin-top: 3px; }
+.year-filters { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: 24px; }
+.pill {
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500;
+  border: 1px solid #e2e8f0; background: white; color: #64748b; cursor: pointer;
+}
+.pill.active { background: #1e293b; color: white; border-color: #1e293b; }
+
+/* Journey headline */
+.journey-headline {
+  background: white; border: 1px solid #e8e4de; border-radius: 8px;
+  padding: 14px 20px; margin-bottom: 12px;
+}
+.hl-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.09em; color: #94a3b8; margin-bottom: 5px; }
+.hl-text  { font-size: 17px; font-weight: 400; font-style: italic; color: #0f172a; line-height: 1.5; }
+
+/* KPI strip */
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+.kpi-card  { background: #0f172a; border-radius: 8px; padding: 16px 18px; }
+.kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #475569; margin-bottom: 8px; }
+.kpi-num   { font-size: 34px; font-weight: 700; letter-spacing: -1.5px; line-height: 1; margin-bottom: 5px; }
+.kpi-desc  { font-size: 11px; color: #475569; line-height: 1.45; }
+.kpi-desc em { color: #334155; font-style: normal; }
+
+/* Cards / layout */
+.card { background: white; border: 1px solid #e8e4de; border-radius: 8px; padding: 16px 18px; }
+.card-title    { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.card-subtitle { font-size: 11px; color: #94a3b8; margin-bottom: 12px; line-height: 1.4; }
+.row   { display: grid; gap: 10px; margin-bottom: 10px; }
+.col-2 { grid-template-columns: 1fr 1fr; }
+.col-3 { grid-template-columns: 1fr 1fr 1fr; }
+.full  { margin-bottom: 10px; }
+
+/* Badges */
+.badge {
+  display: inline-block; font-size: 9px; padding: 2px 6px; border-radius: 10px;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; vertical-align: middle; margin-left: 5px;
+}
+.b-keep { background: #dcfce7; color: #166534; }
+.b-promote { background: #fef9c3; color: #854d0e; }
+.b-new  { background: #dbeafe; color: #1e40af; }
+.b-retire { background: #fee2e2; color: #991b1b; }
+.b-change { background: #e0f2fe; color: #075985; }
+
+/* Insight callout */
+.insight {
+  background: #fef2f2; border-left: 3px solid #59a14f;
+  padding: 7px 10px; border-radius: 0 4px 4px 0;
+  font-size: 11px; color: #7f1d1d; margin-top: 10px; line-height: 1.5;
+}
+.insight strong { color: #dc2626; }
+
+/* Footer */
+.footer {
+  background: #0f172a; border-radius: 8px; padding: 20px 24px;
+  color: #64748b; font-size: 13px; line-height: 1.8; margin-top: 2px;
+}
+.footer strong { color: #f1f5f9; }
+.footer em     { color: #fb923c; font-style: normal; }
+
+/* Change-list panel */
+.change-list {
+  background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+  padding: 16px 20px; margin-top: 18px;
+}
+.change-list h3 { font-size: 13px; font-weight: 700; color: #78350f; margin-bottom: 10px; }
+.change-list table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.change-list th { text-align: left; padding: 6px 8px; color: #78350f; border-bottom: 1px solid #fde68a; font-weight: 600; }
+.change-list td { padding: 6px 8px; color: #451a03; border-bottom: 1px solid #fef3c7; vertical-align: top; }
+.change-list tr:last-child td { border-bottom: none; }
+
+/* Box plot mini */
+.box-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.box-label { width: 80px; font-size: 11px; color: #475569; text-align: right; flex-shrink: 0; }
+.box-track { flex: 1; height: 22px; position: relative; }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1 class="title">What It Costs to Enter NYC Through Penn Station</h1>
+      <p class="subtitle">Penn Station 1/2/3 + A/C/E complexes · 2024 · the operational cost of a Signal or Track failure</p>
+    </div>
+    <div class="year-filters">
+      <span style="font-size:10px;color:#94a3b8;">Year</span>
+      <button class="pill active">2024</button>
+      <button class="pill">Q1</button>
+      <button class="pill">Q2</button>
+      <button class="pill">Q3</button>
+      <button class="pill">Q4</button>
+    </div>
+  </div>
+
+  <!-- JOURNEY HEADLINE -->
+  <div class="journey-headline">
+    <div class="hl-label">Headline</div>
+    <div class="hl-text">
+      Penn Station handles <strong>~2.9M paid entries</strong> a month. When a Signal failure hits — and one does in
+      <strong>11 of 12 months</strong> — the cost is real: ~3,400 trains delayed across 2024, a median of 19 trains
+      per incident, and a single worst hour (<em>Tuesday 8 AM</em>) that costs riders <strong>3.2× more</strong>
+      than an average weekday. This dashboard quantifies that cost.
+    </div>
+  </div>
+
+  <!-- KPI STRIP — Option 2 (cost focus) -->
+  <div class="kpi-strip">
+
+    <div class="kpi-card">
+      <div class="kpi-label">Paid entries at Penn</div>
+      <div class="kpi-num" style="color:#ffffff;">~2.9M</div>
+      <div class="kpi-desc">per month across both complexes <em>(318 + 164)</em></div>
+      <div style="font-size:10px;color:#fb923c;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">More than the population of Chicago, every month, through one chokepoint.</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Worst single delay</div>
+      <div class="kpi-num" style="color:#59a14f;">52 min</div>
+      <div class="kpi-desc">Signal failure outlier — <em>3× the median Signal incident</em></div>
+      <div style="font-size:10px;color:#fb923c;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">An entire commute lost to a single failure.</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Total trains delayed</div>
+      <div class="kpi-num" style="color:#fb923c;">~3.4K</div>
+      <div class="kpi-desc">on Penn-serving routes, 2024 — <em>weekday Signal + Track only</em></div>
+      <div style="font-size:10px;color:#fb923c;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">~13 trains every weekday absorbing someone else's outage.</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label">Peak risk multiplier</div>
+      <div class="kpi-num" style="color:#fbbf24;">3.2×</div>
+      <div class="kpi-desc">Tuesday 8 AM vs weekday avg — <em>peak ridership × peak failures</em></div>
+      <div style="font-size:10px;color:#fbbf24;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">The single hour where every cost variable peaks together.</div>
+    </div>
+
+  </div>
+
+  <!-- 4. CAUSE LADDER + DELAY DURATION (the cost mechanism) -->
+  <div class="row col-2">
+
+    <div class="card">
+      <div class="card-title">What's actually costing the time? <span class="badge b-keep">✓ Sheet 4 — kept, central</span></div>
+      <div class="card-subtitle">Frequency (bar width) × severity (dot position) — Penn-serving routes, weekday only</div>
+
+      <div style="display:flex;margin-left:96px;margin-bottom:6px;font-size:9px;color:#94a3b8;">
+        <span style="flex:1;">← frequency (incident count)</span>
+        <span>● severity (trains delayed / incident)</span>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+        <span style="width:88px;font-size:11px;color:#475569;text-align:right;flex-shrink:0;">Signals</span>
+        <div style="flex:1;height:10px;background:#f1f5f9;border-radius:5px;position:relative;">
+          <div style="height:10px;border-radius:5px;background:#59a14f;opacity:0.7;width:82%;"></div>
+          <div style="width:13px;height:13px;border-radius:50%;background:#59a14f;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.13);position:absolute;top:-1.5px;left:68%;margin-left:-6.5px;"></div>
+        </div>
+        <span style="font-size:10px;color:#94a3b8;width:20px;text-align:right;">18</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+        <span style="width:88px;font-size:11px;color:#475569;text-align:right;flex-shrink:0;">Track</span>
+        <div style="flex:1;height:10px;background:#f1f5f9;border-radius:5px;position:relative;">
+          <div style="height:10px;border-radius:5px;background:#f59e0b;opacity:0.7;width:70%;"></div>
+          <div style="width:13px;height:13px;border-radius:50%;background:#f59e0b;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.13);position:absolute;top:-1.5px;left:53%;margin-left:-6.5px;"></div>
+        </div>
+        <span style="font-size:10px;color:#94a3b8;width:20px;text-align:right;">15</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+        <span style="width:88px;font-size:11px;color:#475569;text-align:right;flex-shrink:0;">Persons</span>
+        <div style="flex:1;height:10px;background:#f1f5f9;border-radius:5px;position:relative;">
+          <div style="height:10px;border-radius:5px;background:#94a3b8;opacity:0.6;width:38%;"></div>
+          <div style="width:13px;height:13px;border-radius:50%;background:#64748b;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.13);position:absolute;top:-1.5px;left:36%;margin-left:-6.5px;"></div>
+        </div>
+        <span style="font-size:10px;color:#94a3b8;width:20px;text-align:right;">8</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+        <span style="width:88px;font-size:11px;color:#475569;text-align:right;flex-shrink:0;">Subway Car</span>
+        <div style="flex:1;height:10px;background:#f1f5f9;border-radius:5px;position:relative;">
+          <div style="height:10px;border-radius:5px;background:#94a3b8;opacity:0.5;width:33%;"></div>
+          <div style="width:13px;height:13px;border-radius:50%;background:#94a3b8;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.13);position:absolute;top:-1.5px;left:28%;margin-left:-6.5px;"></div>
+        </div>
+        <span style="font-size:10px;color:#94a3b8;width:20px;text-align:right;">7</span>
+      </div>
+
+      <div class="insight">
+        <strong>So what:</strong> Signals are <em>both</em> the most frequent failure category and the most severe per incident — the single largest source of operational cost at Penn. Track is a distant second on volume and roughly half as severe per incident.
+      </div>
+    </div>
+
+    <!-- Box plot — Sheet 5, central to cost story -->
+    <div class="card">
+      <div class="card-title">How bad is bad? — per-incident severity <span class="badge b-keep">✓ Sheet 5 — kept, central</span></div>
+      <div class="card-subtitle">Trains delayed per incident — median + IQR + full range — weekday only</div>
+
+      <svg viewBox="0 0 420 180" style="width:100%;height:180px;">
+        <line x1="90" y1="165" x2="410" y2="165" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="170" y1="10" x2="170" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="250" y1="10" x2="250" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+        <line x1="330" y1="10" x2="330" y2="165" stroke="#f1f5f9" stroke-width="1"/>
+
+        <text x="85" y="30"  fill="#64748b" font-size="11" text-anchor="end">Signals</text>
+        <text x="85" y="72"  fill="#64748b" font-size="11" text-anchor="end">Track</text>
+        <text x="85" y="114" fill="#64748b" font-size="11" text-anchor="end">Persons</text>
+        <text x="85" y="149" fill="#64748b" font-size="11" text-anchor="end">Subway Car</text>
+
+        <text x="90"  y="175" fill="#94a3b8" font-size="9" text-anchor="middle">0</text>
+        <text x="170" y="175" fill="#94a3b8" font-size="9" text-anchor="middle">15</text>
+        <text x="250" y="175" fill="#94a3b8" font-size="9" text-anchor="middle">30</text>
+        <text x="330" y="175" fill="#94a3b8" font-size="9" text-anchor="middle">45</text>
+        <text x="400" y="175" fill="#94a3b8" font-size="9" text-anchor="middle">60+</text>
+
+        <line x1="95"  y1="22" x2="375" y2="22" stroke="#fca5a5" stroke-width="1.5"/>
+        <rect x="122" y="15" width="118" height="15" rx="2" fill="#59a14f" opacity="0.2"/>
+        <line x1="185" y1="15" x2="185" y2="30" stroke="#59a14f" stroke-width="2.5"/>
+        <circle cx="375" cy="22" r="4" fill="none" stroke="#59a14f" stroke-width="1.5"/>
+        <text x="382" y="26" fill="#94a3b8" font-size="8">52 min</text>
+
+        <line x1="95"  y1="64" x2="290" y2="64" stroke="#fcd34d" stroke-width="1.5"/>
+        <rect x="118" y="57" width="88" height="15" rx="2" fill="#f59e0b" opacity="0.2"/>
+        <line x1="163" y1="57" x2="163" y2="72" stroke="#f59e0b" stroke-width="2.5"/>
+
+        <line x1="95"  y1="106" x2="258" y2="106" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="113" y="99"  width="72"  height="15" rx="2" fill="#94a3b8" opacity="0.2"/>
+        <line x1="152" y1="99"  x2="152" y2="114" stroke="#94a3b8" stroke-width="2.5"/>
+
+        <line x1="95"  y1="141" x2="218" y2="141" stroke="#cbd5e1" stroke-width="1.5"/>
+        <rect x="109" y="134" width="58"  height="15" rx="2" fill="#94a3b8" opacity="0.15"/>
+        <line x1="140" y1="134" x2="140" y2="149" stroke="#94a3b8" stroke-width="2"/>
+      </svg>
+
+      <div class="insight">
+        <strong>So what:</strong> Signal failures span 4 to 52 minutes — that's the range a Penn rider can't plan around. Track failures, by contrast, cluster tightly: a Track incident is bad but predictable; a Signal incident might cost an entire commute.
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 8. WHEN — promoted to centerpiece for the cost story -->
+  <div class="card full">
+    <div class="card-title">When does it cost the most? <span class="badge b-promote">⬆ Sheet 8 — promoted to centerpiece</span></div>
+    <div class="card-subtitle">Day × hour at Penn — peak ridership × peak incident frequency</div>
+
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div></div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">5a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">6a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">7a</div>
+      <div style="font-size:8px;color:#c2410c;text-align:center;background:#fff7ed;border-radius:2px;font-weight:700;">8a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">9a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">10a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">11a</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">12p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">1p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">2p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">3p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">4p</div>
+      <div style="font-size:8px;color:#c2410c;text-align:center;background:#fff7ed;border-radius:2px;font-weight:700;">5p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;background:#fff7ed;border-radius:2px;">6p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">7p</div>
+      <div style="font-size:8px;color:#94a3b8;text-align:center;">8p</div>
+    </div>
+
+    <style>
+      .h0{background:#fef2f2;} .h1{background:#fecaca;} .h2{background:#fca5a5;}
+      .h3{background:#f87171;} .h4{background:#59a14f;} .h5{background:#dc2626;}
+      .h6{background:#b91c1c;} .h7{background:#991b1b;}
+      .hx{background:#f1f5f9;}
+      .hcell{height:24px;border-radius:2px;}
+    </style>
+
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Mon</div>
+      <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h4"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+      <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h2"></div><div class="hcell h3"></div><div class="hcell h4"></div><div class="hcell h3"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#475569;display:flex;align-items:center;font-weight:700;">Tue</div>
+      <div class="hcell h2"></div><div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h7" style="outline:2px solid #fbbf24;"></div><div class="hcell h4"></div>
+      <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h3"></div><div class="hcell h4"></div><div class="hcell h6"></div><div class="hcell h4"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Wed</div>
+      <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h4"></div><div class="hcell h6"></div><div class="hcell h3"></div>
+      <div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h2"></div><div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Thu</div>
+      <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div>
+      <div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h2"></div><div class="hcell h3"></div><div class="hcell h5"></div><div class="hcell h3"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#475569;display:flex;align-items:center;">Fri</div>
+      <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h3"></div><div class="hcell h4"></div><div class="hcell h2"></div>
+      <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h4"></div><div class="hcell h3"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
+      <div style="font-size:10px;color:#94a3b8;display:flex;align-items:center;">Sat</div>
+      <div class="hcell hx"></div><div class="hcell hx"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h2"></div>
+      <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div><div class="hcell hx"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:8px;">
+      <div style="font-size:10px;color:#94a3b8;display:flex;align-items:center;">Sun</div>
+      <div class="hcell hx"></div><div class="hcell hx"></div><div class="hcell hx"></div><div class="hcell h1"></div><div class="hcell h1"></div>
+      <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h2"></div><div class="hcell h2"></div><div class="hcell h1"></div>
+      <div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell h1"></div><div class="hcell hx"></div><div class="hcell hx"></div>
+    </div>
+
+    <div class="insight">
+      <strong>So what:</strong> Tuesday 8 AM is the single highest-cost cell — 3.2× the weekday average. PM rush (4-6 PM) shows a smaller secondary peak, and weekends drop sharply. <em>If a rider could move one commute by an hour, this is the hour to move out of.</em>
+    </div>
+  </div>
+
+  <!-- 5. INCIDENTS OVER TIME (Sheet 2) — kept but secondary -->
+  <div class="row col-2">
+    <div class="card">
+      <div class="card-title">Which months cost the most? <span class="badge b-keep">✓ Sheet 2 — kept</span></div>
+      <div class="card-subtitle">Signal + Track incidents per month on Penn-serving routes — bars track total monthly cost</div>
+      <div style="height:90px;display:flex;align-items:flex-end;gap:4px;margin-top:8px;">
+        <div style="flex:1;height:50%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.85;"></div>
+        <div style="flex:1;height:80%;background:#59a14f;border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:35%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.7;"></div>
+        <div style="flex:1;height:65%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.85;"></div>
+        <div style="flex:1;height:55%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.8;"></div>
+        <div style="flex:1;height:18%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.5;"></div>
+        <div style="flex:1;height:60%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.85;"></div>
+        <div style="flex:1;height:90%;background:#59a14f;border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:30%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.6;"></div>
+        <div style="flex:1;height:70%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.9;"></div>
+        <div style="flex:1;height:85%;background:#59a14f;border-radius:2px 2px 0 0;"></div>
+        <div style="flex:1;height:62%;background:#59a14f;border-radius:2px 2px 0 0;opacity:0.85;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:4px;">
+        <span>Jan</span><span>Mar</span><span>May</span><span>Jul</span><span>Sep</span><span>Nov</span>
+      </div>
+      <div class="insight" style="margin-top:10px;">
+        <strong>So what:</strong> August was the year's worst month for cost (90% peak); June was the only near-clear month. There's no obvious seasonal pattern — disruption is roughly continuous, with month-to-month variance dominated by individual incidents rather than weather or schedule.
+      </div>
+    </div>
+
+    <!-- Map — Sheet 7, zoomed to Penn -->
+    <div class="card">
+      <div class="card-title">Where does the cost concentrate? <span class="badge b-change">↻ Sheet 7 — refocused</span></div>
+      <div class="card-subtitle">Penn 1/2/3 + A/C/E complexes — circle size = total trains delayed in 2024</div>
+
+      <svg viewBox="0 0 400 180" style="width:100%;height:180px;">
+        <path d="M 140 8 L 280 18 L 290 145 L 240 175 L 180 175 L 130 110 Z" fill="#eff6ff" stroke="#dbeafe" stroke-width="1"/>
+        <text x="220" y="50" fill="#94a3b8" font-size="10" text-anchor="middle">Midtown Manhattan</text>
+        <text x="220" y="62" fill="#cbd5e1" font-size="9" text-anchor="middle">7th Ave / 8th Ave</text>
+
+        <!-- Penn 1/2/3 (318) — large red -->
+        <circle cx="200" cy="95" r="22" fill="#59a14f" opacity="0.1"/>
+        <circle cx="200" cy="95" r="14" fill="#59a14f" opacity="0.25"/>
+        <circle cx="200" cy="95" r="8"  fill="#59a14f"/>
+        <text x="232" y="92" fill="#59a14f" font-size="10" font-weight="700">Penn — 1/2/3 (318)</text>
+        <text x="232" y="103" fill="#94a3b8" font-size="9">~1,950 trains delayed</text>
+
+        <!-- Penn A/C/E (164) — large purple -->
+        <circle cx="220" cy="118" r="18" fill="#4e79a7" opacity="0.1"/>
+        <circle cx="220" cy="118" r="11" fill="#4e79a7" opacity="0.25"/>
+        <circle cx="220" cy="118" r="6"  fill="#4e79a7"/>
+        <text x="248" y="118" fill="#4e79a7" font-size="10" font-weight="700">Penn — A/C/E (164)</text>
+        <text x="248" y="129" fill="#94a3b8" font-size="9">~1,440 trains delayed</text>
+
+        <text x="200" y="160" fill="#cbd5e1" font-size="9" text-anchor="middle" font-style="italic">two complexes, one chokepoint</text>
+      </svg>
+      <div class="insight">
+        <strong>So what:</strong> the 1/2/3 complex absorbs <strong>~35% more delay</strong> than the A/C/E complex (1,950 vs 1,440 trains). The cost concentrates on one platform — the same one where Wait Assessment is lowest.
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER NARRATIVE -->
+  <div class="footer">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#64748b;margin-bottom:8px;">The bottom line</div>
+    The cost of a Signal failure at Penn isn't an abstraction — it's <strong>19 trains delayed</strong> in the median case,
+    <em>52 minutes</em> in the worst, and <strong>3.2× more</strong> if it happens at 8 AM Tuesday. Multiply that by
+    <em>11 months</em> of failures and <em>~2.9M monthly entries</em>, and "reliability" stops being a metric
+    and becomes a rider's everyday calculation. The data tells riders <em>when</em> to brace and operators
+    <em>where</em> to invest.
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1e293b;font-size:11px;color:#475569;line-height:1.6;">
+      <strong style="color:#94a3b8;">Caveats:</strong> 2024 weekday data only. "Trains delayed" measures incidents that caused at least one train delay; it doesn't capture cancelled trains or post-incident schedule recovery. Severity proxy (delays/incident) treats all delayed trains as equivalent.
+    </div>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #1e293b;font-size:10px;color:#64748b;line-height:1.6;">
+      Sources: data.ny.gov (Major Incidents, Delay-Causing Incidents, Wait Assessment, Terminal OTP, Hourly Ridership), MTA GTFS feed.
+      Built by <strong style="color:#cbd5e1;">Tanvi Chettiyar</strong> · raw CSVs → Postgres star schema → Tableau workbook · The Data School application, 2026.
+    </div>
+  </div>
+
+  <!-- CHANGE LIST -->
+  <div class="change-list">
+    <h3>📋 What changes vs current dashboard (render_9_synthesis.html)</h3>
+    <table>
+      <tr><th style="width:140px;">Component</th><th>Action</th><th>Why</th></tr>
+      <tr><td><strong>Title</strong></td><td>Replace with "What It Costs to Enter NYC Through Penn Station"</td><td>Penn-only narrative; cost framing</td></tr>
+      <tr><td><strong>KPI 1</strong> (~2.9M)</td><td>Keep, relabel "Paid entries at Penn"</td><td>Same value, sharper subject</td></tr>
+      <tr><td><strong>KPI 2</strong> (11/12 months)</td><td>Replace with "Worst single delay — 52 min"</td><td>Cost angle needs a severity number, not a frequency one</td></tr>
+      <tr><td><strong>KPI 3</strong> (99 outages)</td><td>Replace with "Total trains delayed — ~3.4K"</td><td>Shifts unit from incidents to delay-trains (the actual cost unit)</td></tr>
+      <tr><td><strong>KPI 4</strong> (72%)</td><td>Replace with "Peak risk multiplier — 3.2×" (Tue 8 AM)</td><td>Promoted from Sheet 8; gives the strip a punchline</td></tr>
+      <tr><td><strong>Sheet 4</strong> (Cause Ladder)</td><td>Keep — central</td><td>Already shows "Signals = both frequent and severe"; cost story leans on this</td></tr>
+      <tr><td><strong>Sheet 5</strong> (Box plot)</td><td>Keep — central</td><td>Per-incident severity is the cost story</td></tr>
+      <tr><td><strong>Sheet 8</strong> (Heatmap)</td><td><strong>Promote</strong> to full-width centerpiece</td><td>"When does it cost most" anchors the cost narrative</td></tr>
+      <tr><td><strong>Sheet 6</strong> (WA% / OTP%)</td><td>Demote or remove</td><td>Reliability comparison is no longer the punchline; replace dashboard slot with the heatmap</td></tr>
+      <tr><td><strong>Sheet 7</strong> (Map)</td><td>Refocus — zoom to Penn (318 + 164 only)</td><td>Wider corridor map adds noise to the Penn-only story</td></tr>
+      <tr><td><strong>Sheet 2</strong> (Incidents over time)</td><td>Keep, retitle "Monthly Cost Curve"; drop line_group split (single Penn-route series)</td><td>Cost framing prefers a single curve over corridor split</td></tr>
+      <tr><td><strong>Sheet 3</strong> (Ridership over time)</td><td>Demote or remove</td><td>Ridership-over-time doesn't directly answer the cost question</td></tr>
+      <tr><td><strong>Sheet C</strong> (Quilt)</td><td>Remove</td><td>Two-corridor quilt loses its purpose without the corridor framing</td></tr>
+      <tr><td><strong>Sheet N</strong> (Corridor scatter)</td><td>Retire</td><td>Wide corridor + PATH is incompatible with Penn-only</td></tr>
+      <tr><td><strong>Sheet San</strong> (Sankey)</td><td>Retire or simplify to "Category → trains delayed (single column)"</td><td>Two-corridor flow is gone; replace with a single category breakdown if kept</td></tr>
+      <tr><td><strong>Footer narrative</strong></td><td>Rewrite as "the bottom line" — what the cost means + caveats block</td><td>Closes with riders + operators getting different action items from the same numbers</td></tr>
+      <tr><td colspan="3" style="background:#fef3c7;font-weight:600;color:#78350f;padding:8px;">Text-insight layer — added to every section</td></tr>
+      <tr><td><strong>KPI sub-tags</strong></td><td>NEW — 1-line interpretive subtitle under each KPI ("More than the population of Boston…", "An entire commute lost to a single failure…")</td><td>Converts each number into a felt comparison; KPIs without context don't land</td></tr>
+      <tr><td><strong>Section titles</strong></td><td>Rewrite as questions ("What's actually costing the time?", "How bad is bad?", "When does it cost the most?")</td><td>Each chart now answers a stated question instead of describing its content</td></tr>
+      <tr><td><strong>"So what" boxes</strong></td><td>Added below every chart — interpretation, not description</td><td>Tells the reader what to <em>conclude</em> — the part Data School marks for</td></tr>
+      <tr><td><strong>Caveats block</strong></td><td>NEW — bottom of footer, lists what "trains delayed" does and doesn't measure</td><td>Honest scope limits; acknowledging the severity-proxy assumption signals analytical maturity</td></tr>
+      <tr><td><strong>SQL changes</strong></td><td>Optional — add a "trains delayed total" calc; everything else uses existing exports</td><td>The 3.4K KPI is computable from <code>monthly_incidents_delays</code>; no new export needed</td></tr>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

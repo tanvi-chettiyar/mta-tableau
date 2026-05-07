@@ -242,3 +242,7 @@ datasets/*.txt
 
 # Session memory — not for version control
 .claude/
+
+# Images on error/dashboard renders to feed claude context; not for version control
+errors/*
+dashboard_renders/*
