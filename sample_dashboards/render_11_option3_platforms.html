@@ -220,13 +220,12 @@ body {
     </div>
   </div>
 
-  <!-- 2. INCIDENTS + RIDERSHIP — Sheets 2 + 3, kept central, both split by platform -->
+  <!-- 2. INCIDENTS + WA% OVER TIME — Sheets 2 + 3 (Sheet 3 rebuilt 2026-05-22; was ridership area) -->
   <div class="card full">
-    <div class="card-title">Is the gap real, or just an average that hides bad months? <span class="badge b-keep">✓ Sheets 2 + 3 — kept, central</span></div>
-    <div class="card-subtitle">Monthly incidents (bars) + monthly ridership (area), split by platform — the answer should hold across all 12 months</div>
+    <div class="card-title">Is the gap real, or just an average that hides bad months? <span class="badge b-change">↻ Sheets 2 + 3 — Sheet 3 rebuilt as WA% line</span></div>
+    <div class="card-subtitle">Top: monthly Signal + Track incidents by platform (bars). Bottom: monthly Wait Assessment % at peak weekday by platform (lines — the gap drawn directly). <em>Sheet 3 replaced 2026-05-22 per feedback — ridership area chart didn't answer the section question and its 4–9M corridor-wide y-axis didn't reconcile with KPI 1's ~2.9M Penn-only number.</em></div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
-
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px;">
       <div>
         <div style="font-size:11px;font-weight:600;color:#59a14f;margin-bottom:5px;">1/2/3 platform — Incidents</div>
         <div style="height:56px;display:flex;align-items:flex-end;gap:3px;">
@@ -262,39 +261,60 @@ body {
           <div style="flex:1;height:70%;background:#4e79a7;border-radius:2px 2px 0 0;"></div>
         </div>
       </div>
+    </div>
 
-      <div>
-        <div style="font-size:11px;color:#59a14f;opacity:0.7;margin-bottom:5px;">1/2/3 platform — Ridership</div>
-        <svg width="100%" height="56" viewBox="0 0 400 56" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="g123" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#59a14f" stop-opacity="0.25"/>
-              <stop offset="100%" stop-color="#59a14f" stop-opacity="0.04"/>
-            </linearGradient>
-          </defs>
-          <path d="M0 48 C 50 46 100 41 150 35 C 200 29 250 22 300 17 C 340 13 370 11 400 10 L 400 56 L 0 56 Z" fill="url(#g123)"/>
-          <path d="M0 48 C 50 46 100 41 150 35 C 200 29 250 22 300 17 C 340 13 370 11 400 10" stroke="#59a14f" stroke-width="1.5" fill="none" opacity="0.6"/>
-        </svg>
+    <!-- Sheet 3 (rebuilt): WA% over time, two lines, one per platform -->
+    <div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+        <div style="font-size:11px;font-weight:600;color:#0f172a;">Wait Assessment % by platform — monthly, peak weekday</div>
+        <div style="font-size:10px;color:#94a3b8;">y-axis: 60–80% · the gap between the lines = 1/2/3 reliability advantage</div>
       </div>
+      <svg width="100%" height="120" viewBox="0 0 800 120" preserveAspectRatio="none" style="background:#fafafa;border-radius:4px;">
+        <!-- y-axis gridlines at 60, 65, 70, 75, 80 -->
+        <line x1="0" y1="0"   x2="800" y2="0"   stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+        <line x1="0" y1="30"  x2="800" y2="30"  stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+        <line x1="0" y1="60"  x2="800" y2="60"  stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+        <line x1="0" y1="90"  x2="800" y2="90"  stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+        <line x1="0" y1="120" x2="800" y2="120" stroke="#e5e7eb" stroke-width="0.5"/>
+        <!-- y-axis labels -->
+        <text x="4" y="8"   fill="#94a3b8" font-size="9">80%</text>
+        <text x="4" y="63"  fill="#94a3b8" font-size="9">70%</text>
+        <text x="4" y="117" fill="#94a3b8" font-size="9">60%</text>
 
-      <div>
-        <div style="font-size:11px;color:#4e79a7;opacity:0.7;margin-bottom:5px;">A/C/E platform — Ridership</div>
-        <svg width="100%" height="56" viewBox="0 0 400 56" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="gACE" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#4e79a7" stop-opacity="0.25"/>
-              <stop offset="100%" stop-color="#4e79a7" stop-opacity="0.04"/>
-            </linearGradient>
-          </defs>
-          <path d="M0 52 C 50 50 100 47 150 43 C 200 38 250 32 300 26 C 350 20 380 16 400 14 L 400 56 L 0 56 Z" fill="url(#gACE)"/>
-          <path d="M0 52 C 50 50 100 47 150 43 C 200 38 250 32 300 26 C 350 20 380 16 400 14" stroke="#4e79a7" stroke-width="1.5" fill="none" opacity="0.6"/>
-        </svg>
+        <!-- 1/2/3 line — hovers ~69-71% across 12 months (y values: 60-y where 70% → y=60, 71% → y=54, 69% → y=66) -->
+        <polyline points="33,57 100,54 167,60 234,55 300,57 367,54 434,58 500,55 567,52 634,57 700,55 767,58"
+                  fill="none" stroke="#59a14f" stroke-width="2.5"/>
+        <!-- dots on 1/2/3 line -->
+        <g fill="#59a14f">
+          <circle cx="33"  cy="57" r="3"/><circle cx="100" cy="54" r="3"/><circle cx="167" cy="60" r="3"/>
+          <circle cx="234" cy="55" r="3"/><circle cx="300" cy="57" r="3"/><circle cx="367" cy="54" r="3"/>
+          <circle cx="434" cy="58" r="3"/><circle cx="500" cy="55" r="3"/><circle cx="567" cy="52" r="3"/>
+          <circle cx="634" cy="57" r="3"/><circle cx="700" cy="55" r="3"/><circle cx="767" cy="58" r="3"/>
+        </g>
+
+        <!-- A/C/E line — hovers ~65-67% (y: 78-90) -->
+        <polyline points="33,84 100,80 167,87 234,82 300,85 367,80 434,86 500,81 567,78 634,84 700,82 767,85"
+                  fill="none" stroke="#4e79a7" stroke-width="2.5"/>
+        <g fill="#4e79a7">
+          <circle cx="33"  cy="84" r="3"/><circle cx="100" cy="80" r="3"/><circle cx="167" cy="87" r="3"/>
+          <circle cx="234" cy="82" r="3"/><circle cx="300" cy="85" r="3"/><circle cx="367" cy="80" r="3"/>
+          <circle cx="434" cy="86" r="3"/><circle cx="500" cy="81" r="3"/><circle cx="567" cy="78" r="3"/>
+          <circle cx="634" cy="84" r="3"/><circle cx="700" cy="82" r="3"/><circle cx="767" cy="85" r="3"/>
+        </g>
+
+        <!-- end-of-line labels -->
+        <text x="775" y="55" fill="#59a14f" font-size="10" font-weight="700">1/2/3 · 69.6%</text>
+        <text x="775" y="89" fill="#4e79a7" font-size="10" font-weight="700">A/C/E · 65.8%</text>
+      </svg>
+      <!-- x-axis month labels -->
+      <div style="display:grid;grid-template-columns:repeat(12,1fr);font-size:9px;color:#94a3b8;text-align:center;margin-top:2px;">
+        <div>J</div><div>F</div><div>M</div><div>A</div><div>M</div><div>J</div>
+        <div>J</div><div>A</div><div>S</div><div>O</div><div>N</div><div>D</div>
       </div>
-
     </div>
 
     <div class="insight" style="margin-top:14px;">
-      <strong>So what:</strong> the incident bars confirm the gap is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month, yet the 1/2/3 keeps trains closer to schedule. Ridership rises on both sides through the year, so the gap is widening, not closing.
+      <strong>So what:</strong> the incident bars confirm the stress is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month. The WA% lines confirm the <em>reliability</em> gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month of 2024, and toggling the year filter shows the gap narrowing year over year (A/C/E rising toward a stable 1/2/3). Same data, drawn directly.
     </div>
   </div>
 
@@ -303,7 +323,7 @@ body {
 
     <div class="card">
       <div class="card-title">Do both platforms see the same kinds of failure? <span class="badge b-change">↻ Sheet 4 — split by platform</span></div>
-      <div class="card-subtitle">Bar length = major incidents on that platform · dot = trains delayed per major incident · 2024 weekdays</div>
+      <div class="card-subtitle">Bar length = major incidents on that platform · label suffix = trains delayed per major incident (severity) · 2024 weekdays · <em>circle dropped 2026-05-22 per feedback to remove dual encoding</em></div>
 
       <style>
         .cl-cat   { font-size:11px;font-weight:600;color:#475569;margin-top:10px;margin-bottom:3px; }
@@ -311,8 +331,8 @@ body {
         .cl-plat  { width:42px;font-size:10px;text-align:right;flex-shrink:0; }
         .cl-track { flex:1;height:9px;background:#f1f5f9;border-radius:4.5px;position:relative; }
         .cl-bar   { height:9px;border-radius:4.5px;opacity:0.85; }
-        .cl-dot   { width:11px;height:11px;border-radius:50%;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,.13);position:absolute;top:-1px;margin-left:-5.5px; }
-        .cl-num   { font-size:10px;color:#94a3b8;width:22px;text-align:right; }
+        .cl-num   { font-size:10px;color:#475569;font-weight:600;text-align:right;white-space:nowrap;min-width:78px; }
+        .cl-sev   { color:#94a3b8;font-weight:400;font-style:italic;margin-left:2px; }
       </style>
 
       <!-- Signals -->
@@ -321,17 +341,15 @@ body {
         <span class="cl-plat" style="color:#59a14f;">1/2/3</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#59a14f;width:76%;"></div>
-          <div class="cl-dot" style="background:#59a14f;left:55%;"></div>
         </div>
-        <span class="cl-num">38</span>
+        <span class="cl-num">38 <span class="cl-sev">· 3.2× delay</span></span>
       </div>
       <div class="cl-row">
         <span class="cl-plat" style="color:#4e79a7;">A/C/E</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#4e79a7;width:52%;"></div>
-          <div class="cl-dot" style="background:#4e79a7;left:72%;"></div>
         </div>
-        <span class="cl-num">26</span>
+        <span class="cl-num">26 <span class="cl-sev">· 4.1× delay</span></span>
       </div>
 
       <!-- Persons on Trackbed -->
@@ -340,17 +358,15 @@ body {
         <span class="cl-plat" style="color:#59a14f;">1/2/3</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#59a14f;width:88%;"></div>
-          <div class="cl-dot" style="background:#59a14f;left:30%;"></div>
         </div>
-        <span class="cl-num">44</span>
+        <span class="cl-num">44 <span class="cl-sev">· 1.8× delay</span></span>
       </div>
       <div class="cl-row">
         <span class="cl-plat" style="color:#4e79a7;">A/C/E</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#4e79a7;width:48%;"></div>
-          <div class="cl-dot" style="background:#4e79a7;left:42%;"></div>
         </div>
-        <span class="cl-num">24</span>
+        <span class="cl-num">24 <span class="cl-sev">· 2.4× delay</span></span>
       </div>
 
       <!-- Track -->
@@ -359,17 +375,15 @@ body {
         <span class="cl-plat" style="color:#59a14f;">1/2/3</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#59a14f;width:28%;"></div>
-          <div class="cl-dot" style="background:#59a14f;left:38%;"></div>
         </div>
-        <span class="cl-num">14</span>
+        <span class="cl-num">14 <span class="cl-sev">· 2.2× delay</span></span>
       </div>
       <div class="cl-row">
         <span class="cl-plat" style="color:#4e79a7;">A/C/E</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#4e79a7;width:42%;"></div>
-          <div class="cl-dot" style="background:#4e79a7;left:50%;"></div>
         </div>
-        <span class="cl-num">21</span>
+        <span class="cl-num">21 <span class="cl-sev">· 2.8× delay</span></span>
       </div>
 
       <!-- Subway Car -->
@@ -378,21 +392,19 @@ body {
         <span class="cl-plat" style="color:#59a14f;">1/2/3</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#59a14f;width:20%;"></div>
-          <div class="cl-dot" style="background:#59a14f;left:32%;"></div>
         </div>
-        <span class="cl-num">10</span>
+        <span class="cl-num">10 <span class="cl-sev">· 1.9× delay</span></span>
       </div>
       <div class="cl-row" style="margin-bottom:8px;">
         <span class="cl-plat" style="color:#4e79a7;">A/C/E</span>
         <div class="cl-track">
           <div class="cl-bar" style="background:#4e79a7;width:42%;"></div>
-          <div class="cl-dot" style="background:#4e79a7;left:46%;"></div>
         </div>
-        <span class="cl-num">21</span>
+        <span class="cl-num">21 <span class="cl-sev">· 2.6× delay</span></span>
       </div>
 
       <div class="insight">
-        <strong>So what:</strong> broadly yes — Signals, Track, and Persons-on-Trackbed are top categories on <em>both</em> platforms. The reliability gap on Sheet 6 isn't explained by a different mix of failures hitting each platform — both see the same problem profile. The gap must be in what happens <em>after</em> an incident: a service-frequency and recovery-operations story. (Dots sitting further right = more trains delayed per incident.)
+        <strong>So what:</strong> broadly yes — Signals, Track, and Persons-on-Trackbed are top categories on <em>both</em> platforms. The "× delay" labels also show severity is comparable per-category across platforms. The reliability gap on Sheet 6 isn't explained by a different mix of failures hitting each platform, nor by different severity per incident — both see the same problem profile. The gap must be in what happens <em>after</em> an incident: a service-frequency and recovery-operations story.
       </div>
     </div>
 
@@ -582,7 +594,7 @@ body {
     the data answers a single practical question: when both platforms are running, <em>take 1/2/3</em>.
     The A/C/E platform isn't unreliable — it's the second-best choice in a complex where the best choice
     is one staircase away. That gap holds across <strong>most of the year</strong>, narrows in occasional
-    exceptions (September in 2024), and is largest exactly when ridership is highest: <em>Tuesday 8 AM</em>.
+    exceptions (September in 2024), and the choice matters most exactly when ridership peaks: <em>Tuesday 8 AM</em>, on both platforms.
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1e293b;font-size:11px;color:#475569;line-height:1.6;">
       <strong style="color:#94a3b8;">Caveats:</strong> 2024 weekday data only. Wait Assessment measures peak-period headway adherence; it doesn't capture every dimension of "reliability." Stations beyond Penn on either trunk have their own outage profiles that differ from the platform averages shown here.
     </div>

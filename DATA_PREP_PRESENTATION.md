@@ -7,7 +7,7 @@
 > ⚠ **Historical artifact.** This slide deck documents the *data preparation work* for the v1 walkthrough presentation (April 2026). The data prep approach described here (bridge table, line→complex join, three-way overlap) is still the active pipeline. **The dashboard narrative has since pivoted twice:**
 >
 > - **v2** (post-April 2026): Penn + WTC corridor narrative — see archived spec in `DASHBOARD_MODEL.md` § "What changed from v2 → v3" and `sample_dashboards/render_9_synthesis.html`.
-> - **v3** (current, primary): "Inside Penn — Two Platforms, Two Reliability Stories" — see `CLAUDE.md`, `DASHBOARD_MODEL.md`, `TABLEAU_BUILD_GUIDE.md`, `sample_dashboards/render_11_option3_platforms.html`.
+> - **v3** (current, primary): "Inside Penn Station: Two Platforms, A Closing Gap" — see `CLAUDE.md`, `DASHBOARD_MODEL.md`, `TABLEAU_BUILD_GUIDE.md`, `sample_dashboards/render_11_option3_platforms.html`. *(Title updated 2026-05-11 — multi-year data revealed the 1/2/3 vs A/C/E gap is closing, not static.)*
 > - **v3 backup:** "What It Costs to Enter NYC Through Penn Station" — `sample_dashboards/render_10_option2_cost.html`.
 >
 > Slide 14 of this deck describes the v1 dashboard layout/KPIs and is preserved for the historical record. For current dashboard guidance, treat the docs above as the source of truth.
@@ -629,7 +629,7 @@ the new Wait Assessment + OTP datasets.
 
 | Dataset | Source | What v1 was missing |
 |---------|--------|---------------------|
-| **MTA Subway Wait Assessment** | data.ny.gov | % trains within target headway, by line × month × day_type × period (peak/offpeak). Real service quality metric — lets us say "A/C/E lines have +4 pp better peak Wait Assessment than 1/2/3" with sourced data, not a derived "delay intensity %". |
+| **MTA Subway Wait Assessment** | data.ny.gov | % trains within target headway, by line × month × day_type × period (peak/offpeak). Real service quality metric — lets us say "1/2/3 leads A/C/E by ~4 pp on peak Wait Assessment in 2024, narrowed from +8 pp in 2022 as A/C/E catches up" with sourced data, not a derived "delay intensity %". |
 | **MTA Subway Terminal On-Time Performance** | data.ny.gov | Terminal OTP %, same grain. Pairs with WA for the reliability comparison panel. |
 | **MTA Daily Ridership and Traffic** | data.ny.gov `sayj-mze2` | Systemwide ridership by mode (Subway, Bus, LIRR, MNR, SIR, AAR, BT, CBD Entries, CRZ Entries). KPI-tile context — "subway carried 4.5M/day in 2024." |
 | **MTA Subway Stations and Complexes** | data.ny.gov `5f5g-n3cz` | Complex-grain dim with `GTFS Stop IDs` column linking to GTFS stops. This is the join key v1 was missing — it's why v1 had to parse `Daytime Routes` strings. |

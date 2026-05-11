@@ -95,24 +95,24 @@
 ) TO 'C:\temp\exports\service_quality.csv' WITH (FORMAT csv, HEADER true);
 
 
-\echo '>>> 4/5 hourly_ridership_corridor.csv'
+\echo '>>> 4/5 hourly_ridership_corridor.csv (pre-aggregated to year x dow x hour x complex)'
 
 \copy (
     SELECT
-        f.transit_timestamp,
-        TO_CHAR(f.transit_timestamp, 'Day')      AS day_of_week,
-        EXTRACT(ISODOW FROM f.transit_timestamp)::INTEGER AS day_num,
-        EXTRACT(HOUR   FROM f.transit_timestamp)::INTEGER AS hour_of_day,
-        f.station_complex_id      AS complex_id,
-        c.display_name            AS complex_name,
+        MAKE_DATE(EXTRACT(YEAR FROM f.transit_timestamp)::INT, 1, 1) AS year_date,
+        TO_CHAR(f.transit_timestamp, 'Day')                          AS day_of_week,
+        EXTRACT(ISODOW FROM f.transit_timestamp)::INTEGER            AS day_num,
+        EXTRACT(HOUR   FROM f.transit_timestamp)::INTEGER            AS hour_of_day,
+        f.station_complex_id                                         AS complex_id,
+        c.display_name                                               AS complex_name,
         CASE
             WHEN f.station_complex_id IN (614,611,318,321,320,319,601,323,324,325,327,328,329,635)  THEN '1/2/3'
             WHEN f.station_complex_id IN (164,165,618,167,168,169,624,628,636)                      THEN 'A/C/E'
             WHEN f.station_complex_id IN (613,610,602,619,337,620,617)                              THEN '4/5/6'
             WHEN f.station_complex_id IN (225,609,607,231,26)                                       THEN 'B/D/F/M'
             ELSE 'Other'
-        END AS line_group,
-        SUM(f.ridership)::INTEGER AS ridership
+        END                                                          AS line_group,
+        SUM(f.ridership)::BIGINT                                     AS ridership
     FROM mta.fact_hourly_ridership f
     JOIN mta.dim_complex c ON c.complex_id = f.station_complex_id
     WHERE f.station_complex_id IN (

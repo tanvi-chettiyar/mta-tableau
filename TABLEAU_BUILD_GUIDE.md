@@ -77,7 +77,7 @@ Switch data sources using the dropdown at the top of the Data pane and create th
 | `monthly_incidents_delays` | `YEAR([Month]) = YEAR([Year Filter])` |
 | `monthly_ridership` | `YEAR([Month]) = YEAR([Year Filter])` |
 | `service_quality` | `YEAR([Month]) = YEAR([Year Filter])` |
-| `hourly_ridership_corridor` | `YEAR([Transit Timestamp]) = YEAR([Year Filter])` |
+| `hourly_ridership_corridor` | `YEAR([Year Date]) = YEAR([Year Filter])` — *post Fix #1 (pre-aggregation); the source no longer carries `Transit Timestamp`* |
 | `dim_corridor_complexes` | skip — no date column |
 
 > **Wrap the parameter in `YEAR()` on both sides.** Because `[Year Filter]` is a DateTime (Step 3a), writing `YEAR([Month]) = [Year Filter]` compares an integer to a timestamp and silently returns False for every row. Always `YEAR([Year Filter])`. This same wrapping applies to every other calc that touches the parameter in a date comparison (e.g., KPI 3's "Months in Year" denominator below — Step 4g).
@@ -124,7 +124,7 @@ SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0) * 3
 AVG(IF [Line Group] = '1/2/3' THEN [Wait Assessment Pct] END)
 - AVG(IF [Line Group] = 'A/C/E' THEN [Wait Assessment Pct] END)
 ```
-Returns the percentage-point advantage of 1/2/3 over A/C/E. Year-aware via `Year Match`. Filter to `Period = 'peak'` and `Day Type = 1` in Context. Verified 2024 value: **+3.84 pp** (1/2/3 = 69.61%, A/C/E = 65.77%).
+Returns the percentage-point advantage of 1/2/3 over A/C/E. Year-aware via `Year Match`. Filter to `Period = 'peak'` and `Day Type = 1` in Context. Multi-year trajectory: **+8.0 pp (2022) → +4.3 pp (2023) → +3.8 pp (2024)** — closing gap as A/C/E catches up to a stable 1/2/3. Verified 2024 detail: 1/2/3 = 69.6%, A/C/E = 65.8%.
 
 **Riders Per Month** (used by KPI 1) — created on `monthly_ridership`:
 ```
@@ -348,7 +348,9 @@ IF YEAR([Year Filter]) = YEAR(TODAY()) THEN MONTH(TODAY()) ELSE 12 END
 
 **Source:** `monthly_incidents_delays`
 
-**Goal:** Horizontal bars showing incident frequency per category, **split by platform**, with a severity dot per (category × platform) — so the chart directly answers whether both platforms see the same kinds of failure. They mostly do; that's the point.
+**Goal:** Horizontal bars showing incident frequency per category, **split by platform** (one bar per platform per category) — so the chart directly answers whether both platforms see the same kinds of failure. They mostly do; that's the point.
+
+> **2026-05-22 — feedback fix.** Previous build used a dual-axis circle to encode `Severity Ratio` on the *same* x-axis as the count bar (synchronized, so the circle's position visually competed with the bar's length). That's a double-encoding trap: one axis was doing two semantic jobs and a casual reader couldn't tell which value the position was reporting. The fix is to drop the circle entirely and put severity in the **bar label** instead, so each visual channel encodes exactly one thing: length = count, color = platform, label suffix = severity.
 
 ### 6a — Filters (apply first)
 
@@ -370,39 +372,39 @@ IF YEAR([Year Filter]) = YEAR(TODAY()) THEN MONTH(TODAY()) ELSE 12 END
 
 The view now shows N category groups, each with two side-by-side bars (one per platform). Bar length differences within a category = where the platforms diverge in incident volume; same-category dominance = same kinds of failure.
 
-### 6c — Add severity dot (dual axis, per category × platform)
+### 6c — Add severity as a label on each bar (replaces dual-axis circle)
 
-First create a calc field **Severity Ratio** in `monthly_incidents_delays`:
+First create a calc field **Severity Ratio** in `monthly_incidents_delays` (this is the same calc the retired dual-axis used — we're just plotting it differently):
 ```
 SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)
 ```
 
-This computes per-cell because both `Real Delay` and `Real Inc` are aggregates — with `Line Group` nested on Rows, each (category, platform) cell gets its own ratio. That's the desired behavior: the dot now shows whether each platform absorbs the same incident type with different rider-impact.
+It computes per-cell because both `Real Delay` and `Real Inc` are aggregates — with `Line Group` nested on Rows, each (category, platform) cell gets its own ratio. Now build the label:
 
-Then build the dual axis:
-
-1. Drag `Severity Ratio` to **Columns** — it appears as a second pill on the same shelf
-2. Right-click the second pill → **Dual Axis**
-3. Right-click either axis → **Synchronize Axes**
-4. In the Marks card, click the second marks layer (AGG(Severity Ratio)) → change mark type to **Circle**
-5. Color the circles by `Line Group` (same scheme as bars) — adds visual consistency
-6. Result: bar length = incident frequency for that platform; circle position = trains-delayed per major incident for that platform. If the dots within a category are *not* aligned, that's the "same problem, different absorption" story made visible.
+1. Drag `SUM([Real Inc])` to the **Label** shelf — this puts the count on each bar
+2. Create a calc field **Severity Suffix** on `monthly_incidents_delays`:
+   ```
+   " · " + STR(ROUND([Severity Ratio], 1)) + "× delay"
+   ```
+3. Drag `Severity Suffix` to the **Label** shelf as a second pill (drop it next to the count)
+4. Open the Label card → Edit Label → format the count in bold default color, the suffix in `#64748b` (muted gray) so the eye reads count-first
+5. Final label on each bar reads e.g. `38 · 3.2× delay`
 
 > Make sure Category, Line Group, Day Type filters are all in **Context** — without that, the FIXED LODs inside `Real Inc`/`Real Delay` ignore the category filter and the ratio is wrong.
 
-### 6d — Reference line and format
+### 6d — Format
 
-1. With the circle axis active, go to **Analytics pane** → drag **Reference Line** onto the view → scope: **Table** → value: **Average** of `Severity Ratio` → style: dashed gray → label: `"avg severity"`
-2. Right-click the top axis (dual axis header) → **Uncheck Show Header** — hides the duplicate axis label
-3. Right-click the x-axis → Edit Axis → title: `Major Incidents (bars) · Trains Delayed per Major Incident (dots)`
-4. Format → Lines → remove gridlines
+1. Right-click the x-axis → Edit Axis → title: `Major incidents per platform (severity shown in label)`
+2. Format → Lines → remove gridlines
+3. Sort already applied in 6b — verify Signals lands at the top
+4. **Do NOT add a dual axis or a circle layer.** That's the encoding the 2026-05-22 fix removed. If you want a per-category benchmark, use a Reference Line on `Severity Ratio` — but be aware it competes with the label text. Default to no reference line; the labels carry the comparison.
 
-> **Calc note:** the original guide used `AVG([delay_per_incident])` (a row-level ratio) which compounds with the cross-join duplication. Replace it with the Step 3 dedup pattern: build the severity dot from `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)` and keep **Category, Line Group, Day Type in Context** so the FIXED LODs see the right denominators.
+> **Calc note:** the original guide used `AVG([delay_per_incident])` (a row-level ratio) which compounds with the cross-join duplication. Replace it with the Step 3 dedup pattern: build the severity calc from `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)` and keep **Category, Line Group, Day Type in Context** so the FIXED LODs see the right denominators.
 
 ### 6e — Title (as question), annotation, and so-what box
 
 - **Title** (Worksheet → Show Title → Edit Title): `Do both platforms see the same kinds of failure?`
-- **Caption** (Worksheet → Show Caption): `Bar length = major incidents on that platform; dot position = trains delayed per major incident. Side-by-side within each category, both platforms.`
+- **Caption** (Worksheet → Show Caption): `Bar length = major incidents on that platform. Label suffix = trains delayed per major incident (severity). Side-by-side within each category, both platforms.`
 
 **Annotation (on chart):**
 1. Right-click the Signals row (either platform's bar) → **Annotate → Mark**
@@ -410,7 +412,7 @@ Then build the dual axis:
 3. Style the callout: small font, subtle gray border.
 
 **So-what box (floating text on dashboard, below the chart):**
-> **So what:** broadly yes — Signals dominate both platforms, Track sits second on both. The reliability gap on Sheet 6 *isn't* explained by a different mix of failures hitting each platform; both platforms see the same problem profile. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
+> **So what:** broadly yes — Signals dominate both platforms, Track sits second on both. The "× delay" labels also show severity is comparable per-category across platforms. The reliability gap on Sheet 6 *isn't* explained by a different mix of failures hitting each platform, nor by different severity per incident; both platforms see the same problem profile. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
 
 Use the `.insight` style for the **hero (1/2/3) green family**: light fill `#f0fdf4`, 3px left border `#59a14f`, body text `#14532d`, font 11px.
 
@@ -455,7 +457,9 @@ Tableau only allows one sequential palette per measure on a single sheet. Build 
 Treat the two stacked sheets as one chart. Add a floating text box above the container:
 
 - **Title:** `Do the platforms fail at the same time?`
-- **Caption:** `Top row: 1/2/3 platform (red palette). Bottom row: A/C/E platform (purple palette). Darker cell = more Signal+Track incidents that month.`
+- **Caption:** `Top row: 1/2/3 platform. Bottom row: A/C/E platform. Darker cell = more Signal+Track incidents that month.`
+
+> **2026-05-22 — feedback fix.** Earlier caption named the palettes in parentheses ("(green palette) / (blue palette)") — and earlier still, under v2, used "(red palette) / (purple palette)" before the platform colors flipped to green/blue. Reviewer caught that the workbook's live caption had typed the parentheticals **reversed** (1/2/3 labelled with the blue palette, A/C/E with green), which contradicted the contract held everywhere else on the dashboard. Cleanest fix: drop the palette parentheticals entirely. The row labels (1/2/3 in green text, A/C/E in blue text) already convey the mapping; restating it in prose only creates an opportunity to flip it.
 
 Hide each constituent sheet's individual title (Worksheet → Hide Title) so only the floating header is visible.
 
@@ -470,13 +474,15 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 
 ---
 
-## Step 8 — Incident Timeline (Sheet 2) + Ridership Timeline (Sheet 3)
+## Step 8 — Incident Timeline (Sheet 2) + WA% Timeline (Sheet 3)
 
-### Sheet 2 — Incidents over time (stacked bar)
+> **2026-05-22 — feedback fix.** Sheet 3 was a stacked area chart of ridership over time. Two problems: (1) it didn't visibly answer the section question ("Is the gap real?" — the question is about the reliability gap, which the chart didn't draw), and (2) it silently used `monthly_ridership.csv` filtered by complex-based `line_group`, which covers all 35 stations along 1/2/3 and A/C/E lines — so the y-axis read 4–9M total while KPI 1 read ~2.9M (Penn-only complexes 318 + 164). The reviewer correctly flagged both: chart didn't answer its own header, and numbers didn't reconcile with the KPI. Replaced Sheet 3 with a Wait Assessment % by platform over time line chart, sourced from `service_quality.csv` (which already filters cleanly by platform and is what Sheet 6 uses). Ridership stays surfaced on KPI 1.
+
+### Sheet 2 — Incidents over time (stacked bar) — *unchanged*
 
 **Source:** `monthly_incidents_delays`
 
-**Goal:** Stacked bars showing total Signal + Track incidents per month, split by corridor — the combined height shows system-wide stress; the red/purple split shows which corridor absorbs more.
+**Goal:** Stacked bars showing total Signal + Track incidents per month, split by platform — the combined height shows system-wide stress; the green/blue split shows which platform absorbs more.
 
 #### 8a — Filters
 
@@ -503,40 +509,56 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 The pair (Sheets 2 + 3) lives under one section heading on the dashboard:
 
 - **Section title (above both):** `Is the gap real, or just an average that hides bad months?`
-- **Sheet 2 caption:** `Stacked monthly Signal + Track major incidents — 1/2/3 in red, A/C/E in purple. Combined height = system-wide stress; the split shows which platform absorbs it.`
+- **Sheet 2 caption:** `Stacked monthly Signal + Track major incidents — 1/2/3 in green, A/C/E in blue. Combined height = system-wide stress; the split shows which platform absorbs it.`
 
 ---
 
-### Sheet 3 — Ridership over time (stacked area)
+### Sheet 3 — Wait Assessment % over time (line chart) — *2026-05-22 rebuild*
 
-**Source:** `monthly_ridership`
+**Source:** `service_quality`
 
-**Goal:** Stacked area chart showing monthly ridership by corridor — context for how many commuters experience the incident levels shown in Sheet 2.
+**Goal:** Two-line chart of monthly Wait Assessment % at peak weekday — one line per platform. Directly draws the reliability gap month by month, which is exactly what the section question ("Is the gap real, or just an average that hides bad months?") promises. The chart pair (Sheet 2 incidents + Sheet 3 WA%) now reads as: "here's the stress on both platforms, and here's the resulting reliability gap, drawn at the same time grain."
 
-#### 8d — Filters
+#### 8d — Filters (all → Add to Context)
 
-1. Drag `Line Group` to Filters → select `1/2/3` and `A/C/E`
+1. Drag `Year Match` to Filters → True → **Add to Context**
+2. Drag `Period` to Filters → select `peak` → **Add to Context**
+3. Drag `Day Type` to Filters → select `1` (weekday) → **Add to Context**
+4. Drag `Line Group` to Filters → select `1/2/3` and `A/C/E` → **Add to Context**
 
 #### 8e — Build
 
-1. Drag `MONTH([Month])` to **Columns** → Discrete
-2. Drag `SUM([Ridership])` to **Rows**
-3. Mark type: **Area**
-4. Drag `Line Group` to **Color** — areas stack automatically
+1. Drag `MONTH([Month])` to **Columns** — right-click → **Continuous** (line charts need a continuous x-axis; this is the one place Step 8 differs from Sheet 2's discrete months)
+2. Drag `Wait Assessment Pct` to **Rows** — aggregate as **AVG** (right-click pill if it lands as SUM)
+3. Mark type: **Line**
+4. Drag `Line Group` to **Color** — produces two lines, one per platform
 5. Edit Colors: 1/2/3 = `#59a14f`, A/C/E = `#4e79a7`
-6. Right-click y-axis → Edit Axis → title: `Monthly Ridership`
+6. Line size: drag `Line Group` to Size if you want both lines the same weight; default is fine. Avoid dashed/dotted styles — both platforms get solid lines.
 
-#### 8f — Dashboard alignment
+#### 8f — Y-axis format
 
-- Place Sheet 3 directly below Sheet 2 in a vertical container with the same fixed width so month columns align between the two charts
+1. Right-click y-axis → Edit Axis → **Fixed** range `60` to `80`
+2. Tick format: percent with one decimal (`0.0"%"`)
+3. Title: `Wait Assessment % (peak weekday)`
 
-#### 8g — Title and caption (Sheet 3)
+The fixed 60–80 range is the same band the Sheet 6 centerpiece uses for WA — keeps the visual scale consistent across the dashboard. If WA% drops below 60 in any year/month, widen to 55–80 rather than letting it auto-fit (auto-fit makes inter-year visual comparison misleading).
 
-- **Sheet 3 title (hidden — paired with Sheet 2):** `Ridership over time`
-- **Sheet 3 caption:** `Monthly station entries by platform. Demand rose on both sides — so the platform-reliability gap is widening, not closing.`
+#### 8g — Reference line (optional, recommended)
+
+1. Analytics pane → Reference Line → drop on the view → scope **Table**, value **Average** of `Wait Assessment Pct`, label `"Penn avg"`, style dashed gray (`#94a3b8`)
+2. This gives the eye a neutral middle line; the 1/2/3 line sits above it, the A/C/E line below — the gap is visible without arithmetic.
+
+#### 8h — Dashboard alignment
+
+- Place Sheet 3 directly below Sheet 2 in a vertical container with the same fixed width so the month axes align. Sheet 2 uses discrete months and Sheet 3 uses continuous — they should still align if both have all 12 months in the active year. If they don't, set both to start at January and end at December via axis edits.
+
+#### 8i — Title and caption (Sheet 3)
+
+- **Sheet 3 title (visible — paired with Sheet 2):** `Wait Assessment % by platform, monthly`
+- **Sheet 3 caption:** `Monthly Wait Assessment % at peak weekday, split by platform. The gap between the green and blue lines is the reliability advantage of 1/2/3 — drawn month by month so a "bad month" can't hide an average.`
 
 **So-what box for the paired section (place below both charts):**
-> **So what:** the incident bars confirm the gap is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month, yet the 1/2/3 keeps trains closer to schedule. Ridership rises on both sides through the year, so the gap is widening, not closing.
+> **So what:** the incident bars confirm the stress is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month. The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year (A/C/E rising toward a stable 1/2/3). Same data, drawn directly.
 
 ---
 
@@ -618,66 +640,65 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 
 ---
 
-## Step 10 — Delay Duration Box Plot (Sheet E)
+## Step 10 — Per-incident Severity Bar (Sheet 5) — *2026-05-22 rebuild*
 
 **Source:** `monthly_incidents_delays`
 
-**Goal:** One box per incident category showing the spread of `delay_per_incident` across months — Signals should have the widest spread and the highest outlier, making it visually the most severe category.
+**Goal:** One horizontal bar per incident category showing `AVG([Severity Ratio])` (trains delayed per major incident), sorted descending, with the value labeled on each bar. The chart answers "how bad is bad?" in one sweep: longest bar at top, severity value labeled, no interpretation required.
 
-### 10a — Filters (apply first)
+> **2026-05-22 — feedback fix.** Earlier build was a box plot with circles for each month and overlaid quartile boxes — dozens of overlapping marks per category, colored by platform. Reviewer flagged it as analyst-heavy: the chart paid a lot of cognitive load for an insight a simpler bar carries cleanly. Replaced with a labeled bar (one bar per category, no platform split). Box plot variant archived in `sample_dashboards/render_12_boxplot_colors.html` for reference.
+
+### 10a — Filters (apply first, all → Add to Context)
 
 1. Drag `Year Match` to Filters → True → **Add to Context**
 2. Drag `Incident Count` to Filters → **Range of Values** → set minimum to `1` → OK (excludes zero-incident months so the ratio is always defined)
 3. Drag `Day Type` to Filters → select `1` (weekday) → **Add to Context**
 4. Drag `Line Group` to Filters → select `1/2/3` and `A/C/E` → **Add to Context**
-5. Drag `Category` to Filters → keep all → **Add to Context** (FIXED LODs need this)
+5. Drag `Category` to Filters → keep all → **Add to Context** (FIXED LODs in `Real Inc`/`Real Delay` need this)
 
 ### 10b — Build the view
 
-1. Drag the `Severity Ratio` calc from Step 6c (`SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)`) to **Columns** — it's already an aggregate, no AVG wrapper needed.
-2. Drag `Category` to **Rows**
-3. Mark type: set to **Circle**
-4. Drag `Month` to the **Detail** shelf — this is required. Without it Tableau collapses each category to a single value and the box has no spread. With it, each circle = one month's ratio for that category (12 circles per category).
-5. Enable box plot: **Analytics pane** → drag **Box Plot** onto the view → drop on **Cell**
-   - Alternatively: with Circle marks active, go to **Analysis menu → Box Plot**
-   - The circles become the underlying data points; the box plot layer overlays quartiles and whiskers
+1. Drag `Category` to **Rows**
+2. Drag the `Severity Ratio` calc (`SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)`) to **Columns** — already aggregate, no AVG wrapper needed
+3. Mark type: **Bar**
+4. **Do NOT add Month to Detail.** That was required for the retired box plot (to get per-month dots). For the bar chart we want one aggregate value per category — leave Detail empty.
+5. Right-click `Category` on Rows → Sort → field `Severity Ratio`, aggregation `Avg` (or whatever Tableau exposes — the calc is already aggregate), descending. Top category is the most-severe (typically "Other" or "Stations and Structure" — verify per year).
 
-### 10c — Sort and color (spotlight palette)
+### 10c — Color (single-accent spotlight, not platform split)
 
-1. Right-click `Category` on the Rows shelf → **Sort** → sort descending by the `Severity Ratio` calc. The category at top is whichever has the highest median severity in 2024 ("Other" and "Stations and Structure" are likely top — verify in the active year).
-2. Drag `Category` to **Color** → Edit Colors. Use **spotlight** logic — accent the *one* category your so-what calls out, mute everything else:
-   - **Surprise category** (whichever is top after sort, e.g., `Other`) → `#dc2626` (red, the alert color)
-   - All other categories → `#94a3b8` (gray)
-3. Reduce circle opacity to 60% (Format → Marks → Opacity) so box plot lines read clearly over the dots
+Sheet 5 isn't a platform-comparison chart — the platform contrast lives on Sheets 6, 2, 3, and 4. Sheet 5 just shows the severity hierarchy across causes, so use a single accent:
 
-> **Why spotlight, not a full category palette:** Sheet 5 tells a frequency-vs-severity contrast story. The surprise is that the visually-dominant category from Sheet 4 (Signals) is *not* the worst on per-incident severity — that surprise needs to land visually. One accent color on the actual worst makes the surprise immediate; six different category colors distract. Don't reuse the platform green/blue here — the chart isn't about platforms.
+1. Default bar color: muted gray `#94a3b8`
+2. Single accent: the top-of-sort category in `#dc2626` (red). Two ways:
+   - **Manual (simplest):** Edit Colors after the sort settles → assign the top category red, all others gray
+   - **Calc-driven (year-stable):** create a calc field `Top Severity Highlight` = `IF [Category] = {FIXED : MAX(IF [Sort Helper] = 1 THEN [Category] END)} THEN "alert" ELSE "muted" END` and put it on Color. Overkill unless you want the spotlight to auto-follow the active year's top category.
 
-### 10d — Box plot formatting
+The single accent is a deliberate signal that this chart asks a *different* question than the rest of the dashboard. Resist the temptation to color by platform — the platform information isn't in the bar; adding it would double-encode.
 
-1. Right-click any box → **Format Box Plot**:
-   - Whiskers: **IQR × 1.5** (default — shows true outliers beyond the whiskers)
-   - Fill: checked — if the fill color is stuck on gray, set it to the lightest available option or uncheck Fill entirely and rely on the box border + dot colors
-   - Show outliers: checked (outlier dots beyond whiskers are the story)
-2. Right-click the x-axis → **Edit Axis** → title: `Delay-Causing Trains per Incident (proxy)`
+### 10d — Label
 
-### 10e — Annotation
+1. Drag `Severity Ratio` to the **Label** shelf
+2. Open Label card → Edit Label → format `0.0"× delay"` (so each bar reads e.g. `4.2× delay`)
+3. Alignment: middle-right of bar; font 11px, color: white for the red accent bar, `#1e293b` for the muted gray bars
 
-1. Identify the Signals outlier dot at the far right (highest delay-per-incident ratio)
-2. Right-click it → **Annotate → Mark** → type: `"Worst-month outlier — longest-tail Signal event"` (claim-stable across years)
-3. Drag the annotation callout line so it doesn't overlap the Signals box
+### 10e — Format
 
-> **Calc note:** the original `AVG([delay_per_incident])` is broken at row level (cross-join duplication). Replace with the dedup pattern from Step 3: build the box plot off `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)` per (month, category). Promote Category, Line Group, Day Type to Context.
+1. Right-click the x-axis → **Edit Axis** → title: `Trains delayed per major incident (proxy)`
+2. Format → Lines → remove gridlines
+3. Worksheet → Show Title → Edit Title: `How bad is bad — per-incident severity?`
 
-### 10f — Title (as question), so-what
+### 10f — Annotation
 
-- **Title** (Worksheet → Show Title): `How bad is bad — per-incident severity?`
-- **Caption:** `Per-month spread of delay-causing incidents per major incident, by category. Each circle = one month. Signals shows the longest tail and the highest outlier.`
+1. Right-click the top bar (the red accent) → **Annotate → Mark**
+2. Type: `"{Category} delivers the worst-day severity — rare but catastrophic"` (claim-stable; replace {Category} with the active year's top — typically "Other" or "Stations and Structure"). If you want it year-aware, build it from a calc field that returns the active year's top category name.
+
+### 10g — So-what
 
 **So-what box (Option 3 framing):**
-> **So what:** severity tracks frequency: Signals are both the most frequent failure type *and* the longest-tailed in delay. The ~4 pp WA gap on Sheet 6 isn't driven by 1/2/3 seeing fewer Signal events — both platforms see comparable counts — but by how the 1/2/3 absorbs them with less rider impact.
+> **So what:** "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Severity dominates total delay; frequency dominates the daily rider experience. (Per-platform severity is on the Cause Ladder labels — both platforms see comparable severity per category.)
 
 **Alternative so-what (Option 2 cost framing, if pivoting):**
-> **So what:** Signal failures span 4 to 52 minutes — that's the range a Penn rider can't plan around. Track failures cluster tightly: a Track incident is bad but predictable; a Signal incident might cost an entire commute.
+> **So what:** Signal failures span the widest range — that's the slice a Penn rider can't plan around. Track failures cluster tightly: a Track incident is bad but predictable; a Signal incident might cost an entire commute.
 
 ---
 
@@ -763,8 +784,8 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 
 ### 12b — Build the grid
 
-1. Drag `HOUR([Transit Timestamp])` to **Columns** — right-click → **Continuous** (green pill, not blue) — this is required for reference bands to work
-2. Drag `DATENAME('weekday', [Transit Timestamp])` to **Rows** — this gives day names (Monday, Tuesday…)
+1. Drag `Hour Of Day` to **Columns** — right-click → **Continuous** (green pill, not blue) — this is required for reference bands to work. *(Post Fix #1: this column is now native in the export; no `HOUR(...)` extraction needed.)*
+2. Drag `Day Of Week` to **Rows** — this gives day names (Monday, Tuesday…). *(Post Fix #1: native column; no `DATENAME(...)` wrapper needed.)*
 3. Mark type: **Square**
 4. Drag `SUM([Ridership])` to **Color**
 
@@ -916,7 +937,7 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 | Full width | Sheets 2 + 3 (Incidents bars + Ridership area, 2×2 grid) + so-what box | Vertical container |
 | Half + half | Cause Ladder (Sheet 4) + so-what · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
 | Half + half | Map (Sheet 7, Penn 318+164 only) + so-what · Heatmap (Sheet 8) + so-what | Horizontal container |
-| Full width (optional, supporting) | Box Plot (Sheet 5) · Sankey (San) | Horizontal container — only if space allows |
+| Full width (optional, supporting) | Severity Bar (Sheet 5) · Sankey (San) | Horizontal container — only if space allows |
 | Full width | Narrative footer ("The bottom line" + caveats block) | Floating text box (`#0f172a` bg) |
 
 > **Sheet N (corridor scatter) does NOT appear** in the Option 3 layout — it's retired. If you previously built it, hide it (Worksheet → Hide) rather than deleting; preserves the work for an Option 2 or v2 fallback.
@@ -992,18 +1013,19 @@ When you extend `3_transform.sql` WHERE-year ranges and re-run the pipeline:
 
 **Tiles and styling:**
 - [ ] KPI strip tiles all have dark `#0f172a` background with white headline, `#94a3b8` subtitle, accent-colored sub-tag with 1px top border
-- [ ] 1/2/3 platform = green `#59a14f`; A/C/E platform = blue `#4e79a7`; category accents (Signal red, Track orange on Sheet 5) only on category-encoded charts — no color bleed between platform and category encodings
+- [ ] 1/2/3 platform = green `#59a14f`; A/C/E platform = blue `#4e79a7`; Sheet 5 uses a single red accent (`#dc2626`) on the top-severity category with muted gray for the rest — no platform encoding on Sheet 5 (no color bleed between platform and category encodings)
 - [ ] Heatmap rush-hour bands are light blue `#dbeafe` (A/C/E family), not the old lavender or warm tint
 
 **Charts:**
-- [ ] Every chart has a Title in **question form** (per Steps 6e, 7, 8c-title, 9f, 10f, 11e, 12g, 13e)
-- [ ] Every chart has at least one **annotation on a specific mark** (per Steps 6e, 9f, 10e, 13e)
+- [ ] Every chart has a Title in **question form** (per Steps 6e, 7, 8c-title + 8i, 9f, 10e, 11e, 12g, 13e)
+- [ ] Every chart has at least one **annotation on a specific mark** (per Steps 6e, 9f, 10f, 13e)
 - [ ] Every chart has a **so-what interpretation box** below it (per the same Steps)
 - [ ] Map (Sheet 7) shows only complexes 318 and 164 — no wider corridor stations
-- [ ] Box plot Signals row shows the outlier dot at far right (year-dependent — verify exists)
+- [ ] Sheet 5 severity bar: top-of-sort category (highest avg severity) is rendered in the red accent with `"{X.X}× delay"` label; all other bars muted gray with the same label format
+- [ ] Cause Ladder (Sheet 4): bars are single-axis (no dual axis, no circles); each bar's label reads `<count> · <X.X>× delay`
 - [ ] Heatmap Tue 8 AM cell is visibly the darkest, with the dynamic Peak label visible
 - [ ] Reliability bars (Sheet 6a + 6b centerpiece): 1/2/3 is higher than A/C/E on both WA% (6a) and OTP% (6b); both sheets share Fixed 60–100 axis
-- [ ] Monthly quilt: platform-specific months stand out (top red panel ≠ bottom purple panel) and the qualifier callout flags the contradicting month
+- [ ] Monthly quilt: platform-specific months stand out (top green panel ≠ bottom blue panel) and the qualifier callout flags the contradicting month. **Caption does not name palettes in parentheses** (the row labels carry the colors — restating them in prose is the bug the 2026-05-22 fix removed)
 - [ ] Sankey: band widths reflect each platform's incident totals (visual asymmetry is OK; the reliability story is in Sheet 6, not here)
 - [ ] Sheet N (corridor scatter) is hidden or absent from the dashboard layout
 
@@ -1069,7 +1091,7 @@ Demote or remove Sheet 6a + 6b (Reliability) — the WA gap is no longer the pun
 | Sheet | Action |
 |---|---|
 | Sheet 6a + 6b (Reliability) | Hide both — no longer load-bearing |
-| Sheet 3 (Ridership over time) | Hide — doesn't directly answer the cost question |
+| Sheet 3 (WA% over time, post-2026-05-22) | Hide — the cost framing doesn't lead with the reliability gap |
 | Sheet C-1 / C-2 (Quilt) | Hide — two-platform contrast removed |
 | Sheet San (Sankey) | Hide or simplify to a single Category → trains-delayed bar |
 | Sheet 7 (Map) | Keep but retitle `Where does the cost concentrate?` and swap size encoding to `SUM([Real Delay])` |
