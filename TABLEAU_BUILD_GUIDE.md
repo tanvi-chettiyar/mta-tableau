@@ -51,11 +51,22 @@ You now have 5 data sources. Rename each in the Data pane (right-click → Renam
 
 1. In the Data pane, right-click anywhere → **Create Parameter**
 2. Name: `Year Filter`
-3. Data type: **Integer**
-4. Allowable values: **List** → add the years currently present in your data. The default range loaded by `3_transform.sql` is `2024` only; if you've extended via the WHERE-year range update, add `2020`, `2021`, … as available.
-5. Current value: most recent year on file (e.g. `2024`)
-6. Click OK
-7. Right-click `Year Filter` in the Data pane → **Show Parameter** so the control is available when you assemble the dashboard later.
+3. Data type: **Date & Time** (DateTime). Use DateTime — not Integer — so the parameter behaves as a proper date in downstream calcs and feeds continuous-time controls cleanly.
+4. Allowable values: **List**. Add one row per year, with Value = year-start timestamp and "Display As" = just the year:
+
+   | Value | Display As |
+   |---|---|
+   | `1/1/2022 12:00:00 AM` | `2022` |
+   | `1/1/2023 12:00:00 AM` | `2023` |
+   | `1/1/2024 12:00:00 AM` | `2024` |
+
+   The default range loaded by `3_transform.sql` is **2022-2024**; add rows here as you ingest more years.
+5. Display format: **Custom → `yyyy`** so the parameter control and any `STR(YEAR(...))` insertion shows just `2024` (not the full timestamp).
+6. Current value: most recent year (e.g. `1/1/2024 12:00:00 AM`). Value when workbook opens: pick `Current value` (workbook saves with the last-selected year) or a fixed timestamp.
+7. Click OK
+8. Right-click `Year Filter` in the Data pane → **Show Parameter** so the control is available when you assemble the dashboard later.
+
+> **Why DateTime, not Integer.** The DateTime form lets the parameter act as a proper date in calcs (e.g., date-arithmetic, axis controls). The display format trick (`yyyy`) hides the time-of-day component so the user sees a clean year picker. The trade-off: every calc comparing `[Year Filter]` against a date field must wrap with `YEAR(...)` on both sides (see Step 3b).
 
 ### 3b — Create a `Year Match` calculated field in each date-bearing data source
 
@@ -63,13 +74,17 @@ Switch data sources using the dropdown at the top of the Data pane and create th
 
 | Data source | Calc |
 |---|---|
-| `monthly_incidents_delays` | `YEAR([Month]) = [Year Filter]` |
-| `monthly_ridership` | `YEAR([Month]) = [Year Filter]` |
-| `service_quality` | `YEAR([Month]) = [Year Filter]` |
-| `hourly_ridership_corridor` | `YEAR([Transit Timestamp]) = [Year Filter]` |
+| `monthly_incidents_delays` | `YEAR([Month]) = YEAR([Year Filter])` |
+| `monthly_ridership` | `YEAR([Month]) = YEAR([Year Filter])` |
+| `service_quality` | `YEAR([Month]) = YEAR([Year Filter])` |
+| `hourly_ridership_corridor` | `YEAR([Transit Timestamp]) = YEAR([Year Filter])` |
 | `dim_corridor_complexes` | skip — no date column |
 
-Drag `Year Match` to the Filters shelf on every sheet that uses date-bearing data. Right-click → **Apply to Worksheets → All Using This Data Source** to apply across the workbook in one step.
+> **Wrap the parameter in `YEAR()` on both sides.** Because `[Year Filter]` is a DateTime (Step 3a), writing `YEAR([Month]) = [Year Filter]` compares an integer to a timestamp and silently returns False for every row. Always `YEAR([Year Filter])`. This same wrapping applies to every other calc that touches the parameter in a date comparison (e.g., KPI 3's "Months in Year" denominator below — Step 4g).
+
+Drag `Year Match` to the Filters shelf on every sheet that uses date-bearing data, set to True, and right-click → **Add to Context**.
+
+> **Parameter-driven filters don't propagate via "Apply to All Worksheets."** Unlike regular dimension filters (where right-click → "Apply to Worksheets → All Using This Data Source" works), a calc-based parameter filter must be added to each sheet's Filters shelf manually. Plan for this when building each sheet. The parameter itself is workbook-global — flipping it on the dashboard updates any sheet that has `Year Match` in its Filters shelf.
 
 ### 3c — Computed fields (create before building sheets)
 
@@ -134,7 +149,7 @@ No additional fields needed in `hourly_ridership_corridor` — `day_num` (ISO 1=
 | KPI 3 | `{N}/12` (year-aware) | months hit by Signal/Track | "A clean month at Penn was the year's exception, not the rule." |
 | KPI 4 | `+{X} pp` (year-aware) | 1/2/3 vs A/C/E peak Wait Assessment | "Compounded over a year of weekday peaks: ~8 extra on-time mornings per rider." |
 
-> **Year-agnostic claim discipline.** Sub-tag copy is editorial and won't auto-update. Keep claims claim-stable across years (the Boston comparison and the Times Sq routes count are stable; "11 of 12 months" is *not* — that's why KPI 3 keeps the year-aware {N}/12 calc). Where a sub-tag must reference a year-specific number, build it via a calc field with `STR([Year Filter])` rather than typing it.
+> **Year-agnostic claim discipline.** Sub-tag copy is editorial and won't auto-update. Keep claims claim-stable across years (the Boston comparison and the Times Sq routes count are stable; "11 of 12 months" is *not* — that's why KPI 3 keeps the year-aware {N}/12 calc). Where a sub-tag must reference a year-specific number, build it via a calc field with `STR(YEAR([Year Filter]))` rather than typing it.
 
 Build each as a separate Text sheet and assemble into a horizontal strip on the dashboard.
 
@@ -220,7 +235,7 @@ COUNTD(IF [Real Inc] > 0 THEN DATETRUNC('month', [Month]) END)
 
 **Months in Year** (denominator — handles partial-year safely):
 ```
-IF [Year Filter] = YEAR(TODAY()) THEN MONTH(TODAY()) ELSE 12 END
+IF YEAR([Year Filter]) = YEAR(TODAY()) THEN MONTH(TODAY()) ELSE 12 END
 ```
 
 #### 4h — Styling, subtitle, and sub-tag
@@ -525,61 +540,80 @@ The pair (Sheets 2 + 3) lives under one section heading on the dashboard:
 
 ---
 
-## Step 9 — Reliability Comparison (Sheet 6) — CENTERPIECE
+## Step 9 — Reliability Comparison (Sheet 6a + 6b) — CENTERPIECE
 
 **Source:** `service_quality`
 
-**Goal:** Four side-by-side bars — Wait Assessment % and Terminal OTP %, each split by platform — so the 1/2/3 reliability advantage reads directly from bar height. **This is the dashboard's centerpiece: full width, top of body, directly below the KPI strip.**
+**Goal:** Two side-by-side horizontal-bar sub-panels — Wait Assessment % on the left, Terminal OTP % on the right — each split by platform, so the 1/2/3 reliability advantage reads directly from bar length. **This is the dashboard's centerpiece: full width, top of body, directly below the KPI strip.**
 
-### 9a — Filters (apply first)
+> **Why two sheets, not one (decided 2026-05-09).** The render (`sample_dashboards/render_11_option3_platforms.html:180-216`) uses two independent sub-panels, each with its own sub-title and its own per-metric reference line ("system avg ~68%" on WA, "~77%" on OTP). A single combined sheet cannot honestly carry one shared reference line — WA% and OTP% have different system means, so a Table-scoped average across `Measure Values` is meaningless. Split build matches the render and gives each metric its correct anchor. The two sheets are placed in a Horizontal container on the dashboard, wrapped in an outer Vertical container that holds a shared title above and a shared so-what below; the outer Vertical carries the card border.
+
+### 9a — Filters (apply to both sheets)
 
 1. Drag `Year Match` to Filters → True → **Add to Context**
 2. Drag `Period` to Filters → select `peak` → **Add to Context**
 3. Drag `Day Type` to Filters → select `1` (weekday) → **Add to Context**
 4. Drag `Line Group` to Filters → select `1/2/3` and `A/C/E` → **Add to Context**
 
-### 9b — Build the view
+### 9b — Build Sheet 6a (Wait Assessment)
 
-1. Drag `Measure Names` to **Columns**
-2. Drag `Line Group` to **Columns** — drop it to the right of `Measure Names` so it nests inside (gives true side-by-side bars, not stacked)
-3. Drag `Measure Values` to **Rows**
-4. In the **Measure Values** card on the Marks pane: right-click every unwanted measure → Remove. Keep only:
-   - `Wait Assessment Pct`
-   - `Terminal Otp Pct`
-5. Mark type: **Bar**
-6. Drag `Line Group` to **Color**
+1. Mark type: **Bar**
+2. Drag `Line Group` to **Rows** (this is what makes the bars horizontal — Line Group on the row axis, measure on the column axis)
+3. Drag `Wait Assessment Pct` to **Columns**
+4. Drag `Line Group` to **Color**
+5. Drag the `Wait Assessment Pct` pill from Columns onto the **Label** card too (or duplicate it via Ctrl+drag)
 
-The view now shows 4 bars: [WA% — 1/2/3] [WA% — A/C/E] | [OTP% — 1/2/3] [OTP% — A/C/E]
+### 9c — Build Sheet 6b (Terminal OTP)
 
-### 9c — Colors and labels
+Duplicate Sheet 6a (right-click sheet tab → Duplicate Sheet). On the copy:
+1. Drag `Wait Assessment Pct` off both Columns and Label
+2. Drag `Terminal Otp Pct` to **Columns**, then to **Label**
+3. Everything else (filters, Line Group on Rows + Color) is inherited from the duplicate
+
+### 9d — Colors and label format (apply to both sheets)
 
 1. Set colors manually: 1/2/3 = `#59a14f`, A/C/E = `#4e79a7`
-2. Drag `Measure Values` to the **Label** card → format as `0.0"%"` (e.g. "84.2%")
-3. Label position: middle center, white text
+2. On the Label card → click the measure pill → **Format** → Numbers → Custom → `0.0"%"` (e.g. `69.6%`). Both labels must match — inconsistent decimals (`69.61%` vs `78.9%`) are the most common cosmetic bug here.
+3. Label position: middle-center, white text — keeps the data inside the colored mark and reduces clutter on the card
 
-### 9d — Axis and reference line (year-aware)
+### 9e — Value axis and reference line (per sheet, year-aware)
 
-1. Right-click the y-axis → **Edit Axis** → Fixed range: `60` to `100` — compresses the scale so the platform gap is visually prominent
-2. **Analytics pane** → drag **Reference Line** onto the chart → scope: **Table** → value: **Average** of `[Wait Assessment Pct]` → label: `"System avg"` → style: dashed gray. Using **Average** instead of **Constant = 81** makes the reference line auto-update with the year filter.
-3. Right-click the `Measure Names` column header → **Edit Alias**: rename `Wait Assessment Pct` → `Wait Assessment %` and `Terminal Otp Pct` → `Terminal OTP %`
+On **each** sheet:
 
-### 9e — Format
+1. Right-click the value axis (now horizontal — the bottom edge) → **Edit Axis** → Fixed range: `60` to `100`. Both sheets share this scale so the bars are visually comparable side-by-side. At 50–100 the gap looks shallower than it is; at 60–100 the ~4 pp gap reads as the headline.
+2. **Analytics pane** → drag **Reference Line** onto the chart → scope: **Table** → value: **Average** of the sheet's own measure (`[Wait Assessment Pct]` on 6a, `[Terminal Otp Pct]` on 6b) → label: `"Penn avg"` (this is the average across Penn-serving routes only, not system-wide — see § Sheet 6 reference line in `project_state.md`) → style: dashed gray
+3. Right-click the value axis → Edit Axis → clear the title field (the sub-title text in the dashboard container will carry the metric name)
+4. Format → Lines → set Row Dividers and Column Dividers to None
 
-1. Right-click the x-axis → Edit Axis → clear the title field
-2. Format → Lines → set Row Dividers and Column Dividers to None (remove gridlines)
-3. Set y-axis title: `% of Riders / Trips`
+### 9f — Sub-titles, shared title, and so-what (on the dashboard)
 
-### 9f — Title (as question), annotation, and so-what
+Each worksheet's own title can stay hidden (Worksheet → Hide Title). The metric labels live in the dashboard layout, not on the sheets, so the two sheets visually read as one card.
 
-- **Title** (Worksheet → Show Title): `Which platform should you trust?`
-- **Caption:** `Wait Assessment (% trains within 25% of headway) and Terminal OTP (% trips arriving on time). 1/2/3 outperforms A/C/E on both — the platform with more iconic "red lines" is also the more measurably reliable one.`
+Container structure on the dashboard:
 
-**Annotation (on chart):**
-1. Right-click the 1/2/3 WA% bar → **Annotate → Mark**
+```
+Vertical container (outer — border #e2e8f0 1px, background #ffffff)
+├── Text: "Which platform should you trust?"          (shared title)
+├── Horizontal container
+│   ├── Vertical container
+│   │   ├── Text: "Wait Assessment %"                 (sub-title 6a)
+│   │   └── Sheet 6a
+│   └── Vertical container
+│       ├── Text: "Terminal On-Time Performance %"    (sub-title 6b)
+│       └── Sheet 6b
+└── Text: "So what: the 1/2/3 platform leads..."      (shared so-what)
+```
+
+Border on the **outer** Vertical only — never on individual sheets, and not on the inner Horizontal (set inner Horizontal background to None so only the outer fill shows). To select the outer Vertical reliably, use Layout pane → **Item hierarchy** at the bottom-left and click the outermost Vertical node directly. There is **no "Add Container Above" menu option** in Tableau — to insert a container, drag from the Objects pane and watch for a thin blue line (sibling drop) vs full-rectangle blue overlay (drops into target as child).
+
+**Annotation (on Sheet 6a only):**
+1. Right-click the 1/2/3 bar on Sheet 6a → **Annotate → Mark**
 2. Type: `"~1 in 25 more trains on time at peak"` (claim-stable across years)
-3. The annotation lives on a specific mark — when the user hovers, they see the tooltip; when they read the dashboard, they see the callout.
 
-**So-what box (insight-green style: `#f0fdf4` fill, `#59a14f` left border, `#14532d` text — matches 1/2/3 hero color):**
+**Caption (placed as Text inside the outer Vertical, between the Horizontal row and the so-what):**
+`Wait Assessment (% trains within 25% of headway) and Terminal OTP (% trips arriving on time). 1/2/3 outperforms A/C/E on both — the platform with more iconic "red lines" is also the more measurably reliable one.`
+
+**So-what (insight-green style: `#f0fdf4` fill, `#59a14f` left border, `#14532d` text — matches 1/2/3 hero color):**
 > **So what:** the 1/2/3 platform leads on both metrics, every quarter of the active year. A ~4-percentage-point Wait Assessment gap means roughly **1 in 25 more trains arrive on schedule** — which compounds across thousands of weekday commutes. *If you have both options on your MetroCard, take 1/2/3.*
 
 ---
@@ -692,7 +726,7 @@ The view now shows 4 bars: [WA% — 1/2/3] [WA% — A/C/E] | [OTP% — 1/2/3] [O
        "Peak stress: "
        + STR(ROUND(SUM([Ridership]) / 1000000.0, 1))
        + "M riders in "
-       + STR([Year Filter])
+       + STR(YEAR([Year Filter]))
      END
      ```
      `MIN([Complex Id])` is required — Tableau won't mix the row-level `[Complex Id]` with aggregate `SUM([Ridership])` in one `IF`.
@@ -778,7 +812,7 @@ The hour column must be a continuous (green) pill for this to work — confirm f
    - Create `Peak Label`:
      ```
      IF MIN([Day Num]) = 2 AND MIN([Hour Of Day]) = 8 THEN
-       "Peak: Tue 8 AM in " + STR([Year Filter]) + " — "
+       "Peak: Tue 8 AM in " + STR(YEAR([Year Filter])) + " — "
        + STR(ROUND(SUM([Ridership]) / [Weekday Cell Avg], 1))
        + "× weekday avg"
      END
@@ -878,7 +912,7 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 | Full width, top | Title + Year Filter parameter control | Floating text box + parameter (Compact List) |
 | Full width | Journey Headline text (year-aware copy) | Floating text box (`#ffffff` bg) |
 | Full width, 4 cols | KPI 1 · KPI 2 · KPI 3 · KPI 4 (each with sub-tag) | Horizontal container, 4 sheets |
-| Full width — **CENTERPIECE** | Reliability Comparison (Sheet 6) + so-what box | Horizontal container, sheet + insight box |
+| Full width — **CENTERPIECE** | Reliability Comparison (Sheet 6a + 6b side-by-side) + shared title above + so-what below | Outer Vertical container with border, inner Horizontal holding 6a + 6b each with their own metric sub-title — see Step 9f for the structure |
 | Full width | Sheets 2 + 3 (Incidents bars + Ridership area, 2×2 grid) + so-what box | Vertical container |
 | Half + half | Cause Ladder (Sheet 4) + so-what · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
 | Half + half | Map (Sheet 7, Penn 318+164 only) + so-what · Heatmap (Sheet 8) + so-what | Horizontal container |
@@ -900,7 +934,7 @@ The `Year Filter` parameter and `Year Match` calc fields are created in Step 3 �
 
 ### 15a — Audit every sheet
 
-For each sheet (1, 2, 3, 4, 5, 6, 7, 8, C-1, C-2, Sankey, all 4 KPIs), confirm:
+For each sheet (1, 2, 3, 4, 5, 6a, 6b, 7, 8, C-1, C-2, Sankey, all 4 KPIs), confirm:
 
 1. `Year Match` is on the Filters shelf, set to **True**, and **in Context** (gray pill, not blue).
 2. The sheet's title, caption, annotation, and so-what box do not contain a hardcoded year string.
@@ -968,7 +1002,7 @@ When you extend `3_transform.sql` WHERE-year ranges and re-run the pipeline:
 - [ ] Map (Sheet 7) shows only complexes 318 and 164 — no wider corridor stations
 - [ ] Box plot Signals row shows the outlier dot at far right (year-dependent — verify exists)
 - [ ] Heatmap Tue 8 AM cell is visibly the darkest, with the dynamic Peak label visible
-- [ ] Reliability bars (Sheet 6 centerpiece): 1/2/3 is higher than A/C/E on both WA% and OTP%
+- [ ] Reliability bars (Sheet 6a + 6b centerpiece): 1/2/3 is higher than A/C/E on both WA% (6a) and OTP% (6b); both sheets share Fixed 60–100 axis
 - [ ] Monthly quilt: platform-specific months stand out (top red panel ≠ bottom purple panel) and the qualifier callout flags the contradicting month
 - [ ] Sankey: band widths reflect each platform's incident totals (visual asymmetry is OK; the reliability story is in Sheet 6, not here)
 - [ ] Sheet N (corridor scatter) is hidden or absent from the dashboard layout
@@ -976,7 +1010,7 @@ When you extend `3_transform.sql` WHERE-year ranges and re-run the pipeline:
 **Filtering and parameters:**
 - [ ] Year filter parameter (Step 3) drives every date-bearing sheet (verify by changing it and watching all charts update)
 - [ ] Year-aware Mark Labels (Sheet 7 Penn label, Sheet 8 Peak label) update when year changes
-- [ ] Reference line on Sheet 6 (system-avg WA%) is set to **Average**, not Constant — auto-updates with year
+- [ ] Reference line on Sheet 6a (Penn-avg WA%) and Sheet 6b (Penn-avg OTP%) — each set to **Average** of its own measure scoped Table, not Constant; labels read "Penn avg" since the average is across Penn-serving routes only, not system-wide
 - [ ] Footer copy + caveats block do not name a specific year
 
 ---
@@ -1028,13 +1062,13 @@ KPI 1 (`~2.9M`) stays. Sub-tags update — see `render_10_option2_cost.html` for
 
 Promote Sheet 8 (Day × Hour Heatmap) to full-width centerpiece directly below the KPI strip. Update its title to `When does it cost the most?` and use the Option 2 so-what variant (already provided in Step 12g).
 
-Demote or remove Sheet 6 (Reliability) — the WA gap is no longer the punchline. Hide rather than delete (Worksheet → Hide) so it can return if you pivot back.
+Demote or remove Sheet 6a + 6b (Reliability) — the WA gap is no longer the punchline. Hide rather than delete (Worksheet → Hide) so they can return if you pivot back.
 
 **4. Sheet retires/demotes (~30 min)**
 
 | Sheet | Action |
 |---|---|
-| Sheet 6 (Reliability) | Hide — no longer load-bearing |
+| Sheet 6a + 6b (Reliability) | Hide both — no longer load-bearing |
 | Sheet 3 (Ridership over time) | Hide — doesn't directly answer the cost question |
 | Sheet C-1 / C-2 (Quilt) | Hide — two-platform contrast removed |
 | Sheet San (Sankey) | Hide or simplify to a single Category → trains-delayed bar |

@@ -125,8 +125,8 @@ Use relationships so each sheet queries its CSV at the correct grain — no doub
 | `Signal Track Share` (used by KPI 4) | monthly_incidents_delays | `SUM(IIF([Category] IN ("Signals","Track"), [Real Inc], 0)) / NULLIF(SUM([Real Inc]), 0)` |
 | `delay_minutes_proxy_v3` (optional, see KPI 3 note) | monthly_incidents_delays | `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0) * 3` |
 | `day_num` | hourly_ridership_corridor | Pre-exported column (`EXTRACT(ISODOW ...)`, 1=Mon–7=Sun) — no calc needed |
-| `Year Filter` (parameter, all sources) | workbook | Integer parameter, default `2024` |
-| `Year Match` | each date-bearing source | `YEAR([date column]) = [Year Filter]` |
+| `Year Filter` (parameter, all sources) | workbook | **DateTime List** parameter; values `1/1/2022`, `1/1/2023`, `1/1/2024` at midnight; display format `yyyy` shows them as `2022`/`2023`/`2024`. Default: most recent year. |
+| `Year Match` | each date-bearing source | `YEAR([date column]) = YEAR([Year Filter])` — wrap the parameter in `YEAR()` since it's a timestamp, not an integer. Add to Filters shelf, set to True, promote to Context. Per-sheet; Tableau doesn't auto-apply parameter-driven calc filters across sheets. |
 
 `line_group` is pre-computed in every export — do not recreate it as a calculated field.
 
@@ -145,7 +145,7 @@ A warm-background card below the title. The text is fixed copy but every claim i
 
 Font: 17px, italic, `#0f172a`. Background: `#ffffff`, border: `#e8e4de`.
 
-For a fully dynamic version, build it as a Text-mark worksheet that uses calc fields concatenating `STR([Year Filter])` with the live WA% gap. Trade-off: text-mark worksheets don't render formatted prose as cleanly as a static text box. Pick one.
+For a fully dynamic version, build it as a Text-mark worksheet that uses calc fields concatenating `STR(YEAR([Year Filter]))` with the live WA% gap. Trade-off: text-mark worksheets don't render formatted prose as cleanly as a static text box. Pick one.
 
 ---
 
@@ -173,7 +173,7 @@ Background per tile: `#0f172a`. Text colors listed per tile. Big number 34px bol
 
 Mark type: Text. Place the calculated value on the Text card. Sub-tag is a separate Text line on the same Text card with smaller font, accent color, and a 1px top border.
 
-> **Don't typo `2024` into any tile or sub-tag.** Sub-tag text is editorial and won't auto-update — keep it claim-stable across years (e.g., "More than the population of Boston" doesn't depend on year). Where a sub-tag must reference a year-specific fact, use a calc field with `STR([Year Filter])` rather than a static string.
+> **Don't typo `2024` into any tile or sub-tag.** Sub-tag text is editorial and won't auto-update — keep it claim-stable across years (e.g., "More than the population of Boston" doesn't depend on year). Where a sub-tag must reference a year-specific fact, use a calc field with `STR(YEAR([Year Filter]))` rather than a static string.
 
 ---
 
@@ -282,27 +282,47 @@ Place Sheet 3 directly below Sheet 2 in a vertical container with the same fixed
 
 ---
 
-## Reliability Comparison: 1/2/3 vs A/C/E (Sheet 6) — CENTERPIECE
+## Reliability Comparison: 1/2/3 vs A/C/E (Sheet 6a + 6b) — CENTERPIECE
 
 **Source:** `service_quality.csv`
 
 **Section title (question form):** *Which platform should you trust?*
 
-**Build:**
-- Columns: `Measure Names` → then `Line Group` nested inside (creates true side-by-side bars, not stacked)
-- Rows: `Measure Values` — keep only `Wait Assessment Pct` and `Terminal Otp Pct`
-- `Line Group` also on **Color**
-- Mark type: Bar
-- Filter: `Period = 'peak'` (Context), `Day Type = 1` (Context), `Line Group IN ("1/2/3","A/C/E")` (Context), `Year Match = TRUE` (Context)
-- Y-axis: Fixed range 60–100 (amplifies the gap visually)
-- Reference line: Constant = system average (currently `81` for 2024 — see note below for year-agnostic version), dashed gray
-- Result: 4 bars — [WA% 1/2/3] [WA% A/C/E] | [OTP% 1/2/3] [OTP% A/C/E]
+**Structure (decided 2026-05-09):** built as **two worksheets**, not one combined sheet, to match the render's two-sub-panel layout (`render_11_option3_platforms.html:180-216`). Each sub-panel carries its own metric sub-title and its own per-metric reference line, which a single combined sheet cannot do honestly (WA% and OTP% have different system means, so a Table-scoped average across both is meaningless).
 
-**Key:** `Line Group` on Columns (nested) rather than Color alone gives side-by-side bars. Color alone gives stacked bars.
+- **Sheet 6a** — Wait Assessment %
+- **Sheet 6b** — Terminal On-Time Performance %
 
-**Year-agnostic reference line:** instead of `Constant = 81`, use a calc field `System WA Avg = WINDOW_AVG(AVG([Wait Assessment Pct]))` and add it as an Average Reference Line on Sheet 6. This auto-updates with the year filter.
+**Build (each sheet):**
+- Mark type: **Bar**
+- Rows: `Line Group` (this puts bars on horizontal — matches the render)
+- Columns: the sheet's own measure (`Wait Assessment Pct` on 6a, `Terminal Otp Pct` on 6b)
+- Color: `Line Group` (1/2/3 = `#59a14f`, A/C/E = `#4e79a7`)
+- Label: same measure as on Columns, format `0.0"%"`, middle-center, white text
+- Filters (all Context): `Period = 'peak'`, `Day Type = 1`, `Line Group IN ("1/2/3","A/C/E")`, `Year Match = TRUE`
+- Value axis (horizontal): Fixed range `60–100`. Both sheets share this scale so the bars are visually comparable side-by-side.
+- Reference line: scope **Table**, value **Average** of the sheet's own measure, label `"Penn avg"` (Penn-serving routes only — not system-wide; see `project_state.md` § Sheet 6 reference line), dashed gray
 
-**Annotation (on chart):** Right-click the 1/2/3 WA% bar → *Annotate → Mark* → `"+{X} pp gap = ~1 in 25 more trains on time"` (where {X} is the live WA gap; or use the `WA Gap` calc on the bar's tooltip and write the annotation to be claim-stable: `"~1 in 25 more trains on time at peak"`).
+**Why horizontal bars + two sheets, not vertical bars on one sheet:** the render is a two-panel CSS grid with horizontal bars — putting both metrics on one sheet with `Measure Names` + `Line Group` nested on Columns produced 4 vertical bars that were correct numerically but didn't match the render and forced a single shared reference line that was scientifically dishonest. The split matches both the visual and the analytic structure.
+
+**Dashboard placement (this is what makes the two sheets read as one card):**
+
+```
+Vertical container (outer — border + background here)
+├── Text:        "Which platform should you trust?"           (shared title)
+├── Horizontal container
+│   ├── Vertical
+│   │   ├── Text:  "Wait Assessment %"                        (sub-title 6a)
+│   │   └── Sheet 6a
+│   └── Vertical
+│       ├── Text:  "Terminal On-Time Performance %"           (sub-title 6b)
+│       └── Sheet 6b
+└── Text:        "So what: the 1/2/3 platform leads..."       (shared so-what)
+```
+
+Border (`#e2e8f0` 1px) and background (`#ffffff`) on the **outer Vertical only**. Inner Horizontal background = None (otherwise it competes with the outer fill). Each worksheet's own title is hidden — the metric labels live in the dashboard Text objects.
+
+**Annotation:** on Sheet 6a, right-click the 1/2/3 bar → *Annotate → Mark* → `"~1 in 25 more trains on time at peak"` (claim-stable across years).
 
 **So-what box:**
 > The 1/2/3 platform leads on both metrics, every quarter of the active year. A ~4-percentage-point Wait Assessment gap means roughly **1 in 25 more trains arrive on schedule** — which compounds across thousands of weekday commutes. *If you have both options on your MetroCard, take 1/2/3.*
@@ -442,7 +462,7 @@ Layers 4-6 are the highest-leverage additions — they convert a chart-of-data i
 
 | Filter | Type | Affects |
 |--------|------|---------|
-| `[Year Filter]` | Integer parameter (List), values `2020`–`<latest>` | All date-bearing sheets via `Year Match` calc |
+| `[Year Filter]` | **DateTime List** parameter; one timestamp row per year (Value `1/1/<yyyy>`, Display As `<yyyy>`); currently 2022/2023/2024. Display format `yyyy`. | All date-bearing sheets via `Year Match` calc — note: must be added to each sheet's Filters shelf manually, won't propagate via "Apply to Worksheets" |
 | Day type | Toggle (weekday/weekend) | Cause Ladder, Reliability, Box Plot |
 
 Place the year parameter as a Compact List control (closest to a pill style) top-right of the dashboard. The list values are stored in the Tableau parameter — extending the data via `3_transform.sql` requires adding new years to the parameter list as well.

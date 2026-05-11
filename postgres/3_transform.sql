@@ -2,8 +2,8 @@
 -- transform.sql — staging tables → typed star schema
 -- Run AFTER schema.sql (which creates the empty target tables)
 -- and load.sql (which fills the stg_* tables).
--- All facts filter to 2024 here. Change WHERE EXTRACT(YEAR ...) = 2024
--- to extend the time window.
+-- All facts filter to 2022-2024 here. Change the BETWEEN range on each
+-- fact's WHERE clause to extend the time window.
 -- =============================================================
 
 --\echo '>>> Truncating target tables'
@@ -149,7 +149,7 @@ ON CONFLICT DO NOTHING;
 -- FACTS — all filtered to 2024
 -- ----------------------------------------------------------------
 
---\echo '>>> fact_major_incidents (2024)'
+--\echo '>>> fact_major_incidents (2022-2024)'
 
 INSERT INTO mta.fact_major_incidents (month, line, day_type, category, incident_count)
 SELECT
@@ -159,12 +159,12 @@ SELECT
     category,
     NULLIF(count, '')::INTEGER
 FROM mta.stg_major_incidents
-WHERE EXTRACT(YEAR FROM month::DATE) = 2024
+WHERE EXTRACT(YEAR FROM month::DATE) BETWEEN 2022 AND 2024
   AND line IS NOT NULL AND line <> ''
   AND category IS NOT NULL AND category <> '';
 
 
---\echo '>>> fact_delay_causing_incidents (2024)'
+--\echo '>>> fact_delay_causing_incidents (2022-2024)'
 
 INSERT INTO mta.fact_delay_causing_incidents (month, line, day_type, reporting_category, delay_count)
 SELECT
@@ -174,15 +174,16 @@ SELECT
     reporting_category,
     REPLACE(NULLIF(incidents, ''), ',', '')::INTEGER
 FROM mta.stg_delay_incidents
-WHERE EXTRACT(YEAR FROM month::DATE) = 2024
+WHERE EXTRACT(YEAR FROM month::DATE) BETWEEN 2022 AND 2024
   AND line IS NOT NULL AND line <> ''
   AND reporting_category IS NOT NULL AND reporting_category <> '';
 
 
--- WA + OTP have a documented dedup issue: 2024 contains BOTH old shuttle codes
--- (S 42nd, S Fkln, S Rock) AND GTFS codes (GS, FS, H) for the same months.
--- Keep GTFS codes (GS/FS/H) and drop the legacy text-named rows.
---\echo '>>> fact_wait_assessment (2024, deduped)'
+-- WA + OTP have a documented dedup issue: from 2024 onward, both old shuttle codes
+-- (S 42nd, S Fkln, S Rock) AND GTFS codes (GS, FS, H) appear for the same months.
+-- For 2024+ rows: keep GTFS codes (GS/FS/H), drop the legacy text-named rows.
+-- Pre-2024 rows have only old codes — keep them as-is (dim_line_route_map maps them to GTFS).
+--\echo '>>> fact_wait_assessment (2022-2024, deduped)'
 
 INSERT INTO mta.fact_wait_assessment (
     month, line, day_type, period,
@@ -197,11 +198,11 @@ SELECT
     REPLACE(NULLIF(num_sched_timepoints,    ''), ',', '')::INTEGER,
     REPLACE(NULLIF(wait_assessment, ''), '%', '')::NUMERIC(8,4)
 FROM mta.stg_wait_assessment
-WHERE EXTRACT(YEAR FROM month::DATE) = 2024
-  AND line NOT IN ('S 42nd', 'S Fkln', 'S Rock');
+WHERE EXTRACT(YEAR FROM month::DATE) BETWEEN 2022 AND 2024
+  AND NOT (EXTRACT(YEAR FROM month::DATE) >= 2024 AND line IN ('S 42nd', 'S Fkln', 'S Rock'));
 
 
---\echo '>>> fact_otp (2024, deduped)'
+--\echo '>>> fact_otp (2022-2024, deduped)'
 
 INSERT INTO mta.fact_otp (
     month, line, day_type,
@@ -215,11 +216,11 @@ SELECT
     REPLACE(NULLIF(num_sched_trips,   ''), ',', '')::INTEGER,
     REPLACE(NULLIF(terminal_otp, ''), '%', '')::NUMERIC(8,4)
 FROM mta.stg_otp
-WHERE EXTRACT(YEAR FROM month::DATE) = 2024
-  AND line NOT IN ('S 42nd', 'S Fkln', 'S Rock');
+WHERE EXTRACT(YEAR FROM month::DATE) BETWEEN 2022 AND 2024
+  AND NOT (EXTRACT(YEAR FROM month::DATE) >= 2024 AND line IN ('S 42nd', 'S Fkln', 'S Rock'));
 
 
---\echo '>>> fact_daily_ridership (2024)'
+--\echo '>>> fact_daily_ridership (2022-2024)'
 
 INSERT INTO mta.fact_daily_ridership (date, mode, ridership)
 SELECT
@@ -227,10 +228,13 @@ SELECT
     mode,
     REPLACE(NULLIF(count, ''), ',', '')::INTEGER
 FROM mta.stg_daily_ridership
-WHERE TO_DATE(date, 'MM/DD/YYYY') BETWEEN '2024-01-01' AND '2024-12-31';
+WHERE TO_DATE(date, 'MM/DD/YYYY') BETWEEN '2022-01-01' AND '2024-12-31';
 
 
---\echo '>>> fact_hourly_ridership (Jan 2024 only — that is all we have loaded)'
+-- Loaded year-by-year (3 separate INSERTs) so progress is visible and a
+-- failure on one year doesn't roll back the others. Each year is independent.
+
+--\echo '>>> fact_hourly_ridership 1/3 (2022)'
 
 INSERT INTO mta.fact_hourly_ridership (
     transit_timestamp, transit_mode, station_complex_id,
@@ -249,6 +253,57 @@ SELECT
     NULLIF(longitude, '')::NUMERIC(9,6)
 FROM mta.stg_hourly_ridership
 WHERE transit_mode = 'subway'                                 -- exclude SIR
+  AND EXTRACT(YEAR FROM transit_timestamp::TIMESTAMP) = 2022
+  AND NULLIF(station_complex_id, '')::INTEGER IN (
+      SELECT complex_id FROM mta.dim_complex                       -- enforce FK
+  );
+
+
+--\echo '>>> fact_hourly_ridership 2/3 (2023)'
+
+INSERT INTO mta.fact_hourly_ridership (
+    transit_timestamp, transit_mode, station_complex_id,
+    payment_method, fare_class_category, ridership, transfers,
+    latitude, longitude
+)
+SELECT
+    transit_timestamp::TIMESTAMP,
+    transit_mode,
+    NULLIF(station_complex_id, '')::INTEGER,
+    payment_method,
+    fare_class_category,
+    NULLIF(ridership, '')::NUMERIC(10,1),
+    NULLIF(transfers, '')::NUMERIC(10,1),
+    NULLIF(latitude,  '')::NUMERIC(9,6),
+    NULLIF(longitude, '')::NUMERIC(9,6)
+FROM mta.stg_hourly_ridership
+WHERE transit_mode = 'subway'                                 -- exclude SIR
+  AND EXTRACT(YEAR FROM transit_timestamp::TIMESTAMP) = 2023
+  AND NULLIF(station_complex_id, '')::INTEGER IN (
+      SELECT complex_id FROM mta.dim_complex                       -- enforce FK
+  );
+
+
+--\echo '>>> fact_hourly_ridership 3/3 (2024)'
+
+INSERT INTO mta.fact_hourly_ridership (
+    transit_timestamp, transit_mode, station_complex_id,
+    payment_method, fare_class_category, ridership, transfers,
+    latitude, longitude
+)
+SELECT
+    transit_timestamp::TIMESTAMP,
+    transit_mode,
+    NULLIF(station_complex_id, '')::INTEGER,
+    payment_method,
+    fare_class_category,
+    NULLIF(ridership, '')::NUMERIC(10,1),
+    NULLIF(transfers, '')::NUMERIC(10,1),
+    NULLIF(latitude,  '')::NUMERIC(9,6),
+    NULLIF(longitude, '')::NUMERIC(9,6)
+FROM mta.stg_hourly_ridership
+WHERE transit_mode = 'subway'                                 -- exclude SIR
+  AND EXTRACT(YEAR FROM transit_timestamp::TIMESTAMP) = 2024
   AND NULLIF(station_complex_id, '')::INTEGER IN (
       SELECT complex_id FROM mta.dim_complex                       -- enforce FK
   );
@@ -262,47 +317,3 @@ SELECT 'otp',                     COUNT(*) FROM mta.fact_otp                    
 SELECT 'daily_ridership',         COUNT(*) FROM mta.fact_daily_ridership         UNION ALL
 SELECT 'hourly_ridership',        COUNT(*) FROM mta.fact_hourly_ridership        UNION ALL
 SELECT 'bridge_complex_route',    COUNT(*) FROM mta.bridge_complex_route;
-
-
-
--- =============================================================
--- SEED DATA: dim_line_route_map
--- =============================================================
--- Run after populating dim_route from GTFS routes.txt.
--- Covers all line codes that appear in incident/delay/WA/OTP source files.
-
-INSERT INTO mta.dim_line_route_map (mta_line, route_id, notes) VALUES
--- Direct 1:1 matches (same string in both source and GTFS)
-('1',       '1',    NULL),
-('2',       '2',    NULL),
-('3',       '3',    NULL),
-('4',       '4',    NULL),
-('5',       '5',    NULL),
-('6',       '6',    NULL),
-('7',       '7',    NULL),
-('A',       'A',    NULL),
-('B',       'B',    NULL),
-('C',       'C',    NULL),
-('D',       'D',    NULL),
-('E',       'E',    NULL),
-('F',       'F',    NULL),
-('G',       'G',    NULL),
-('J',       'J',    NULL),
-('L',       'L',    NULL),
-('M',       'M',    NULL),
-('N',       'N',    NULL),
-('Q',       'Q',    NULL),
-('R',       'R',    NULL),
-('W',       'W',    NULL),
--- New GTFS codes used in newer WA/OTP rows (already match route_id directly)
-('GS',      'GS',   '42nd St Shuttle — GTFS naming used in newer WA/OTP rows'),
-('FS',      'FS',   'Franklin Av Shuttle — GTFS naming used in newer WA/OTP rows'),
-('H',       'H',    'Rockaway Park Shuttle — GTFS naming used in newer WA/OTP rows'),
--- Old text codes used in incidents, delays, and some WA/OTP rows
-('S 42nd',  'GS',   '42nd St Shuttle — old MTA naming; incidents/delays always use this'),
-('S Fkln',  'FS',   'Franklin Av Shuttle — old MTA naming'),
-('S Rock',  'H',    'Rockaway Park Shuttle — old MTA naming'),
--- JZ: J and Z trains are reported as a single line in incidents/delays/WA/OTP.
--- No single GTFS route_id exists for JZ — map to NULL.
--- When querying, use: WHERE mta_line IN ('JZ','J','Z') to capture all.
-('JZ',      NULL,   'J+Z combined — no 1:1 GTFS route_id; handle in application logic');
