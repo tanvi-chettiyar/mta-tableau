@@ -8,10 +8,13 @@ Sheet-by-sheet specs and design decisions for the v3 Tableau dashboard.
 
 ---
 
-## Story — Option 3 (primary): "Inside Penn — Two Platforms, Two Reliability Stories"
+## Story — Option 3 (primary): "Inside Penn — Two Platforms, A Closing Gap"
 
-> **Penn Station looks like one place on a sign. Underneath, it's two reliability stories.**
-> *6 routes converge on one complex; the platform you choose changes your odds.*
+> **Title:** Inside Penn Station: Two Platforms, A Closing Gap
+> **Subtitle:** How the platform you choose changes your odds — and why the gap is shrinking ~ Lines 1/2/3 & A/C/E
+> **Intro paragraph:** Penn Station looks like one place on a sign. Underneath, it's two platforms — 1/2/3 on the west, A/C/E on the east — sharing the same building, the same passengers, and a comparable burden of Signal and Track incidents. But they haven't delivered the same peak reliability. The 1/2/3 has won every year measured, though the gap is closing: A/C/E climbed from 61% to 65% peak Wait Assessment between 2022 and 2024, while 1/2/3 held steady near 70%. Use the year filter below to see the trajectory.
+
+*Title changed from "Two Reliability Stories" (2026-05-11) — multi-year comparison revealed the gap is narrowing, not static. A/C/E is catching up to a stable 1/2/3. See project_state.md memory § "Closing-gap narrative" for the trajectory data.*
 
 The dashboard answers five questions in sequence, each anchored on a chart whose **section title is the question itself**:
 
@@ -27,7 +30,70 @@ The sequence: punchline first → stress test → mechanism → qualifier → co
 
 - **Honest with the data we have.** The earlier "NJ commuter transfer" framing leaned on PATH stations that aren't in the dataset. Penn-only narrows the claim to what the dashboard can defend.
 - **Actionable.** "Take 1/2/3 if you can" is a concrete suggestion supported by every chart.
-- **Year-agnostic.** Nothing in the framing depends on 2024 specifically — extending to 2020-2024 just deepens the contrast.
+- **Year-agnostic.** The framing accommodates any year in the data range; the closing-gap trajectory is the multi-year story.
+
+---
+
+## Canonical caption set (2026-05-11 — supersedes earlier inline so-what text)
+
+The so-what / caption / KPI sub-tag text below is the **canonical static text** for the v3 dashboard. It tells the multi-year closing-gap story; valid regardless of which year the `[Year Filter]` parameter is set to. Use this set when writing to text objects or text-only worksheets.
+
+**Title** — `Inside Penn Station: Two Platforms, A Closing Gap`
+
+**Subtitle** — `How the platform you choose changes your odds — and why the gap is shrinking ~ Lines 1/2/3 & A/C/E`
+
+**Intro paragraph** — Penn Station looks like one place on a sign. Underneath, it's two platforms — 1/2/3 on the west, A/C/E on the east — sharing the same building, the same passengers, and a comparable burden of Signal and Track incidents. But they haven't delivered the same peak reliability. The 1/2/3 has won every year measured, though the gap is closing: A/C/E climbed from 61% to 65% peak Wait Assessment between 2022 and 2024, while 1/2/3 held steady near 70%. Use the year filter below to see the trajectory.
+
+**KPI 4 sub-tag** — `1/2/3 vs A/C/E peak Wait Assessment. Gap narrowing year over year: +8.0 (2022) → +4.3 (2023) → +3.8 (2024) as A/C/E improves toward a stable 1/2/3.`
+
+**Sheet 6 (Reliability comparison) — so what:** 1/2/3 has led on peak reliability every year measured, but the lead is shrinking. A/C/E rose from 61% to 65% while 1/2/3 held near 70%. The advice "take the 1/2/3" still applies in 2024 — but the marginal benefit is half what it was in 2022.
+
+**Sheets 2 + 3 (incidents + ridership over time) — so what:** incident counts swing month-to-month on both platforms, but 1/2/3 has been ahead every year. Ridership rose steadily from 2.3M to 2.9M monthly. The narrowing reliability gap is driven by A/C/E getting better — not by 1/2/3 degrading.
+
+**Sheet C (Monthly Incident Pattern quilt) — so what:** every month of every year sees Signal/Track activity on both platforms — 12/12 in 2022, 2023, and 2024. The narrowing gap isn't explained by changing incident frequency; A/C/E is delivering better peak service against a similar incident load.
+
+**Sheet 4 (Cause Ladder) — so what:** Signals and Track dominate both platforms in every year. The 1/2/3 lead has always existed despite both platforms carrying comparable infrastructure burden — same problem, better recovery on 1/2/3. A/C/E is now closing that recovery gap, not the incident gap.
+
+**Sheet 5 (Delay Duration Distribution box plot) — so what:** "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Both platforms show similar severity distributions across categories — A/C/E's recent improvement isn't from getting lucky with milder incidents, it's from better routine recovery on the same severity backdrop.
+
+**Sheet 7 (Map) — so what:** Penn 1/2/3 (complex 318) and Penn A/C/E (complex 164) are one staircase apart. The reliability choice isn't a transfer — it's a stair direction. The ~4 pp gap still favors 1/2/3, but at half the strength of 2022.
+
+**Sheet 8 (Day × Hour Heatmap) — so what:** Tuesday 8 AM is peak ridership on both platforms in every year measured. The reliability advantage of 1/2/3 is real here, but smaller than it used to be — the rider time saved by choosing 1/2/3 at this cell has roughly halved since 2022.
+
+**Bottom-line conclusion (year-dynamic via Route A — calc field on text-only worksheet):**
+
+```
+"For the " +
+CASE YEAR([Year Filter])
+  WHEN 2022 THEN "2.33M"
+  WHEN 2023 THEN "2.71M"
+  WHEN 2024 THEN "2.92M"
+END
++ " paid entries at Penn each month — riders who often hold both options on their MetroCard — the data answers a single practical question: when both platforms are running, take 1/2/3. The A/C/E platform isn't unreliable — it's the second-best choice in a complex where the best choice is one staircase away.
+
+In " + STR(YEAR([Year Filter])) + ", 1/2/3 leads A/C/E by " +
+CASE YEAR([Year Filter])
+  WHEN 2022 THEN "+8.0 pp"
+  WHEN 2023 THEN "+4.3 pp"
+  WHEN 2024 THEN "+3.8 pp"
+END
++ " on peak Wait Assessment — but that lead has been narrowing. The gap was +8.0 pp in 2022, +4.3 pp in 2023, and +3.8 pp in 2024 as A/C/E climbed from 61% to 65% while 1/2/3 held steady near 70%. Both platforms share the same Signal/Track incident burden; A/C/E is simply getting better at handling it.
+
+The 1/2/3 still wins the head-to-head choice — and the margin is largest exactly when it matters most: Tuesday 8 AM, when ridership peaks on both platforms."
+```
+
+The above is a single calculated field (`[Bottom Line Text]`) on the `service_quality` data source, dropped on a text-only worksheet, placed on the dashboard. Update the CASE values when extending data range. Pattern detail: `tableau_calc_patterns.md` § 13 (memory) and `tableau_public_performance.md` for the why.
+
+**Caveats block (static text object):**
+```
+Caveats: Weekday peak-period data, 2022–2024. Wait Assessment measures headway adherence; it doesn't capture every dimension of "reliability." Stations beyond Penn on either trunk have their own outage profiles that differ from the platform averages shown here. Use the year filter above to see how the gap evolved.
+
+Built by Tanvi Chettiyar · raw CSVs → Postgres star schema → Tableau workbook · The Data School application, 2026.
+```
+
+**Sheet 5 color update (2026-05-11):** drop the red Signal+Track override on dot color — use green/blue platform encoding only (1/2/3 = `#59a14f`, A/C/E = `#4e79a7`, 70% opacity). Box outline `#6b7280` (medium gray), median line `#374151` (darker), whiskers `#9ca3af` (light). Optional: pale-red row band (`#fef2f2` at ~60% opacity) behind Signals + Track rows via Reference Band on Y axis, plus Unicode-bold y-axis labels for those two categories. See `sample_dashboards/render_12_boxplot_colors.html` for the visual preview.
+
+---
 
 ---
 
@@ -158,7 +224,7 @@ Background per tile: `#0f172a`. Text colors listed per tile. Big number 34px bol
 | KPI 1 | Riders entering Penn | `~2.9M` paid entries/month avg across complexes 318 + 164 | `#ffffff` | "More than the population of Chicago, entering one complex every month." |
 | KPI 2 | Routes converging | `6` (1·2·3·A·C·E) | `#fbbf24` | "Only Times Sq-42 St beats this count system-wide." |
 | KPI 3 | Months hit by Signal/Track | `{N}/12` for active year (year-aware) | numerator `#ef4444`, slash + denom `#334155` | "A clean month at Penn was the year's exception, not the rule." |
-| KPI 4 | 1/2/3 platform advantage | `+{X} pp` Wait Assessment % at peak | `#86efac` (light green — matches 1/2/3 hero) | "Compounded over a year of weekday peaks: ~8 extra on-time mornings per rider." |
+| KPI 4 | 1/2/3 platform advantage | `+{X} pp` Wait Assessment % at peak | `#86efac` (light green — matches 1/2/3 hero) | "Gap narrowing year over year: +8.0 (2022) → +4.3 (2023) → +3.8 (2024) as A/C/E improves toward a stable 1/2/3." |
 
 > **Why these 4.** This strip reframed away from v2's `99` outages + `72%` infrastructure share. The story arc here is *scale → concentration → frequency → punchline*. Each KPI previews a chart that comes later: KPI 1 ↔ Sheet 8 ridership cell; KPI 2 ↔ Map; KPI 3 ↔ Quilt; KPI 4 ↔ Sheet 6 centerpiece. The strip is the dashboard in miniature.
 

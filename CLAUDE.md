@@ -8,20 +8,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A Tableau portfolio dashboard for The Data School application.
 
-### Primary narrative — Option 3: "Inside Penn — Two Platforms, Two Reliability Stories"
+### Primary narrative — Option 3: "Inside Penn — Two Platforms, A Closing Gap"
 
-**Penn Station looks like one place on a sign. Underneath, it's two reliability stories.**
-The 1/2/3 platform and the A/C/E platform serve the same complex but deliver measurably different
-peak-hour performance. For the riders entering Penn each month, the data answers a single
-practical question: *which platform should you trust?*
+**Penn Station looks like one place on a sign. Underneath, it's two platforms — and a closing gap.**
+The 1/2/3 platform has been more reliable than the A/C/E every year measured, but A/C/E has been
+catching up — peak Wait Assessment rose from ~61% to ~65% (2022→2024) while 1/2/3 held steady near 70%.
+The gap narrowed from +8.0 pp to +3.8 pp over two years. For the riders entering Penn each month, the data answers a single practical question — and tracks how the answer's value has changed: *which platform should you trust, and by how much?*
 
 #### Story arc (6 beats)
 
 1. **Scale** — ~2.9M paid entries/month at Penn across complexes 318 (1/2/3) and 164 (A/C/E); 6 routes converge here (1·2·3·A·C·E).
-2. **The punchline first** — 1/2/3 platform delivers ~4 pp better peak Wait Assessment than A/C/E (Sheet 6 promoted to top of body).
+2. **The punchline first** — 1/2/3 platform leads A/C/E on peak Wait Assessment every year, but the gap is narrowing: +8.0 pp (2022) → +4.3 pp (2023) → +3.8 pp (2024) (Sheet 6 promoted to top of body).
 3. **Is the gap real?** — Monthly incidents + ridership split by platform prove it's structural, not a one-month anomaly (Sheets 2 + 3).
 4. **Why does it exist?** — Cause Ladder shows Signals + Track dominate both platforms. The 1/2/3 absorbs a comparable infrastructure load yet still delivers — likely a service-frequency / recovery-operations story (Sheet 4).
-5. **Honest qualifier** — Quilt (Sheet C) shows the platforms don't fail in lockstep; one month a year flips the picture and is the one month the headline advice would have failed. The map (Sheet 7, refocused to Penn 318 + 164 only) shows the two complexes are one staircase apart.
+5. **Honest qualifier** — the gap is closing because A/C/E is getting better, not because 1/2/3 is degrading (best-case scenario, system-wide improvement). Quilt (Sheet C) shows the platforms don't fail in lockstep. The map (Sheet 7, refocused to Penn 318 + 164 only) shows the two complexes are one staircase apart.
 6. **When does the choice matter most?** — Tue 8 AM heatmap cell is peak for both platforms (Sheet 8) — exactly when the ~4 pp gap saves the most riders the most time.
 
 #### Mockup reference
@@ -43,9 +43,19 @@ If pivoting from Option 3 → Option 2, see `TABLEAU_BUILD_GUIDE.md` § "Backup 
 
 `monthly_incidents_delays.csv` is built from a `LEFT JOIN` of two facts on `(month, line, day_type)` only — but they have different category systems (`category` vs `reporting_category`), so the export is a Cartesian product. Raw `SUM([Incident Count])` and `SUM([Delay Count])` over-count. Use the `Real Inc` and `Real Delay` dedup calcs from `TABLEAU_BUILD_GUIDE.md` Step 3, and promote `Category`/`Line Group`/`Day Type` filters to **Context** on any sheet that uses them.
 
-### Headline sign — verified 2024 data
+### Headline sign — verified 2022-2024 data
 
-For weekday peak Wait Assessment in 2024: **1/2/3 = 69.6%, A/C/E = 65.8%, gap = +3.84 pp in favor of 1/2/3**. Terminal OTP gap is +4.42 pp same direction. The 1/2/3 is the more reliable platform; A/C/E is the worse-performing alternate. Note that 1/2/3 actually carries *more* Signal+Track incidents (52 vs 47 weekdays/year) — the reliability lead exists *despite* a comparable or higher infrastructure-incident burden, so frame the cause-ladder beat as "same problem, better recovery" rather than "fewer problems."
+**Per-year peak weekday Wait Assessment (verified against rendered dashboards):**
+
+| Year | KPI 1 Riders | KPI 4 WA Gap | 1/2/3 peak WA | A/C/E peak WA |
+|------|--------------|--------------|---------------|---------------|
+| 2022 | 2.33M        | +8.02 pp     | ~70%          | ~61%          |
+| 2023 | 2.71M        | +4.31 pp     | ~70%          | ~65%          |
+| 2024 | 2.92M        | +3.84 pp     | 69.6%         | 65.8%         |
+
+**1/2/3 has been the more reliable platform every year measured; A/C/E has been catching up.** 1/2/3 holds steady near 70%; A/C/E has climbed from ~61% to ~65%. **The gap is narrowing** — the dashboard story is convergence, not a static fact. Terminal OTP gap in 2024 is +4.42 pp same direction.
+
+Also note 1/2/3 carries *more* Signal+Track incidents than A/C/E (52 vs 47 weekdays/year in 2024) — the reliability lead exists *despite* a comparable or higher infrastructure burden, so frame the cause-ladder beat as "same problem, better recovery" rather than "fewer problems." A/C/E's recent improvement is on the same incident backdrop — it's getting better at handling them, not avoiding them.
 
 ### Time scope — year-parameterized
 
@@ -197,7 +207,7 @@ KPI strip — Option 3:
 - KPI 1 — **`~2.9M`** paid entries/month at Penn (year-aware: `SUM([Ridership]) / COUNTD([Month])` filtered by `[Year Filter]`; combined complex 318 + 164)
 - KPI 2 — **`6`** routes converging (1·2·3·A·C·E) — derived from `bridge_complex_route` for complexes 318 + 164; effectively static unless service changes
 - KPI 3 — **`{N}/12`** months hit by Signal/Track on Penn routes (year-aware: `Months With Incidents` calc)
-- KPI 4 — **`+{X} pp`** 1/2/3 vs A/C/E peak Wait Assessment advantage (year-aware: 1/2/3 avg minus A/C/E avg, peak weekday only)
+- KPI 4 — **`+{X} pp`** 1/2/3 vs A/C/E peak Wait Assessment advantage (year-aware: 1/2/3 avg minus A/C/E avg, peak weekday only). Multi-year trajectory: +8.0 (2022) → +4.3 (2023) → +3.8 (2024) — closing gap as A/C/E catches up
 
 KPI strip — Option 2 backup (cost angle, if pivoting):
 - KPI 1 — `~2.9M` paid entries/month (same as Option 3)

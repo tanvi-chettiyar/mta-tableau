@@ -77,7 +77,7 @@ Switch data sources using the dropdown at the top of the Data pane and create th
 | `monthly_incidents_delays` | `YEAR([Month]) = YEAR([Year Filter])` |
 | `monthly_ridership` | `YEAR([Month]) = YEAR([Year Filter])` |
 | `service_quality` | `YEAR([Month]) = YEAR([Year Filter])` |
-| `hourly_ridership_corridor` | `YEAR([Transit Timestamp]) = YEAR([Year Filter])` |
+| `hourly_ridership_corridor` | `YEAR([Year Date]) = YEAR([Year Filter])` — *post Fix #1 (pre-aggregation); the source no longer carries `Transit Timestamp`* |
 | `dim_corridor_complexes` | skip — no date column |
 
 > **Wrap the parameter in `YEAR()` on both sides.** Because `[Year Filter]` is a DateTime (Step 3a), writing `YEAR([Month]) = [Year Filter]` compares an integer to a timestamp and silently returns False for every row. Always `YEAR([Year Filter])`. This same wrapping applies to every other calc that touches the parameter in a date comparison (e.g., KPI 3's "Months in Year" denominator below — Step 4g).
@@ -124,7 +124,7 @@ SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0) * 3
 AVG(IF [Line Group] = '1/2/3' THEN [Wait Assessment Pct] END)
 - AVG(IF [Line Group] = 'A/C/E' THEN [Wait Assessment Pct] END)
 ```
-Returns the percentage-point advantage of 1/2/3 over A/C/E. Year-aware via `Year Match`. Filter to `Period = 'peak'` and `Day Type = 1` in Context. Verified 2024 value: **+3.84 pp** (1/2/3 = 69.61%, A/C/E = 65.77%).
+Returns the percentage-point advantage of 1/2/3 over A/C/E. Year-aware via `Year Match`. Filter to `Period = 'peak'` and `Day Type = 1` in Context. Multi-year trajectory: **+8.0 pp (2022) → +4.3 pp (2023) → +3.8 pp (2024)** — closing gap as A/C/E catches up to a stable 1/2/3. Verified 2024 detail: 1/2/3 = 69.6%, A/C/E = 65.8%.
 
 **Riders Per Month** (used by KPI 1) — created on `monthly_ridership`:
 ```
@@ -642,15 +642,17 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
    - Alternatively: with Circle marks active, go to **Analysis menu → Box Plot**
    - The circles become the underlying data points; the box plot layer overlays quartiles and whiskers
 
-### 10c — Sort and color (spotlight palette)
+### 10c — Sort and color (platform encoding) *(updated 2026-05-11)*
 
-1. Right-click `Category` on the Rows shelf → **Sort** → sort descending by the `Severity Ratio` calc. The category at top is whichever has the highest median severity in 2024 ("Other" and "Stations and Structure" are likely top — verify in the active year).
-2. Drag `Category` to **Color** → Edit Colors. Use **spotlight** logic — accent the *one* category your so-what calls out, mute everything else:
-   - **Surprise category** (whichever is top after sort, e.g., `Other`) → `#dc2626` (red, the alert color)
-   - All other categories → `#94a3b8` (gray)
-3. Reduce circle opacity to 60% (Format → Marks → Opacity) so box plot lines read clearly over the dots
+1. Right-click `Category` on the Rows shelf → **Sort** → sort descending by the `Severity Ratio` calc. The category at top is whichever has the highest median severity in the active year ("Other" and "Stations and Structure" typically lead — verify in the active year).
+2. Drag `Line Group` to **Color** → Edit Colors. Assign the platform palette:
+   - `1/2/3` → `#59a14f` (green, hero platform)
+   - `A/C/E` → `#4e79a7` (blue, alternate platform)
+3. Reduce circle opacity to 70% (Format → Marks → Opacity) so overlapping monthly observations show density without blobbing.
+4. Box plot styling: outline `#6b7280` (medium gray), median line `#374151` (darker), whiskers `#9ca3af` (light gray) — colors recede so the platform dots are the focal layer. Set via right-click box → **Format Box Plot** (whisker color, fill = none / transparent).
+5. **Optional emphasis on Signals + Track rows:** drag Analytics → Reference Band onto the Y axis → Band From `Signals`, Band To `Track`, Fill `#fef2f2` at ~60% opacity, Label None. Works only if those two rows are adjacent in the sort order; if not, use two single-row reference bands (see `tableau_build_learnings.md` § 25). For bold y-axis labels on those two categories, use the Unicode bold trick (`tableau_calc_patterns.md` § 14).
 
-> **Why spotlight, not a full category palette:** Sheet 5 tells a frequency-vs-severity contrast story. The surprise is that the visually-dominant category from Sheet 4 (Signals) is *not* the worst on per-incident severity — that surprise needs to land visually. One accent color on the actual worst makes the surprise immediate; six different category colors distract. Don't reuse the platform green/blue here — the chart isn't about platforms.
+> **Why green/blue platform encoding (not the earlier red-spotlight palette):** the v3 so-what claims "both platforms show similar severity distributions across categories — A/C/E's improvement is from better routine recovery on the same severity backdrop." That visual claim requires green vs blue dots side-by-side within each category row. A spotlight palette (red accent on the surprise category) made sense under the older "Signals dominate" framing but contradicts the closing-gap narrative. Visual preview: `sample_dashboards/render_12_boxplot_colors.html`.
 
 ### 10d — Box plot formatting
 
@@ -673,8 +675,8 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 - **Title** (Worksheet → Show Title): `How bad is bad — per-incident severity?`
 - **Caption:** `Per-month spread of delay-causing incidents per major incident, by category. Each circle = one month. Signals shows the longest tail and the highest outlier.`
 
-**So-what box (Option 3 framing):**
-> **So what:** severity tracks frequency: Signals are both the most frequent failure type *and* the longest-tailed in delay. The ~4 pp WA gap on Sheet 6 isn't driven by 1/2/3 seeing fewer Signal events — both platforms see comparable counts — but by how the 1/2/3 absorbs them with less rider impact.
+**So-what box (Option 3 framing, canonical 2026-05-11):**
+> **So what:** "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Both platforms show similar severity distributions across categories — A/C/E's recent improvement isn't from getting lucky with milder incidents, it's from better routine recovery on the same severity backdrop.
 
 **Alternative so-what (Option 2 cost framing, if pivoting):**
 > **So what:** Signal failures span 4 to 52 minutes — that's the range a Penn rider can't plan around. Track failures cluster tightly: a Track incident is bad but predictable; a Signal incident might cost an entire commute.
@@ -763,8 +765,8 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 
 ### 12b — Build the grid
 
-1. Drag `HOUR([Transit Timestamp])` to **Columns** — right-click → **Continuous** (green pill, not blue) — this is required for reference bands to work
-2. Drag `DATENAME('weekday', [Transit Timestamp])` to **Rows** — this gives day names (Monday, Tuesday…)
+1. Drag `Hour Of Day` to **Columns** — right-click → **Continuous** (green pill, not blue) — this is required for reference bands to work. *(Post Fix #1: this column is now native in the export; no `HOUR(...)` extraction needed.)*
+2. Drag `Day Of Week` to **Rows** — this gives day names (Monday, Tuesday…). *(Post Fix #1: native column; no `DATENAME(...)` wrapper needed.)*
 3. Mark type: **Square**
 4. Drag `SUM([Ridership])` to **Color**
 
