@@ -12,9 +12,9 @@ Sheet-by-sheet specs and design decisions for the v3 Tableau dashboard.
 
 > **Title:** Inside Penn Station: Two Platforms, A Closing Gap
 > **Subtitle:** How the platform you choose changes your odds — and why the gap is shrinking ~ Lines 1/2/3 & A/C/E
-> **Intro paragraph:** Penn Station looks like one place on a sign. Underneath, it's two platforms — 1/2/3 on the west, A/C/E on the east — sharing the same building, the same passengers, and a comparable burden of Signal and Track incidents. But they haven't delivered the same peak reliability. The 1/2/3 has won every year measured, though the gap is closing: A/C/E climbed from 61% to 65% peak Wait Assessment between 2022 and 2024, while 1/2/3 held steady near 70%. Use the year filter below to see the trajectory.
+> **Intro paragraph:** Penn Station looks like one place on a sign. Underneath, it's two platforms — and a closing gap. The 1/2/3 platform has led A/C/E on peak Wait Assessment every year measured, but the lead has shrunk from +8.0 pp in 2022 to +4.3 pp in 2023 to +3.8 pp in 2024. A/C/E climbed from 61% to 66% while 1/2/3 held steady near 70% — and both platforms absorbed roughly 40% more major incidents along the way. Same name, different odds — narrowing.
 
-*Title changed from "Two Reliability Stories" (2026-05-11) — multi-year comparison revealed the gap is narrowing, not static. A/C/E is catching up to a stable 1/2/3. See project_state.md memory § "Closing-gap narrative" for the trajectory data.*
+*Title changed from "Two Reliability Stories" (2026-05-11) — multi-year comparison revealed the gap is narrowing, not static. A/C/E is catching up to a stable 1/2/3. Intro rewritten 2026-05-28 to include the rising-incidents finding from Sheet 4a (cause-side trajectory): convergence happens against a rising load on both platforms, not a calming system — recovery operations, not prevention. See project_state.md memory § "Closing-gap narrative" + § "Second-AI critique iteration" for the supporting data.*
 
 The dashboard answers five questions in sequence, each anchored on a chart whose **section title is the question itself**:
 
@@ -42,25 +42,31 @@ The so-what / caption / KPI sub-tag text below is the **canonical static text** 
 
 **Subtitle** — `How the platform you choose changes your odds — and why the gap is shrinking ~ Lines 1/2/3 & A/C/E`
 
-**Intro paragraph** — Penn Station looks like one place on a sign. Underneath, it's two platforms — 1/2/3 on the west, A/C/E on the east — sharing the same building, the same passengers, and a comparable burden of Signal and Track incidents. But they haven't delivered the same peak reliability. The 1/2/3 has won every year measured, though the gap is closing: A/C/E climbed from 61% to 65% peak Wait Assessment between 2022 and 2024, while 1/2/3 held steady near 70%. Use the year filter below to see the trajectory.
+**Intro paragraph** — Penn Station looks like one place on a sign. Underneath, it's two platforms — and a closing gap. The 1/2/3 platform has led A/C/E on peak Wait Assessment every year measured, but the lead has shrunk from +8.0 pp in 2022 to +4.3 pp in 2023 to +3.8 pp in 2024. A/C/E climbed from 61% to 66% while 1/2/3 held steady near 70% — and both platforms absorbed roughly 40% more major incidents along the way. Same name, different odds — narrowing.
 
 **KPI 4 sub-tag** — `1/2/3 vs A/C/E peak Wait Assessment. Gap narrowing year over year: +8.0 (2022) → +4.3 (2023) → +3.8 (2024) as A/C/E improves toward a stable 1/2/3.`
 
-**Sheet 6 (Reliability comparison) — so what:** 1/2/3 has led on peak reliability every year measured, but the lead is shrinking. A/C/E rose from 61% to 65% while 1/2/3 held near 70%. The advice "take the 1/2/3" still applies in 2024 — but the marginal benefit is half what it was in 2022.
+**Trajectory chart (added 2026-05-28; between KPI strip and Sheet 6) — title (assertion-form):** `1/2/3 holds; A/C/E catches up` · **so what:** 1/2/3 has held near 70% every year measured. A/C/E has climbed from 61% to 66% over two years. The gap is closing because A/C/E is getting better against a rising-incident backdrop, not because 1/2/3 is degrading — a pure operations gain.
 
-**Sheets 2 + 3 (incidents + WA% over time) — so what:** incident counts swing month-to-month on both platforms, but the reliability gap holds steady within each year — and year over year, the A/C/E line is rising toward 1/2/3. The narrowing gap is driven by A/C/E getting better, not by 1/2/3 degrading. Ridership is on KPI 1 — Sheet 3 now carries the reliability line directly so the chart pair answers the section question visibly.
+**Sheet 6 (Reliability comparison) — so what:** 1/2/3 leads A/C/E on both Wait Assessment and Terminal OTP in every year measured (2022–2024). The lead is now ~4 pp, down from ~8 pp in 2022, but the direction never flips. If both options are on your MetroCard, take 1/2/3.
 
-**Sheet C (Monthly Incident Pattern quilt) — so what:** every month of every year sees Signal/Track activity on both platforms — 12/12 in 2022, 2023, and 2024. The narrowing gap isn't explained by changing incident frequency; A/C/E is delivering better peak service against a similar incident load.
+**Sheet 2 (Monthly Signal+Track incidents stacked by platform) — caption:** `Stacked monthly Signal + Track major incidents — 1/2/3 in green, A/C/E in blue. Combined height = system-wide stress; the split shows which corridor absorbed it.` · **so what:** The stacks rise and fall every month — Signal and Track incidents aren't concentrated in one bad spike, they spread across the calendar. So when the reliability gap holds month after month (Sheet 3), it's against a steady incident burden, not a quiet stretch. And 1/2/3's green segment is the larger share in most months — the busier corridor still delivers the better service. (Total burden has grown year over year — see the cause trajectory below.)
 
-**Sheet 4 (Cause Ladder) — so what:** Signals and Track dominate both platforms in every year. The 1/2/3 lead has always existed despite both platforms carrying comparable infrastructure burden — same problem, better recovery on 1/2/3. A/C/E is now closing that recovery gap, not the incident gap.
+**Sheet 3 (Monthly WA% by platform — title: "Does the gap hold every month?") — so what:** The 1/2/3 line sits above A/C/E every month measured — not just on annual average. The trajectory chart at the top shows the gap is closing *year-over-year*; this chart shows it never *flips* within a year. Whatever the structural advantage is, it's always-on, not a peak-month artifact.
 
-**Sheet 5 (Per-incident severity bar) — so what:** "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Severity dominates total delay; frequency dominates the daily rider experience. (Box plot retired 2026-05-22 per feedback — dozens of overlapping dots slowed the reader; the labeled bar reads in seconds.)
+**Sheet C (Monthly Incident Pattern quilt) — so what:** Same calendar shape, different magnitudes. The bright cells line up across both rows — same bad months, same quiet months — but 1/2/3 is the busier platform, carrying more incident events per month in most cells. The reliability lead persists despite a heavier infrastructure load — strong signal that the advantage is operational, not infrastructural.
 
-**Sheet 7 (Map) — so what:** Penn 1/2/3 (complex 318) and Penn A/C/E (complex 164) are one staircase apart. The reliability choice isn't a transfer — it's a stair direction. The ~4 pp gap still favors 1/2/3, but at half the strength of 2022.
+**Sheet 4 (Cause Ladder) — so what:** Persons on Trackbed, Signals, and Track are the top three categories on both platforms — same problem profile. 1/2/3 carries the heavier load in each (visibly longer green bars). The reliability gap isn't a different mix of failures hitting each platform; it's what happens after an incident. The chart below extends this from category mix to total incident volume across all categories, year over year. (Verify per-platform claim against active year's bars before shipping; soften if only 2 of 3 categories hold.)
 
-**Sheet 8 (Day × Hour Heatmap) — so what:** Tuesday 8 AM is peak ridership on both platforms in every year measured. The reliability advantage of 1/2/3 is real here, but smaller than it used to be — the rider time saved by choosing 1/2/3 at this cell has roughly halved since 2022.
+**Sheet 4a (Cause-side trajectory; added 2026-05-28; between Sheet 4 and Sheet 5) — title (assertion-form):** `More incidents on both — A/C/E closes the gap anyway` · **caption:** `Total major incidents per year, by platform, 2022–2024 — all categories.` · **so what:** Both platforms absorbed ~40% more incidents in 2024 than in 2022, and 1/2/3 has carried more incident events than A/C/E in every year measured (+13 in 2022, +6 in 2023, +23 in 2024). Yet A/C/E's Wait Assessment climbed and the reliability gap narrowed. The closing gap isn't fewer problems on A/C/E — it's faster recovery from the same (and rising) problems. An operations story, not a prevention one.
 
-**Bottom-line conclusion (year-dynamic via Route A — calc field on text-only worksheet):**
+**Sheet 5 (Per-incident severity bar) — so what:** Signals carry the most volume (Sheet 4) but rank middle on per-event severity. The top per-incident severity sits with categories that fire infrequently — 'Other' and 'Stations and Structure' — each event runs many more delayed trains than a Signal failure does. Frequency and severity tell different stories; the reliability gap is driven mostly by the high-frequency middle band. (Box plot retired 2026-05-22 per feedback; top-2 accent is year-aware via the `Top Severity Highlight` calc — see Sheet 5 build section for the formula.)
+
+**Sheet 7 (Map; upgraded 2026-05-28 — Size from `Real Inc` → per-complex monthly ridership) — so what:** One staircase between them. The larger circle marks the busier platform by monthly ridership; the labels carry the reliability gap. Same complex on the sign, two different services underneath — and the choice is worth ~4 pp at peak Wait Assessment, every weekday, across roughly the same rider weight on each side.
+
+**Sheet 8 (Day × Hour Heatmap) — so what:** Tuesday 8 AM is peak on both platforms — and it's also the hour where the ~4 pp Wait Assessment gap costs the most riders the most time. If the platform choice ever matters, it matters here. The dashboard's practical answer in one cell.
+
+**Bottom-line conclusion (year-dynamic via Route A — calc field on text-only worksheet; rising-incidents framing applied 2026-05-28):**
 
 ```
 "For the " +
@@ -77,21 +83,25 @@ CASE YEAR([Year Filter])
   WHEN 2023 THEN "+4.3 pp"
   WHEN 2024 THEN "+3.8 pp"
 END
-+ " on peak Wait Assessment — but that lead has been narrowing. The gap was +8.0 pp in 2022, +4.3 pp in 2023, and +3.8 pp in 2024 as A/C/E climbed from 61% to 65% while 1/2/3 held steady near 70%. Both platforms share the same Signal/Track incident burden; A/C/E is simply getting better at handling it.
++ " on peak Wait Assessment — but that lead has been narrowing. The gap was +8.0 pp in 2022, +4.3 pp in 2023, and +3.8 pp in 2024, even as both platforms absorbed ~40% more major incidents over the period. A/C/E climbed from 61% to 66% while 1/2/3 held steady near 70% — the convergence is recovery operations, not a calmer system.
 
 The 1/2/3 still wins the head-to-head choice — and the choice matters most exactly when ridership peaks: Tuesday 8 AM, on both platforms."
 ```
 
 The above is a single calculated field (`[Bottom Line Text]`) on the `service_quality` data source, dropped on a text-only worksheet, placed on the dashboard. Update the CASE values when extending data range. Pattern detail: `tableau_calc_patterns.md` § 13 (memory) and `tableau_public_performance.md` for the why.
 
-**Caveats block (static text object):**
+**Replaced sentence (2026-05-28):** the prior wording — *"Both platforms share the same Signal/Track incident burden; A/C/E is simply getting better at handling it"* — under-claimed the finding from Sheet 4a. Burden is *growing*, not just *shared* (~40% rise on both, 2022→2024). New wording lands the recovery-operations punchline more sharply against a chart-verified backdrop.
+
+**Caveats block (static text object; rising-incidents note added 2026-05-28):**
 ```
-Caveats: Weekday peak-period data, 2022–2024. Wait Assessment measures headway adherence; it doesn't capture every dimension of "reliability." Stations beyond Penn on either trunk have their own outage profiles that differ from the platform averages shown here. Use the year filter above to see how the gap evolved.
+Caveats: Weekday peak-period data, 2022–2024. Wait Assessment measures peak-period headway adherence; it doesn't capture every dimension of "reliability." Major-incident counts rose materially on both platforms across the period — the WA improvements happened against a rising-load backdrop, not a calmer system. Stations beyond Penn on either trunk have their own outage profiles that differ from the platform averages shown here. Use the year filter above to see how the gap evolved.
 
 Built by Tanvi Chettiyar · raw CSVs → Postgres star schema → Tableau workbook · The Data School application, 2026.
 ```
 
-**Sheet 5 — replaced 2026-05-22:** the box plot was retired in favor of a labeled horizontal severity bar (one bar per category, no platform split). Reviewer feedback flagged the box plot's dozens of overlapping monthly dots as analyst-heavy. The labeled bar shows `AVG([Severity Ratio])` per category with a `"{X.X}× delay"` label suffix, sorted descending. Color: neutral `#94a3b8` for all categories with `#dc2626` accent on the top-of-sort category. Platform encoding lives on Sheets 6, 2, 3, and 4 — Sheet 5 just shows the cross-cause severity hierarchy. (Earlier green/blue box plot variant kept in `sample_dashboards/render_12_boxplot_colors.html` for archive.)
+**Sheet 5 — replaced 2026-05-22, refined post-feedback:** the box plot was retired in favor of a labeled horizontal severity bar (one bar per category, no platform split). Reviewer feedback flagged the box plot's dozens of overlapping monthly dots as analyst-heavy. The labeled bar shows `Severity Ratio` per category with a `"{N} delays/inc"` label suffix, sorted descending. Color: muted gray `#94a3b8` with `#dc2626` accent on top-2 categories via the `Top Severity Highlight = IF RANK_UNIQUE([Severity Ratio], 'desc') <= 2 THEN "Alert" ELSE "Muted" END` calc on Color (Compute Using → Category) — so the accent follows the active year's data automatically. Platform encoding lives on Sheets 6, 2, 3, and 4 — Sheet 5 just shows the cross-cause severity hierarchy. (Earlier green/blue box plot variant kept in `sample_dashboards/render_12_boxplot_colors.html` for archive.)
+
+> **Unit phrasing:** earlier label format used `"× delay"` (multiplier framing) — at the actual magnitude of 80–110, multiplier reads awkwardly. Switched to `delays/inc` (count-ratio framing) which reads correctly at any magnitude. Apply to both Sheet 4 label suffix and Sheet 5 bar label so the unit is consistent across the dashboard. The ratio represents `SUM(Real Delay) / SUM(Real Inc)` where `Real Delay` is the MTA's delay-causing-incident count (not literal trains delayed) and `Real Inc` is the major-incident count.
 
 ---
 
@@ -103,42 +113,60 @@ Documented fallback if the platform-contrast framing weakens with more years of 
 
 ---
 
-## Layout — Option 3 (render_11 structure)
+## Layout — Option 3 (render_11 structure, updated 2026-05-28)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ Title + subtitle                       [Year Filter (param)] │
 ├─────────────────────────────────────────────────────────────┤
-│ Journey headline (italic, warm card) — year-aware text      │
+│ Intro paragraph (italic, warm card) — multi-year framing    │
 ├──────────┬──────────┬──────────┬──────────────────────────── │
 │  KPI 1   │  KPI 2   │  KPI 3   │  KPI 4   (dark navy tiles) │
 │  ~2.9M   │   6      │  N/12    │  +X pp                     │
 │  + sub-tag    + sub-tag    + sub-tag    + sub-tag           │
-├──────────┴──────────┴──────────┴──────────────────────────── │
+├─────────────────────────────────────────────────────────────┤
+│ Trajectory — WA% by Line Group × year (2022→2024)            │
+│   "1/2/3 holds; A/C/E catches up"  (assertion-form)         │
+│   Two lines · per-year gap on x-axis aliases · ignores      │
+│   [Year Filter] · so-what box                               │
+├─────────────────────────────────────────────────────────────┤
 │ Sheet 6 — Reliability Comparison (CENTERPIECE, full width)  │
 │   "Which platform should you trust?"                        │
-│   WA% bars · OTP% bars · system-avg ref line · so-what box  │
+│   WA% bars · OTP% bars · Penn-avg ref line · so-what box    │
 ├─────────────────────────────────────────────────────────────┤
 │ Sheets 2 + 3 — Incidents + WA% over time (full width, split)│
 │   "Is the gap real, or just an average?"                    │
-│   2×1 grid: Sheet 2 stacked incidents bar (top) ·            │
-│   Sheet 3 WA% line by platform (bottom) · so-what box        │
+│   2×1 grid: Sheet 2 stacked incidents bar (top, caption +   │
+│   so-what) · Sheet 3 WA% line by platform (bottom, so-what) │
 ├────────────────────────┬────────────────────────────────────┤
 │ Sheet 4 — Cause Ladder │ Sheet C — Quilt (C-1 above C-2)    │
 │   "Same kinds of       │   "Do they fail at the same time?" │
 │    failure?"           │   September qualifier callout      │
-│   so-what box          │   so-what box                      │
-├────────────────────────┼────────────────────────────────────┤
+│   so-what box (with    │   so-what box                      │
+│   handshake → 4a)      │                                    │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 4a — Cause-side trajectory (full width)                │
+│   "More incidents on both — A/C/E closes the gap anyway"    │
+│   Side-by-side bars per year × Line Group · all categories  │
+│   · ignores [Year Filter] · so-what box                     │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 5 — Per-incident severity (labeled bar, full width)   │
+│   "How bad is bad — per-incident severity?"                 │
+│   Top-2 red accent (year-aware) · so-what box               │
+├────────────────────────┬────────────────────────────────────┤
 │ Sheet 7 — Map (Penn 318│ Sheet 8 — Day × Hour Heatmap        │
-│   + 164 only)          │   "If you had to pick one moment?" │
-│   "How close, really?" │   Tue 8 AM annotation              │
-│   so-what box          │   so-what box                      │
+│   + 164, size by       │   "If you had to pick one moment?" │
+│   ridership)           │   Tue 8 AM annotation              │
+│   "How close, really?" │   so-what box                      │
+│   so-what box          │                                    │
 ├────────────────────────┴────────────────────────────────────┤
 │ Footer — "The bottom line" + caveats block (dark navy card) │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Sheet 5 (box plot) and Sheet San (Sankey) are kept as supporting charts but slot into a secondary row if space allows; they aren't load-bearing for the platform-contrast thesis. Sheet N (corridor scatter) is **retired** — it carries the wide-corridor + PATH framing that doesn't fit the Penn-only narrative.
+Sheet 5 sits between Sheet 4a and the map/heatmap row — supporting beat (severity), distinct from the volume-trend story Sheet 4a carries. Sheet San (Sankey) is **removed** from the primary layout (kept as hidden sheet in the workbook for Option 2 pivot). Sheet N (corridor scatter) is **retired** — it carries the wide-corridor + PATH framing that doesn't fit the Penn-only narrative.
+
+**Two cards intentionally cross-year (ignore `[Year Filter]`):** the Trajectory card and Sheet 4a. Every other sheet respects the filter. The rule: snapshot questions keep `Year Match`; trajectory questions skip it. Trajectory cards must visually signal "I'm multi-year" via axis aliases (e.g. `2022 (+8.0 pp)`) so a reader doesn't misread them as the active year's data.
 
 ---
 
@@ -257,7 +285,7 @@ Mark type: Text. Place the calculated value on the Text card. Sub-tag is a separ
 
 **Source:** `monthly_incidents_delays.csv`
 
-**Purpose:** Shows incident frequency per **(category × platform)** — one horizontal bar per platform, grouped within each category. The chart directly answers whether the platforms see different *kinds* of failure (mostly, no — same dominant categories), which makes the so-what conclude that the reliability gap is downstream of incident type, not upstream of it. Per-incident severity is shown as a **label on each bar** (`"{X.X}× delay"`) — not a second visual encoding.
+**Purpose:** Shows incident frequency per **(category × platform)** — one horizontal bar per platform, grouped within each category. The chart directly answers whether the platforms see different *kinds* of failure (mostly, no — same dominant categories), which makes the so-what conclude that the reliability gap is downstream of incident type, not upstream of it. Per-incident severity is shown as a **label on each bar** (`"{N} delays/inc"`) — not a second visual encoding.
 
 > **2026-05-22 — feedback fix:** the earlier build used a dual-axis circle to encode severity on the *same* x-axis as the bar (synchronized, so position read as if it were on the count scale). Reviewer flagged this as double-encoding: one axis was doing two semantic jobs. The fix is to drop the circle entirely and put severity in the bar label. The chart now has one encoding per visual channel (length = count, color = platform, label = severity).
 
@@ -265,17 +293,19 @@ Mark type: Text. Place the calculated value on the Text card. Sub-tag is a separ
 - Rows: `[category]`, then `[line_group]` nested inside (one row per platform per category)
 - Columns: `SUM([Real Inc])` as a Bar mark — single axis, no dual
 - Color: `[line_group]` (1/2/3 = `#59a14f`, A/C/E = `#4e79a7`)
-- Sort: `[category]` by `SUM([Real Inc])` descending — Signals floats to the top
+- Sort: `[category]` by `SUM([Real Inc])` descending — top of sort varies by year (verify; "Persons on Trackbed" has led recently)
 - Filter: `Line Group IN ("1/2/3","A/C/E")` (Context), `Day Type = 1` (Context), `Year Match = TRUE` (Context), `Category` ALL (Context for FIXED LODs)
-- **Label:** drag `SUM([Real Inc])` to Label first, then add a calc field `Severity Suffix` = `" · " + STR(ROUND([Severity Ratio], 1)) + "× delay"` to Label as a second pill. Label format: count in bold, suffix in muted gray (`#64748b`). Final label per bar reads e.g. `38 · 3.2× delay`.
-- `Severity Ratio` calc (create on `monthly_incidents_delays`): `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)` — same calc as before, just no longer plotted on its own axis.
+- **Label:** drag `SUM([Real Inc])` to Label first, then add a calc field `Severity Suffix` = `" · " + STR(ROUND([Severity Ratio], 0)) + " delays/inc"` to Label as a second pill. Label format: count in bold, suffix in muted gray (`#64748b`). Final label per bar reads e.g. `38 · 97 delays/inc`.
+- `Severity Ratio` calc (create on `monthly_incidents_delays`): `SUM([Real Delay]) / NULLIF(SUM([Real Inc]), 0)` — same calc as before, just no longer plotted on its own axis. **Magnitude lands 80–110 in the actual data** (earlier docs showed `3.2×` as a placeholder); see `tableau_calc_patterns.md` for the magnitude/unit reasoning.
 
 **Section title (question form):** *Do both platforms see the same kinds of failure?*
 
 **So-what callout (below chart):**
-> Broadly yes — Signals dominate both platforms, Track sits second on both. The "× delay" labels show severity is comparable per-category across the two platforms too. The reliability gap on Sheet 6 *isn't* explained by a different mix of failures hitting each platform, nor by different severity per incident; both platforms see the same problem profile. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
+> Broadly yes — Persons on Trackbed leads on both platforms, with Signals and Track close behind. The `delays/inc` labels show severity is comparable per-category across platforms. **The bigger surprise: in every one of the top three categories (Trackbed, Signals, Track), 1/2/3 actually carries *more* incidents on average than A/C/E — yet still wins on reliability.** The gap shown above *isn't* explained by a different mix of failures, nor by different severity per incident, nor by lower incident counts on 1/2/3. Both platforms see the same problem profile; 1/2/3 sees *more* of it. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
 
-**Annotation (on chart):** Right-click the Signals row → *Annotate → Mark* → `"Signals dominate both platforms — same problem, different absorption"`.
+The bolded sentence is the chart's punchline — render it bold in the dashboard text object. Verify the "1/2/3 sees more" claim against the live render: each of the top 3 category rows should show a visibly longer green bar than blue bar. If only 2 of 3 hold, soften the claim to name the categories that do (e.g. "in Trackbed and Signals, 1/2/3 carries more...").
+
+**Annotation (on chart):** Right-click the **Persons on Trackbed** row → *Annotate → Mark* → `"Trackbed intrusions hit 1/2/3 more often — yet 1/2/3 still leads on reliability. Recovery, not avoidance."` (Verify Persons on Trackbed is the top category by `Real Inc` in the active year; if a different category leads, anchor on that row instead and rephrase.)
 
 ---
 
@@ -346,7 +376,7 @@ To make this dynamic, identify the qualifier month with a calc field rather than
 - `Line Group` on **Color** — produces two lines, one per platform
 - Filter (all in Context): `Period = 'peak'`, `Day Type = 1`, `Line Group IN ("1/2/3","A/C/E")`, `Year Match = TRUE`
 - Y-axis: Edit Axis → fixed range `60` to `80`, format as percent with one decimal (`0.0"%"`), title `Wait Assessment % (peak weekday)`
-- Sheet title (visible on dashboard): `Wait Assessment % by platform, monthly`
+- Sheet title (visible on dashboard, question form): `Does the gap hold every month?`
 - Optional reference line: scope Table, value Average of `Wait Assessment Pct`, label `"Penn avg"`, dashed gray — makes the gap quantitatively visible against a neutral baseline.
 
 **So-what box (below the stack):**
@@ -417,12 +447,12 @@ This is the dashboard's centerpiece — promote to top of body, full width.
 - Rows: `[category]` sorted descending by `AVG([Severity Ratio])`
 - Columns: `AVG([Severity Ratio])` — Mark type: **Bar**
 - Filter: `Incident Count` range min = 1 (Range of Values filter), `Day Type = 1` (Context), `Line Group IN ("1/2/3","A/C/E")` (Context), `Year Match = TRUE` (Context), `Category` ALL (Context for FIXED LODs)
-- Color: neutral `#94a3b8` for all bars, with a single accent — the top-of-sort category (typically "Other" or "Stations and Structure" — verify in active year) in `#dc2626`. Use a calc field `Top Severity Highlight` = `IF [Category] = (the top category) THEN "highlight" ELSE "muted" END` on Color, OR just edit colors per-category after the sort settles.
-- Label: drag `AVG([Severity Ratio])` to Label, format as `0.0"× delay"`. Final label per bar reads e.g. `4.2× delay`.
+- Color: muted gray `#94a3b8` for all bars, with red `#dc2626` accent on the **top-2 categories** (year-aware). Use calc field `Top Severity Highlight = IF RANK_UNIQUE([Severity Ratio], 'desc') <= 2 THEN "Alert" ELSE "Muted" END` on Color, with **Compute Using → Category** set on the pill (critical — without it the rank computes wrong). Adjust threshold: `= 1` for single-top accent, `<= 2` for top-2 (default), `<= 3` only if top-3 genuinely clusters apart from the rest. Manual coloring breaks when the year filter changes (Tableau stores only one set of color assignments), so calc-driven is the only robust path.
+- Label: drag `Severity Ratio` to Label, format as `0" delays/inc"`. Final label per bar reads e.g. `97 delays/inc`. **Unit matches Sheet 4** (was `"× delay"` before — multiplier framing reads awkwardly at the actual magnitude of 80–110; `delays/inc` reads correctly at any magnitude).
 - No platform split. The platform contrast lives on Sheets 6, 2, 3, and 4 — Sheet 5 just shows the severity hierarchy across causes.
-- X-axis: title `Trains delayed per major incident (proxy)`.
+- X-axis: title `Delay-causing incidents per major incident` (was `Trains delayed per major incident (proxy)` — `Real Delay` counts MTA delay-causing-incident reports, not literal trains).
 
-**Annotation (on chart):** Right-click the top category's bar → *Annotate → Mark* → `"{Category} delivers the worst-day severity — rare but catastrophic"` (claim-stable across years).
+**Annotation (on chart):** *Recommended: skip the annotation entirely.* Year-aware accent + year-aware labels + question-form title already carry the message; a static annotation creates a year-aware/static mismatch (the annotation doesn't move when the year filter changes). If you keep one, choose static for default year (`"{Category} delivers the worst-day severity — rare but catastrophic"` with `{Category}` typed in for the default year) or dynamic via a Mark Label calc that returns text only for the rank-1 bar.
 
 **So-what box (Option 3):**
 > "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Severity dominates total delay; frequency dominates the daily rider experience.

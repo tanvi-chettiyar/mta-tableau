@@ -20,8 +20,8 @@ The gap narrowed from +8.0 pp to +3.8 pp over two years. For the riders entering
 1. **Scale** — ~2.9M paid entries/month at Penn across complexes 318 (1/2/3) and 164 (A/C/E); 6 routes converge here (1·2·3·A·C·E).
 2. **The punchline first** — 1/2/3 platform leads A/C/E on peak Wait Assessment every year, but the gap is narrowing: +8.0 pp (2022) → +4.3 pp (2023) → +3.8 pp (2024) (Sheet 6 promoted to top of body).
 3. **Is the gap real?** — Monthly incidents + ridership split by platform prove it's structural, not a one-month anomaly (Sheets 2 + 3).
-4. **Why does it exist?** — Cause Ladder shows Signals + Track dominate both platforms. The 1/2/3 absorbs a comparable infrastructure load yet still delivers — likely a service-frequency / recovery-operations story (Sheet 4).
-5. **Honest qualifier** — the gap is closing because A/C/E is getting better, not because 1/2/3 is degrading (best-case scenario, system-wide improvement). Quilt (Sheet C) shows the platforms don't fail in lockstep. The map (Sheet 7, refocused to Penn 318 + 164 only) shows the two complexes are one staircase apart.
+4. **Why does it exist?** — Cause Ladder shows Persons on Trackbed, Signals, and Track lead on both platforms. **1/2/3 actually carries *more* incidents than A/C/E in each of the top-3 categories** — a heavier infrastructure load — yet still delivers better reliability. The gap is a service-frequency / recovery-operations story (Sheet 4). Sheet 4a (cause-side trajectory, added 2026-05-28) extends this from category mix to total incident volume across all categories year-over-year, and reveals **both platforms absorbed ~40% more incidents from 2022 to 2024** (1/2/3: 87 → 124; A/C/E: 74 → 101) with 1/2/3 carrying more every year (+13, +6, +23 incident-event gap). So the convergence is unambiguously a recovery-operations story, not a prevention one — A/C/E is getting better at handling a rising load, not avoiding incidents.
+5. **Honest qualifier** — the gap is closing because A/C/E is getting better against a rising-incident backdrop on both platforms, not because 1/2/3 is degrading. Best-case operations gain, not a calming system. Quilt (Sheet C) shows the platforms don't fail in lockstep. The map (Sheet 7, refocused to Penn 318 + 164 only) shows the two complexes are one staircase apart.
 6. **When does the choice matter most?** — Tue 8 AM heatmap cell is peak for both platforms (Sheet 8) — exactly when the ~4 pp gap saves the most riders the most time.
 
 #### Mockup reference
@@ -53,9 +53,21 @@ If pivoting from Option 3 → Option 2, see `TABLEAU_BUILD_GUIDE.md` § "Backup 
 | 2023 | 2.71M        | +4.31 pp     | ~70%          | ~65%          |
 | 2024 | 2.92M        | +3.84 pp     | 69.6%         | 65.8%         |
 
-**1/2/3 has been the more reliable platform every year measured; A/C/E has been catching up.** 1/2/3 holds steady near 70%; A/C/E has climbed from ~61% to ~65%. **The gap is narrowing** — the dashboard story is convergence, not a static fact. Terminal OTP gap in 2024 is +4.42 pp same direction.
+**1/2/3 has been the more reliable platform every year measured; A/C/E has been catching up.** 1/2/3 holds steady near 70%; A/C/E has climbed from 61% to 66%. **The gap is narrowing** — the dashboard story is convergence, not a static fact. Terminal OTP gap in 2024 is +4.42 pp same direction.
 
-Also note 1/2/3 carries *more* Signal+Track incidents than A/C/E (52 vs 47 weekdays/year in 2024) — the reliability lead exists *despite* a comparable or higher infrastructure burden, so frame the cause-ladder beat as "same problem, better recovery" rather than "fewer problems." A/C/E's recent improvement is on the same incident backdrop — it's getting better at handling them, not avoiding them.
+**Numerical convention:** in narrative prose use 61% / 66% for A/C/E (rounded, no tilde — actuals 61.0 / 65.8 round to integers) and "near 70%" for 1/2/3 (soft framing — the year-to-year wobble of 69.6 / 70.0 / 69.8 doesn't earn precise rounding the way A/C/E's 5-pp climb does). Asymmetry is deliberate. Precise values (`65.8%`, `69.6%`) belong on chart axes and KPI tiles, not in narrative prose.
+
+Also note 1/2/3 carries *more* incidents than A/C/E across the top three Sheet 4 categories — Persons on Trackbed, Signals, and Track. The reliability lead exists *despite* a heavier infrastructure burden, so frame the cause-ladder beat as "same problem, better recovery" rather than "fewer problems." This is chart-verifiable: in the live workbook each top-3 category row should show a visibly longer green bar (1/2/3) than blue bar (A/C/E).
+
+**Cause-side trajectory (Sheet 4a, added 2026-05-28)** sharpens the recovery-operations story further. Total annual incidents (all categories) per platform:
+
+| Year | 1/2/3 | A/C/E | 1/2/3 lead (incidents) |
+|------|-------|-------|----------------------|
+| 2022 | 87 | 74 | +13 |
+| 2023 | 88 | 82 | +6 |
+| 2024 | 124 | 101 | +23 |
+
+Both platforms saw ~40% more incidents in 2024 than 2022 (1/2/3: +42%, A/C/E: +37%). 1/2/3 carries more incident events every year measured, with the incident-load gap actually *widening* in 2024 — even as the WA% gap narrowed. So A/C/E's recent improvement isn't fewer disruptions; it's faster recovery from a rising number of disruptions. The closing reliability gap is unambiguously a **recovery-operations story**, chart-verified by Sheet 4a.
 
 ### Time scope — year-parameterized
 
@@ -192,15 +204,17 @@ Each sheet's title is phrased as a question; each chart card carries a "so what"
 | # | Sheet | Chart | Section title (as question) |
 |---|-------|-------|------------------------------|
 | 1 | KPI strip (4 tiles) | Text (calculated fields) | n/a — 4 numbers + sub-tags |
+| Traj | **WA trajectory — between KPI strip and Sheet 6** *(added 2026-05-28)* | Two-line chart, peak weekday WA% per Line Group × year (2022→2024); axis aliases append per-year gap (`2022 (+8.0 pp)` etc.); **does NOT respect `[Year Filter]`** | 1/2/3 holds; A/C/E catches up *(assertion-form — this card delivers the title's promise)* |
 | 6 | Reliability comparison (WA% + OTP%) — **CENTERPIECE, full width, top of body** | Side-by-side bar | Which platform should you trust? |
 | 2 | Incidents over time × platform | Stacked bar (Line Group on Color) | Is the gap real, or just an average that hides bad months? |
-| 3 | WA% over time × platform *(post-2026-05-22; was ridership area)* | Line chart (Line Group on Color, peak weekday) | (paired with Sheet 2 — same section; directly draws the reliability gap month by month) |
-| 4 | Cause Ladder (split by platform) | Horizontal bar by (category × platform), severity in bar label suffix *(`X · X.X× delay`; circle dropped 2026-05-22)* | Do both platforms see the same kinds of failure? |
+| 3 | WA% over time × platform *(post-2026-05-22; was ridership area)* | Line chart (Line Group on Color, peak weekday) | Does the gap hold every month? *(question-form per 2026-05-27 iteration)* |
+| 4 | Cause Ladder (split by platform) | Horizontal bar by (category × platform), severity in bar label suffix *(`X · N delays/inc`; circle dropped 2026-05-22; unit revised from `× delay` post-feedback to fit 80–110 magnitude)* | Do both platforms see the same kinds of failure? |
+| 4a | **Cause-side trajectory — between Sheet 4 and Sheet 5** *(added 2026-05-28)* | Side-by-side bars, `Real Inc` per Line Group × year, **all categories**; **does NOT respect `[Year Filter]`** | More incidents on both — A/C/E closes the gap anyway *(assertion-form — chart-verifies recovery-operations thesis)* |
 | C | Monthly Incident Pattern quilt | Highlight table (C-1/C-2 stacked, per-platform palette) | Do the platforms fail at the same time? |
-| 7 | Where the cost concentrates — **refocused to Penn 318 + 164** | Filtered symbol map | How close are the two platforms, really? |
+| 7 | Where the cost concentrates — **refocused to Penn 318 + 164; Size encoding switched from Real Inc → per-complex monthly ridership 2026-05-28** | Filtered symbol map with manual WA% annotations on each dot | How close are the two platforms, really? |
 | 8 | Day × hour heatmap | Heatmap | If you had to pick one moment to avoid Penn, when? |
 | 5 | Per-incident severity (optional supporting) | Labeled horizontal bar (one bar per category, top-of-sort in red accent) *(was box plot; replaced 2026-05-22)* | How bad is bad — per-incident severity? |
-| San | Sankey — delay flow by category + platform | Sankey (Category on Level, Line Group on Level, Real Delay on Link) | How do delays distribute? |
+| ~~San~~ | ~~Sankey — delay flow by category + platform~~ | REMOVED from primary layout *(post-2026-05-22; redundant with Sheet 4 after split-by-platform refactor; kept in workbook as hidden sheet for Option 2 pivot)* | — |
 | ~~N~~ | ~~Corridor Narrative scatter~~ | RETIRED — incompatible with Penn-only framing | — |
 
 KPI strip — Option 3:

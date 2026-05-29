@@ -384,11 +384,13 @@ It computes per-cell because both `Real Delay` and `Real Inc` are aggregates —
 1. Drag `SUM([Real Inc])` to the **Label** shelf — this puts the count on each bar
 2. Create a calc field **Severity Suffix** on `monthly_incidents_delays`:
    ```
-   " · " + STR(ROUND([Severity Ratio], 1)) + "× delay"
+   " · " + STR(ROUND([Severity Ratio], 0)) + " delays/inc"
    ```
 3. Drag `Severity Suffix` to the **Label** shelf as a second pill (drop it next to the count)
 4. Open the Label card → Edit Label → format the count in bold default color, the suffix in `#64748b` (muted gray) so the eye reads count-first
-5. Final label on each bar reads e.g. `38 · 3.2× delay`
+5. Final label on each bar reads e.g. `38 · 97 delays/inc`
+
+> **Magnitude note:** the ratio is `SUM(Real Delay) / SUM(Real Inc)`, where `Real Inc` counts *major incidents* and `Real Delay` counts *delay-causing incident reports* (a more granular MTA metric). One major incident typically generates ~80–110 downstream delay-causing-incident records, so values land in the 80–110 range, not 1–10. Earlier docs showed `3.2×` as a placeholder — that was illustrative, not data. Hence the `ROUND(..., 0)` (no decimal needed at this magnitude) and `delays/inc` (the multiplier framing `"× delay"` reads awkwardly when the value is 97).
 
 > Make sure Category, Line Group, Day Type filters are all in **Context** — without that, the FIXED LODs inside `Real Inc`/`Real Delay` ignore the category filter and the ratio is wrong.
 
@@ -404,17 +406,51 @@ It computes per-cell because both `Real Delay` and `Real Inc` are aggregates —
 ### 6e — Title (as question), annotation, and so-what box
 
 - **Title** (Worksheet → Show Title → Edit Title): `Do both platforms see the same kinds of failure?`
-- **Caption** (Worksheet → Show Caption): `Bar length = major incidents on that platform. Label suffix = trains delayed per major incident (severity). Side-by-side within each category, both platforms.`
+- **Caption** (Worksheet → Show Caption): `Bar length = major incidents on that platform. Label suffix = delay-causing incident reports per major incident (severity). Side-by-side within each category, both platforms.`
 
 **Annotation (on chart):**
-1. Right-click the Signals row (either platform's bar) → **Annotate → Mark**
-2. Type: `"Signals dominate both platforms — same problem, different absorption"` (claim-stable across years)
+1. Right-click the **Persons on Trackbed** row (either platform's bar) → **Annotate → Mark** — *verify this is the top category by `Real Inc` in the active year; if a different category leads, anchor on that row instead*
+2. Type: `"Trackbed intrusions hit 1/2/3 more often — yet 1/2/3 still leads on reliability. Recovery, not avoidance."` (the "more often" half is directly visible in the side-by-side green/blue bar lengths on that row)
 3. Style the callout: small font, subtle gray border.
 
 **So-what box (floating text on dashboard, below the chart):**
-> **So what:** broadly yes — Signals dominate both platforms, Track sits second on both. The "× delay" labels also show severity is comparable per-category across platforms. The reliability gap on Sheet 6 *isn't* explained by a different mix of failures hitting each platform, nor by different severity per incident; both platforms see the same problem profile. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
+> **So what:** broadly yes — Persons on Trackbed leads on both platforms, with Signals and Track close behind. The "delays/inc" labels show severity is comparable per-category across platforms. **The bigger surprise: in every one of the top three categories (Trackbed, Signals, Track), 1/2/3 actually carries *more* incidents on average than A/C/E — yet still wins on reliability.** The gap shown above *isn't* explained by a different mix of failures, nor by different severity per incident, nor by lower incident counts on 1/2/3. Both platforms see the same problem profile; 1/2/3 sees *more* of it. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
+
+> The bolded sentence is the chart's punchline — bold it visually in the dashboard text object so the eye lands on it.
+
+> **Verify per-platform claim before shipping.** The "1/2/3 sees more" claim is chart-verifiable: for each of the top 3 category rows, the green bar should be visibly longer than the blue bar. If only 2 of 3 hold (or the rank order is different), soften to name only the categories that hold ("...in two of the top three categories — Trackbed and Signals — 1/2/3 carries more..."). Don't claim more than the bars show.
 
 Use the `.insight` style for the **hero (1/2/3) green family**: light fill `#f0fdf4`, 3px left border `#59a14f`, body text `#14532d`, font 11px.
+
+### 6f — Sheet 4a (Cause-side trajectory) — added 2026-05-28
+
+**Source:** `monthly_incidents_delays` (same as Sheet 4)
+
+**Goal:** Volume-trend partner to Sheet 4. Side-by-side bars showing total annual `Real Inc` per Line Group across 2022 / 2023 / 2024, all categories. Answers *"is A/C/E having fewer incidents (prevention story) or recovering better from a rising load (operations story)?"* — chart-verifies CLAUDE.md narrative beat 5.
+
+> **Cross-year by design.** Do **not** add `Year Match` to this sheet's filter shelf. Sheet 4a is intentionally the one cross-year card in the cause-side block.
+
+**Filters:** `Day Type` = `1` (Add to Context), `Line Group` ∈ `{1/2/3, A/C/E}` (Add to Context), `Category` = all (Add to Context — FIXED LODs need it).
+
+**Marks:**
+- Columns: `YEAR(Month)` discrete (blue pill), then `Line Group` to the right of it (groups bars side-by-side per year)
+- Rows: `SUM([Real Inc])` (the dedup calc; not raw `Incident Count`)
+- Color: `Line Group` → `#59a14f` / `#4e79a7`
+- Mark type: Bar
+- Label: `SUM([Real Inc])` integer-formatted, shown on each bar
+
+**Polish:**
+- Hide y-axis title (Edit Axis → blank Title field)
+- X-axis aliases: append the per-year incident-load gap to each year tick — `2022 (+13)`, `2023 (+6)`, `2024 (+23)`
+- Tooltip: `<Line Group> · <YEAR(Month)> · <Real Inc>` only
+
+**Title (assertion-form):** `More incidents on both — A/C/E closes the gap anyway`
+**Caption:** `Total major incidents per year, by platform, 2022–2024 — all categories.`
+**So-what:** see `DASHBOARD_MODEL.md` § canonical caption set.
+
+**Place on dashboard:** full content width, ~260 px tall, between Sheet 4 and Sheet 5.
+
+**Verify-before-shipping check:** the 87/88/124 (1/2/3) and 74/82/101 (A/C/E) values were verified against the live render 2026-05-28. If your numbers differ materially after a data refresh, check that all filters are in Context (otherwise the FIXED LODs ignore the Line Group filter and bar magnitudes inflate).
 
 ---
 
@@ -554,8 +590,10 @@ The fixed 60–80 range is the same band the Sheet 6 centerpiece uses for WA —
 
 #### 8i — Title and caption (Sheet 3)
 
-- **Sheet 3 title (visible — paired with Sheet 2):** `Wait Assessment % by platform, monthly`
+- **Sheet 3 title (visible — paired with Sheet 2, question form):** `Does the gap hold every month?`
 - **Sheet 3 caption:** `Monthly Wait Assessment % at peak weekday, split by platform. The gap between the green and blue lines is the reliability advantage of 1/2/3 — drawn month by month so a "bad month" can't hide an average.`
+
+> **Title pattern:** the original descriptive label (`Wait Assessment % by platform, monthly`) didn't match the rest of the dashboard's question-form titles (`Which platform should you trust?`, `Do both platforms see the same kinds of failure?`, etc.). The revised title is narrower than the section header above (`Is the gap real, or just an average that hides bad months?`) — the section asks whether the gap exists; Sheet 3 specifically answers whether it appears month-by-month.
 
 **So-what box for the paired section (place below both charts):**
 > **So what:** the incident bars confirm the stress is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month. The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year (A/C/E rising toward a stable 1/2/3). Same data, drawn directly.
@@ -638,6 +676,38 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 **So-what (insight-green style: `#f0fdf4` fill, `#59a14f` left border, `#14532d` text — matches 1/2/3 hero color):**
 > **So what:** the 1/2/3 platform leads on both metrics, every quarter of the active year. A ~4-percentage-point Wait Assessment gap means roughly **1 in 25 more trains arrive on schedule** — which compounds across thousands of weekday commutes. *If you have both options on your MetroCard, take 1/2/3.*
 
+### 9g — Trajectory chart (cross-year WA %) — added 2026-05-28
+
+**Source:** `service_quality` (same as Sheets 6a/6b)
+
+**Goal:** Two-line chart showing peak weekday Wait Assessment % per Line Group across 2022 → 2024, so the closing-gap arc carries from the headline into the body. **Sits directly between the KPI strip and Sheet 6 on the dashboard** — same data family as Sheet 6, just rolled up across all three years instead of a single-year snapshot.
+
+> **Cross-year by design.** Do **not** add `Year Match` to this sheet's filter shelf. The Trajectory and Sheet 4a are the only two cards on the dashboard that intentionally ignore `[Year Filter]`.
+
+**Filters:** `Day Type` = `1` (Add to Context), `Period` = `peak` (Add to Context), `Line Group` ∈ `{1/2/3, A/C/E}` (Add to Context).
+
+**Marks:**
+- Columns: `YEAR(Month)` — discrete (blue pill)
+- Rows: `AVG([Wait Assessment Pct])` (or whatever measure Sheet 6a uses — match exactly)
+- Color: `Line Group` → `#59a14f` / `#4e79a7`
+- Detail: `Line Group` (so each line draws across years)
+- Mark type: Line
+- Label: WA value as percent, 1 decimal
+
+**Polish:**
+- Hide y-axis title (Edit Axis → blank Title)
+- Y-axis fixed range: `58%` to `75%` — covers full range with breathing room
+- X-axis aliases: append per-year gap to each tick — `2022 (+8.0 pp)`, `2023 (+4.3 pp)`, `2024 (+3.8 pp)`. Right-click `YEAR(Month)` pill → Aliases…
+- Tooltip: `<Line Group> · <YEAR(Month)> · <WA %>` only
+
+**Title (assertion-form, because this card delivers the dashboard title's promise):** `1/2/3 holds; A/C/E catches up`
+**Caption:** `Peak weekday Wait Assessment %, 2022 → 2024.`
+**So-what:** see `DASHBOARD_MODEL.md` § canonical caption set.
+
+**Place on dashboard:** full content width, ~160–200 px tall (smaller than Sheet 6 — it's a setup card, not the centerpiece), between the KPI strip and Sheet 6.
+
+**Belt-and-suspenders check:** dashboard → click the Year Filter parameter card → drop-down → "Apply to Worksheets…" → "Selected Worksheets…" → confirm this trajectory sheet is unchecked. Flip the year filter through 2022/2023/2024; every other sheet should change, the trajectory card should not.
+
 ---
 
 ## Step 10 — Per-incident Severity Bar (Sheet 5) — *2026-05-22 rebuild*
@@ -664,38 +734,77 @@ Border on the **outer** Vertical only — never on individual sheets, and not on
 4. **Do NOT add Month to Detail.** That was required for the retired box plot (to get per-month dots). For the bar chart we want one aggregate value per category — leave Detail empty.
 5. Right-click `Category` on Rows → Sort → field `Severity Ratio`, aggregation `Avg` (or whatever Tableau exposes — the calc is already aggregate), descending. Top category is the most-severe (typically "Other" or "Stations and Structure" — verify per year).
 
-### 10c — Color (single-accent spotlight, not platform split)
+### 10c — Color (calc-driven top-N accent, not platform split)
 
-Sheet 5 isn't a platform-comparison chart — the platform contrast lives on Sheets 6, 2, 3, and 4. Sheet 5 just shows the severity hierarchy across causes, so use a single accent:
+Sheet 5 isn't a platform-comparison chart — the platform contrast lives on Sheets 6, 2, 3, and 4. Sheet 5 just shows the severity hierarchy across causes, so use a top-N accent that follows the active year's data (manual coloring breaks when the year filter changes, because Tableau stores only one set of color assignments).
 
-1. Default bar color: muted gray `#94a3b8`
-2. Single accent: the top-of-sort category in `#dc2626` (red). Two ways:
-   - **Manual (simplest):** Edit Colors after the sort settles → assign the top category red, all others gray
-   - **Calc-driven (year-stable):** create a calc field `Top Severity Highlight` = `IF [Category] = {FIXED : MAX(IF [Sort Helper] = 1 THEN [Category] END)} THEN "alert" ELSE "muted" END` and put it on Color. Overkill unless you want the spotlight to auto-follow the active year's top category.
+1. Create calc field **Top Severity Highlight** on `monthly_incidents_delays`:
+   ```
+   IF RANK_UNIQUE([Severity Ratio], 'desc') <= 2 
+   THEN "Alert" 
+   ELSE "Muted" 
+   END
+   ```
+   Adjust the threshold: `= 1` for a single top-of-sort accent, `<= 2` for top-2 (current default — keeps the spotlight effect while flagging both extreme categories), `<= 3` only if your data genuinely has a top-3 cluster that pulls away from the rest.
+2. Drag `Top Severity Highlight` to **Color** on the Marks card.
+3. **Critical:** right-click the pill on Color → **Compute Using → Category** (not Table Across, not Pane). Without this the rank computes in the wrong direction and miscolors everything.
+4. Edit Colors:
+   - `Alert` → `#dc2626` (red)
+   - `Muted` → `#94a3b8` (gray)
+5. Verify: toggle `[Year Filter]` through 2022 → 2023 → 2024 — the red accent should *jump* to whichever categories are top-N by Severity Ratio in each year. If it doesn't move, re-check **Compute Using → Category** in step 3.
 
-The single accent is a deliberate signal that this chart asks a *different* question than the rest of the dashboard. Resist the temptation to color by platform — the platform information isn't in the bar; adding it would double-encode.
+> **Two-tier accent variant.** If you want top-1 and top-2 visually distinguishable (rank-2 in a lighter red), return three categorical values instead of two:
+> ```
+> IF RANK_UNIQUE([Severity Ratio], 'desc') = 1 THEN "Alert 1"
+> ELSEIF RANK_UNIQUE([Severity Ratio], 'desc') = 2 THEN "Alert 2"
+> ELSE "Muted"
+> END
+> ```
+> Colors: `Alert 1` → `#dc2626`, `Alert 2` → `#f87171` (lighter red), `Muted` → `#94a3b8`. Reads as "two bad ones, one *especially* bad." Default to flat top-N coloring unless you specifically want the rank visible.
+
+> **Filter context dependency.** `RANK_UNIQUE` against `Severity Ratio` only works if all of these are in **Context** (Year Match = True, Day Type = 1, Line Group in 1/2/3+A/C/E, Category ALL). Without context promotion, the FIXED LODs inside `Real Inc`/`Real Delay` ignore the year filter, the ratio stays stuck at the multi-year average, and the rank never recomputes.
+
+> **Ties:** `RANK_UNIQUE` arbitrarily breaks ties — if two categories have effectively identical severity, the accent lands on the alphabetically-first one. Hover both bars to confirm if you suspect a near-tie.
+
+The accent is a deliberate signal that this chart asks a *different* question than the rest of the dashboard. Resist the temptation to color by platform — the platform information isn't in the bar; adding it would double-encode.
 
 ### 10d — Label
 
 1. Drag `Severity Ratio` to the **Label** shelf
-2. Open Label card → Edit Label → format `0.0"× delay"` (so each bar reads e.g. `4.2× delay`)
-3. Alignment: middle-right of bar; font 11px, color: white for the red accent bar, `#1e293b` for the muted gray bars
+2. Open Label card → Edit Label → format `0" delays/inc"` (so each bar reads e.g. `97 delays/inc`)
+3. Alignment: middle-right of bar; font 11px, color: white for the red accent bars, `#1e293b` for the muted gray bars
+
+> **Unit phrasing matches Sheet 4.** Earlier docs used `"× delay"` (multiplier framing) — at the actual magnitude of 80–110 the multiplier framing reads awkwardly. `delays/inc` reads correctly at any magnitude and matches the Sheet 4 label suffix unit. Keep the two sheets consistent so the reader sees one unit across the dashboard.
 
 ### 10e — Format
 
-1. Right-click the x-axis → **Edit Axis** → title: `Trains delayed per major incident (proxy)`
+1. Right-click the x-axis → **Edit Axis** → title: `Delay-causing incidents per major incident`
 2. Format → Lines → remove gridlines
 3. Worksheet → Show Title → Edit Title: `How bad is bad — per-incident severity?`
 
-### 10f — Annotation
+> **X-axis title clarification.** Earlier title was `Trains delayed per major incident (proxy)` — but `Real Delay` counts MTA delay-causing-incident reports (a granular MTA metric), not literal trains. Updated phrasing is semantically accurate; the `delays/inc` label is the shorthand.
 
-1. Right-click the top bar (the red accent) → **Annotate → Mark**
-2. Type: `"{Category} delivers the worst-day severity — rare but catastrophic"` (claim-stable; replace {Category} with the active year's top — typically "Other" or "Stations and Structure"). If you want it year-aware, build it from a calc field that returns the active year's top category name.
+### 10f — Annotation (recommended: skip)
+
+**Recommended path: drop the annotation entirely.** The calc-driven red accent + the year-aware `delays/inc` labels + the question-form sheet title already carry the message. Adding a static annotation creates a year-aware/static mismatch — the colors move with the year filter, but a typed annotation doesn't.
+
+If you want an annotation anyway, two options:
+
+- **Static (default-year only):** right-click the top bar → Annotate → Mark → `"{Category} delivers the worst-day severity — rare but catastrophic"` with `{Category}` replaced with the default year's top category. Technically wrong for the other years.
+- **Dynamic via Mark Label trick:** create a calc field that returns callout text only for the top-ranked bar(s):
+  ```
+  IF RANK_UNIQUE([Severity Ratio], 'desc') = 1 
+  THEN MIN([Category]) + " — worst-day severity, rare but catastrophic"
+  END
+  ```
+  Drag to **Label**, set Compute Using → Category. Returns NULL on every bar except rank-1, where it renders alongside the regular `delays/inc` label. Slightly cluttered; reserve for when the annotation is genuinely load-bearing.
 
 ### 10g — So-what
 
 **So-what box (Option 3 framing):**
-> **So what:** "Other" and "Stations and Structure" deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but frequent, driving most of the total delay minutes despite milder per-event impact. Severity dominates total delay; frequency dominates the daily rider experience. (Per-platform severity is on the Cause Ladder labels — both platforms see comparable severity per category.)
+> **So what:** the top-2 categories deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but far more frequent, driving most of the total delay despite milder per-event impact. Severity dominates the worst single days; frequency dominates the average rider's experience.
+
+> **Verify the named categories in the active year before shipping.** Earlier doc text named "Other" and "Stations and Structure" as the top-2; with the multi-year extension, the ranking may differ. Glance at the top-2 red bars on your render and replace the generic "the top-2 categories" wording with the actual category names if you want the so-what to be more concrete. The "(per-platform severity on Cause Ladder labels)" parenthetical from earlier docs has been dropped — it forced a workbook-internal sheet reference and the Sheet-5-as-cross-cause-hierarchy framing doesn't need to cross-reference Sheet 4.
 
 **Alternative so-what (Option 2 cost framing, if pivoting):**
 > **So what:** Signal failures span the widest range — that's the slice a Penn rider can't plan around. Track failures cluster tightly: a Track incident is bad but predictable; a Signal incident might cost an entire commute.
@@ -704,9 +813,11 @@ The single accent is a deliberate signal that this chart asks a *different* ques
 
 ## Step 11 — Filtered Map (Sheet F)
 
-**Source:** `dim_corridor_complexes` + relationship to `monthly_incidents_delays`
+**Source:** `dim_corridor_complexes` + relationship to `monthly_incidents_delays` + relationship/blend to `monthly_ridership` *(blend added 2026-05-28 for the ridership-size upgrade)*
 
-**Goal:** A symbol map showing all corridor stations as circles, sized by incident count, colored by line group — visually concentrating the story at Penn Station and pointing toward WTC as the alternate route.
+**Goal:** A symbol map showing the two Penn complexes (318 + 164) as circles, colored by line group, **sized by per-complex avg monthly ridership** *(switched from Real Inc 2026-05-28)* — visually carrying the "two complexes, one staircase, two reliability profiles" beat with rider-weight as a new dimension.
+
+> **2026-05-28 — Size encoding switched from `Real Inc` to ridership.** Reasoning: Sheet 4a now forcefully makes the "1/2/3 carries more incidents" point with three years of bars; the map re-stating it as Size encoding became redundant. Ridership size adds a new dimension nothing else on the dashboard carries explicitly (KPI 1 collapses both complexes; the heatmap uses ridership as time-of-day signal, not per-complex). The map's job becomes synthesis: *"two complexes physically adjacent, roughly equal rider weight, persistent reliability gap."* See `v3_narrative_decisions.md` § 14 for the decision rationale.
 
 ### 11a — Restore geographic roles
 
@@ -722,18 +833,26 @@ The single accent is a deliberate signal that this chart asks a *different* ques
 3. Tableau auto-generates a map — let it render
 4. Mark type: **Circle** (symbol map)
 
-### 11c — Size, color, labels (Option 3: focus to Penn only)
+### 11c — Size, color, labels (Option 3: focus to Penn only; updated 2026-05-28)
 
 1. Drag `Complex Id` to Filters → select `318` and `164` only — **this is the Option 3 refocus**. Wider corridor complexes are hidden so the map shows the two Penn complexes, one staircase apart.
-2. Drag `Year Match` (from the `monthly_incidents_delays` relationship) to Filters → True → **Add to Context**
-3. Drag `SUM([Real Inc])` (from the `monthly_incidents_delays` relationship) to **Size**
-4. Drag `Line Group` to **Color** → Edit Colors:
+2. **Year filter — decide before building.** Recommended (2026-05-28): **do NOT add Year Match** to this sheet. The map's job is now multi-year synthesis at the physical level; year-to-year size fluctuation adds noise without adding meaning. If you keep `Year Match`, the dot sizes will shift slightly between years.
+3. **Activate ridership blend.** In the Data pane, click `monthly_ridership` to make it active as a secondary on this sheet. Verify the orange chain icon on `Complex Id` linking primary→secondary; click if it's broken.
+4. **Create the size calc on `monthly_ridership`** if it doesn't exist:
+   ```
+   Monthly Ridership Avg = SUM([Ridership]) / COUNTD([Month])
+   ```
+5. Drag `Monthly Ridership Avg` (from the `monthly_ridership` secondary) to **Size**
+6. Drag `Line Group` to **Color** → Edit Colors:
    - `1/2/3` → `#59a14f`
    - `A/C/E` → `#4e79a7`
-5. Drag `Complex Name` to **Label** → always show on both
-6. Map zoom: tighten to mid-Manhattan so 318 and 164 dominate the frame
+7. Drag `Complex Name` to **Label** → always show on both
+8. **Adjust size scale manually.** Click **Size** → **Edit Sizes…** → set a non-zero minimum (~40 px) and large maximum (~120 px) — Tableau's default is too small for a 2-dot map and the size difference will be invisible.
+9. Map zoom: tighten to mid-Manhattan so 318 and 164 dominate the frame
 
-> **For Option 2 backup:** keep this same filter (only 318 + 164) and swap `SUM([Real Inc])` for `SUM([Real Delay])` to size by total trains delayed (the cost unit).
+> **Previous Size encoding (`SUM([Real Inc])`) — retired 2026-05-28.** Kept as note for archival: was sized by major-incident count from the `monthly_incidents_delays` relationship. Switched because Sheet 4a now carries the "1/2/3 carries more incidents" claim with three years of bars; the map re-stating it visually was redundant.
+
+> **For Option 2 backup:** keep this same filter (only 318 + 164) and use `SUM([Real Delay])` from `monthly_incidents_delays` for Size — the cost-angle backup wants total trains delayed as the size dimension, not ridership.
 
 ### 11d — Map layers and annotations
 
@@ -758,15 +877,20 @@ The single accent is a deliberate signal that this chart asks a *different* ques
 
 > Annotations are static text in Tableau — they can't read parameters or aggregations. Mark labels respect filters and parameters, so they're the right tool when the headline number depends on the user's selection. Reserve annotations for facts that don't change (e.g., "Alternate route via PATH").
 
-### 11e — Title (as question), so-what
+### 11e — Title (as question), annotations, so-what (updated 2026-05-28)
 
 - **Title** (Worksheet → Show Title): `How close are the two platforms, really?`
-- **Caption:** `Penn 1/2/3 (complex 318) and Penn A/C/E (complex 164). Two complexes, one chokepoint, one staircase apart. Circle size = total trains delayed.`
+- **Caption** (post-2026-05-28): `Penn 1/2/3 (complex 318) and Penn A/C/E (complex 164). Two complexes, one chokepoint, one staircase apart. Circle size = avg monthly ridership.`
 
-**So-what box:**
-> **So what:** the A/C/E complex turns each delay-causing incident into more rider-impact than the 1/2/3 complex, despite both drawing comparable infrastructure failures. The cost concentrates on one platform — and switching is a single staircase, not a transfer.
+**Annotations on each dot (manual, static text — multi-year framing since the sheet ignores Year Filter):**
+- 1/2/3 dot → right-click → Annotate → Mark → `"1/2/3 platform · ~70% WA · ~1.4M riders/mo"`
+- A/C/E dot → right-click → Annotate → Mark → `"A/C/E platform · ~66% WA · ~1.4M riders/mo"`
+- Format the annotation boxes quiet: ~10pt, low-opacity background fill (`#faf8f4`), no border. Position below-right of each dot.
 
-> Specific percentages are year-dependent. To make claims year-aware, build a `Delay Gap %` calc and surface it in the chart's tooltip; the so-what copy itself can stay claim-stable as written above.
+**So-what box (multi-year framing):**
+> **So what:** one staircase between them. The larger circle marks the busier platform by monthly ridership; the labels carry the reliability gap. Same complex on the sign, two different services underneath — and the choice is worth ~4 pp at peak Wait Assessment, every weekday, across roughly the same rider weight on each side.
+
+> The old map so-what (*"the A/C/E complex turns each delay-causing incident into more rider-impact…"*) was a Real-Inc-Size-era framing; replaced 2026-05-28 with the ridership-size framing above.
 
 ---
 
@@ -858,7 +982,9 @@ The hour column must be a continuous (green) pill for this to work — confirm f
 
 ---
 
-## Step 13 — Sankey Flow (Sheet San)
+## Step 13 — Sankey Flow (Sheet San) — REMOVED from primary layout (2026-05-22+)
+
+> **Sheet status (2026-05-28):** Sankey is **removed from the v3 primary dashboard layout**. Build instructions below preserved for the Option 2 (cost angle) backup pivot — flow visualizations land harder when the framing is cost/volume rather than reliability/recovery. For Option 3, the Sankey was found redundant with Sheet 4 (after the split-by-platform refactor) and the band-width encoding reinforces a count dimension the Option 3 narrative explicitly de-emphasizes. Keep the worksheet in the workbook (Worksheet → Hide), don't delete — it stays available for the Option 2 layout.
 
 **Source:** `monthly_incidents_delays`
 
@@ -926,21 +1052,26 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 2. Set size: Fixed, 1120 × 1600px (or use Automatic and constrain later)
 3. Set background: `#faf8f4`
 
-**Drag sheets in this order (top to bottom) — Option 3 layout:**
+**Drag sheets in this order (top to bottom) — Option 3 layout (updated 2026-05-28 to include Trajectory + Sheet 4a):**
 
 | Position | Content | Type |
 |----------|---------|------|
 | Full width, top | Title + Year Filter parameter control | Floating text box + parameter (Compact List) |
-| Full width | Journey Headline text (year-aware copy) | Floating text box (`#ffffff` bg) |
+| Full width | Intro paragraph (multi-year, no hardcoded year) | Floating text box (`#ffffff` bg) |
 | Full width, 4 cols | KPI 1 · KPI 2 · KPI 3 · KPI 4 (each with sub-tag) | Horizontal container, 4 sheets |
+| Full width | **Trajectory (Step 9g, added 2026-05-28)** — `1/2/3 holds; A/C/E catches up` + so-what; **ignores Year Filter** | Vertical container, ~160–200 px tall |
 | Full width — **CENTERPIECE** | Reliability Comparison (Sheet 6a + 6b side-by-side) + shared title above + so-what below | Outer Vertical container with border, inner Horizontal holding 6a + 6b each with their own metric sub-title — see Step 9f for the structure |
-| Full width | Sheets 2 + 3 (Incidents bars + Ridership area, 2×2 grid) + so-what box | Vertical container |
-| Half + half | Cause Ladder (Sheet 4) + so-what · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
-| Half + half | Map (Sheet 7, Penn 318+164 only) + so-what · Heatmap (Sheet 8) + so-what | Horizontal container |
-| Full width (optional, supporting) | Severity Bar (Sheet 5) · Sankey (San) | Horizontal container — only if space allows |
+| Full width | Sheets 2 + 3 (Incidents bars on top + WA% line below) + so-what box per sheet | Vertical container |
+| Half + half | Cause Ladder (Sheet 4) + so-what (with handshake → 4a) · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
+| Full width | **Sheet 4a (Step 6f, added 2026-05-28)** — `More incidents on both — A/C/E closes the gap anyway` + so-what; **ignores Year Filter** | Vertical container, ~260 px tall |
+| Full width (supporting) | Severity Bar (Sheet 5) + so-what | Vertical container |
+| Half + half | Map (Sheet 7, Penn 318+164, **size by ridership** post-2026-05-28) + so-what · Heatmap (Sheet 8) + so-what | Horizontal container |
 | Full width | Narrative footer ("The bottom line" + caveats block) | Floating text box (`#0f172a` bg) |
 
-> **Sheet N (corridor scatter) does NOT appear** in the Option 3 layout — it's retired. If you previously built it, hide it (Worksheet → Hide) rather than deleting; preserves the work for an Option 2 or v2 fallback.
+> **Sheet San (Sankey) does NOT appear** in the Option 3 layout — removed 2026-05-22+. If built, Hide rather than delete (kept for Option 2 backup pivot).
+> **Sheet N (corridor scatter) does NOT appear** — retired. Same Hide-don't-delete rule applies.
+
+> **Two cards intentionally cross-year** (Trajectory + Sheet 4a). When assembling, do **not** apply the Year Filter parameter to these two sheets — the dashboard would silently filter them otherwise via the parameter's "Apply to Worksheets" setting. Verify via the Apply to Worksheets dialog: both should be unchecked.
 
 **Container tips:**
 - Use **Tiled layout** as the base. Add floating text boxes for the headline and footer.
@@ -955,14 +1086,21 @@ The `Year Filter` parameter and `Year Match` calc fields are created in Step 3 �
 
 ### 15a — Audit every sheet
 
-For each sheet (1, 2, 3, 4, 5, 6a, 6b, 7, 8, C-1, C-2, Sankey, all 4 KPIs), confirm:
+For each sheet (1, 2, 3, 4, 5, 6a, 6b, 7, 8, C-1, C-2, all 4 KPIs), confirm:
 
 1. `Year Match` is on the Filters shelf, set to **True**, and **in Context** (gray pill, not blue).
 2. The sheet's title, caption, annotation, and so-what box do not contain a hardcoded year string.
 
+**Exceptions — sheets that intentionally ignore `[Year Filter]` (added 2026-05-28):**
+
+- **Trajectory** (Step 9g) — cross-year WA% by year × Line Group; must not have `Year Match`. Verify in the Filters shelf — empty for this sheet.
+- **Sheet 4a** (Step 6f) — cross-year `Real Inc` by year × Line Group; must not have `Year Match`. Verify in the Filters shelf — empty for this sheet.
+- **Sheet 7 Map** (recommended post-2026-05-28) — multi-year synthesis; recommended without `Year Match` so the map reads consistently across year-views.
+
 To apply `Year Match` to all sheets in a data source at once:
 1. Right-click `Year Match` in the Filters shelf on any sheet → **Apply to Worksheets → All Using This Data Source**
 2. Repeat for each of the 4 date-bearing data sources.
+3. **After applying:** remove `Year Match` from the Trajectory and Sheet 4a filter shelves (the "Apply to All" pulled it in).
 
 ### 15b — Show the parameter control on the dashboard
 
