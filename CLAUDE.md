@@ -4,29 +4,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## Project — "Inside Penn" Tableau Dashboard (v3)
+## Project — "Inside Penn" Tableau Dashboard (v3 FINAL)
 
-A Tableau portfolio dashboard for The Data School application.
+A Tableau portfolio dashboard for The Data School application. **Submission-complete as of 2026-06-04** — all four revision rounds applied (R1 2026-05-22 narrative integrity, R2 2026-05-27 build-time iterations + 2026-05-28 second-AI critique, R3 2026-06-02 accessibility/readability, R4 2026-06-04 caption + em-dash polish). Live workbook published as `Inside Penn Station` on Tableau Public.
 
 ### Primary narrative — Option 3: "Inside Penn — Two Platforms, A Closing Gap"
 
 **Penn Station looks like one place on a sign. Underneath, it's two platforms — and a closing gap.**
 The 1/2/3 platform has been more reliable than the A/C/E every year measured, but A/C/E has been
 catching up — peak Wait Assessment rose from ~61% to ~65% (2022→2024) while 1/2/3 held steady near 70%.
-The gap narrowed from +8.0 pp to +3.8 pp over two years. For the riders entering Penn each month, the data answers a single practical question — and tracks how the answer's value has changed: *which platform should you trust, and by how much?*
+The gap narrowed from +8.0 percentage points (pp) to +3.8 pp over two years. For the riders entering Penn each month, the data answers a single practical question — and tracks how the answer's value has changed: *which platform should you trust, and by how much?*
 
 #### Story arc (6 beats)
 
-1. **Scale** — ~2.9M paid entries/month at Penn across complexes 318 (1/2/3) and 164 (A/C/E); 6 routes converge here (1·2·3·A·C·E).
+1. **Orient + scale** — Map first (Sheet 7, **moved to above the KPI strip 2026-06-02** per round-2 reviewer feedback) shows the two platforms share Penn's complex one staircase apart — same building, different services. Then the KPI strip: ~2.9M paid entries/month at Penn across complexes 318 (1/2/3) and 164 (A/C/E), 6 routes converging (1·2·3·A·C·E), months-hit-by-Signal/Track, and the +X pp WA gap. Then the trajectory chart, setting up the closing-gap claim across 2022→2024. Sequence answers in order: *where am I and what are these two platforms* → *how big is this place* → *how has the gap changed over time* — before the centerpiece head-to-head. Map lands before the metrics so every downstream KPI and chart has its "two platforms" referent already established visually.
 2. **The punchline first** — 1/2/3 platform leads A/C/E on peak Wait Assessment every year, but the gap is narrowing: +8.0 pp (2022) → +4.3 pp (2023) → +3.8 pp (2024) (Sheet 6 promoted to top of body).
 3. **Is the gap real?** — Monthly incidents + ridership split by platform prove it's structural, not a one-month anomaly (Sheets 2 + 3).
 4. **Why does it exist?** — Cause Ladder shows Persons on Trackbed, Signals, and Track lead on both platforms. **1/2/3 actually carries *more* incidents than A/C/E in each of the top-3 categories** — a heavier infrastructure load — yet still delivers better reliability. The gap is a service-frequency / recovery-operations story (Sheet 4). Sheet 4a (cause-side trajectory, added 2026-05-28) extends this from category mix to total incident volume across all categories year-over-year, and reveals **both platforms absorbed ~40% more incidents from 2022 to 2024** (1/2/3: 87 → 124; A/C/E: 74 → 101) with 1/2/3 carrying more every year (+13, +6, +23 incident-event gap). So the convergence is unambiguously a recovery-operations story, not a prevention one — A/C/E is getting better at handling a rising load, not avoiding incidents.
-5. **Honest qualifier** — the gap is closing because A/C/E is getting better against a rising-incident backdrop on both platforms, not because 1/2/3 is degrading. Best-case operations gain, not a calming system. Quilt (Sheet C) shows the platforms don't fail in lockstep. The map (Sheet 7, refocused to Penn 318 + 164 only) shows the two complexes are one staircase apart.
+5. **Honest qualifier** — the gap is closing because A/C/E is getting better against a rising-incident backdrop on both platforms, not because 1/2/3 is degrading. Best-case operations gain, not a calming system. Quilt (Sheet C) shows the platforms don't fail in lockstep. *(Sheet 7 map moved out of this beat 2026-06-02 — now lives in beat 1 as an orienting visual; the "one staircase apart" punch lands earlier so readers carry the spatial anchor through every analytical beat.)*
 6. **When does the choice matter most?** — Tue 8 AM heatmap cell is peak for both platforms (Sheet 8) — exactly when the ~4 pp gap saves the most riders the most time.
 
 #### Mockup reference
 
-`sample_dashboards/render_11_option3_platforms.html` — full layout with text-insight stack (headline, KPI sub-tags, section-as-question titles, "so what" boxes, action-oriented closer + caveats block).
+`sample_dashboards/render_12_revised.html` — **canonical final mockup**, post round-4 polish. Em-dash-free body text, captions rewritten to 45-50 / 18-25 word bands, new WA trajectory chart between KPI strip and Sheet 6, new Sheet 4a between the Sheet 4+C row and Sheet 8, change-list scaffolding table dropped.
+
+`sample_dashboards/render_11_option3_platforms.html` — preserved for diff comparison (pre-round-4 state). Use only when reviewing what changed between R3 and R4; the v3-final source of truth is render_12_revised.html.
 
 ### Backup narrative — Option 2: "What It Costs to Enter NYC Through Penn Station"
 
@@ -203,15 +205,15 @@ Each sheet's title is phrased as a question; each chart card carries a "so what"
 
 | # | Sheet | Chart | Section title (as question) |
 |---|-------|-------|------------------------------|
+| 7 | Where are these two platforms? — **MOVED above the KPI strip on 2026-06-02** per round-2 reviewer feedback ("a spatial anchor before diving into the metrics"). Refocused to Penn 318 + 164; Size = per-complex monthly ridership (2026-05-28). Sits between the intro paragraph and the KPI strip — every downstream metric has its "two platforms" referent established first | Filtered symbol map with manual WA% annotations on each dot | Where are these two platforms? *(question-form — was "How close are the two platforms, really?" when slotted as qualifier; reframed for the orienting position)* |
 | 1 | KPI strip (4 tiles) | Text (calculated fields) | n/a — 4 numbers + sub-tags |
 | Traj | **WA trajectory — between KPI strip and Sheet 6** *(added 2026-05-28)* | Two-line chart, peak weekday WA% per Line Group × year (2022→2024); axis aliases append per-year gap (`2022 (+8.0 pp)` etc.); **does NOT respect `[Year Filter]`** | 1/2/3 holds; A/C/E catches up *(assertion-form — this card delivers the title's promise)* |
-| 6 | Reliability comparison (WA% + OTP%) — **CENTERPIECE, full width, top of body** | Side-by-side bar | Which platform should you trust? |
+| 6 | Reliability comparison (WA% + OTP%) — **CENTERPIECE, full width** | Side-by-side bar | Which platform should you trust? |
 | 2 | Incidents over time × platform | Stacked bar (Line Group on Color) | Is the gap real, or just an average that hides bad months? |
 | 3 | WA% over time × platform *(post-2026-05-22; was ridership area)* | Line chart (Line Group on Color, peak weekday) | Does the gap hold every month? *(question-form per 2026-05-27 iteration)* |
 | 4 | Cause Ladder (split by platform) | Horizontal bar by (category × platform), severity in bar label suffix *(`X · N delays/inc`; circle dropped 2026-05-22; unit revised from `× delay` post-feedback to fit 80–110 magnitude)* | Do both platforms see the same kinds of failure? |
 | 4a | **Cause-side trajectory — between Sheet 4 and Sheet 5** *(added 2026-05-28)* | Side-by-side bars, `Real Inc` per Line Group × year, **all categories**; **does NOT respect `[Year Filter]`** | More incidents on both — A/C/E closes the gap anyway *(assertion-form — chart-verifies recovery-operations thesis)* |
 | C | Monthly Incident Pattern quilt | Highlight table (C-1/C-2 stacked, per-platform palette) | Do the platforms fail at the same time? |
-| 7 | Where the cost concentrates — **refocused to Penn 318 + 164; Size encoding switched from Real Inc → per-complex monthly ridership 2026-05-28** | Filtered symbol map with manual WA% annotations on each dot | How close are the two platforms, really? |
 | 8 | Day × hour heatmap | Heatmap | If you had to pick one moment to avoid Penn, when? |
 | 5 | Per-incident severity (optional supporting) | Labeled horizontal bar (one bar per category, top-of-sort in red accent) *(was box plot; replaced 2026-05-22)* | How bad is bad — per-incident severity? |
 | ~~San~~ | ~~Sankey — delay flow by category + platform~~ | REMOVED from primary layout *(post-2026-05-22; redundant with Sheet 4 after split-by-platform refactor; kept in workbook as hidden sheet for Option 2 pivot)* | — |
@@ -240,4 +242,7 @@ KPI strip — Option 2 backup (cost angle, if pivoting):
   - **Route-based** (`monthly_incidents_delays`, `service_quality`, `dim_corridor_complexes`): `'1/2/3'` for routes 1,2,3; `'A/C/E'` for A,C,E; `'Other'` otherwise. The WHERE clause keeps only Penn-serving routes. In Option 3 docs and dashboard text, refer to these as **"platforms"** rather than "corridors" — same field, sharper framing.
   - **Complex-based** (`monthly_ridership`, `hourly_ridership_corridor`): four corridors — `'1/2/3'`, `'A/C/E'`, `'4/5/6'`, `'B/D/F/M'` — derived from `complex_id`. Originally built for the v2 wide-corridor narrative (35 stations); for Option 3, only complexes 318 + 164 are used in KPI 1 and Sheet 8 — the rest carry over for context but aren't load-bearing.
 - Color system: green `#59a14f` = 1/2/3 platform (hero); blue `#4e79a7` = A/C/E platform (alternate); Sheet 5 uses a single red accent (`#dc2626`) on the top-severity category with muted gray (`#94a3b8`) for the rest — no platform encoding on Sheet 5; background `#faf8f4` (warm off-white per dashboard).
-- **Text-insight stack:** every chart on the dashboard carries (a) a section title in **question form**, (b) at least one annotation on a specific mark, and (c) a "so what" interpretation box below the chart. KPI tiles carry an interpretive sub-tag. Footer is "the bottom line" + caveats. Pattern documented in `DASHBOARD_MODEL.md`.
+- **Text-insight stack:** every chart on the dashboard carries (a) a section title in **question form** (~6–12 words), (b) a subtitle describing **chart mechanics** (encoding, scope, year-aware vs multi-year — 18–25 words, *no* interpretation), and (c) a "so what" interpretation box below the chart (conclusion + qualifier/implication — **45–50 words**). KPI tiles carry an interpretive sub-tag. Footer is "the bottom line" + caveats. Pattern documented in `DASHBOARD_MODEL.md`; word-count bands codified round 4. **Question test for subtitle vs so-what:** if a sentence is still true *before* you've looked at the data, it's subtitle. If it requires seeing the chart, it's so-what.
+- **Em-dash convention (round 4):** no em dashes (`—`, U+2014) in user-visible body text. Replace with comma (parenthetical), period (emphasis break), colon (introduction), or parentheses (aside). En dashes (`–`, U+2013) stay for numeric ranges (`3–5 pp`, `2022–2024`).
+- **Font sizes (round 4):** titles + intro + conclusion 13pt; subtitles + so-whats + caveats 11pt. Two-tier system — headlines/anchors at 13, supporting prose at 11.
+- **Outer dashboard padding:** 150px left + right.

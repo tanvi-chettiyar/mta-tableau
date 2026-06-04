@@ -10,6 +10,27 @@ Step-by-step instructions for building the **Option 3 — Inside Penn** dashboar
 
 ---
 
+## Round 2 reviewer feedback — apply in this order (2026-06-02)
+
+Already built the dashboard from the original Step 1 → Step 17 flow? This 8-step checklist is the application sequence for Salome's round-2 feedback (7 items received 2026-06-02). Ordered to minimize rework: structural moves first, sheet rebuilds next, text content + colors + widths, then a global font sweep last so individual sheet edits aren't undone.
+
+| # | What | Reference step | Files touched |
+|---|------|----------------|---------------|
+| 1 | Move Sheet 7 (map) above the KPI strip, retitle, rewrite so-what; resize Sheet 8 to full-width closer | § Step 14 (assembly table) + § Step 11 (map build) | Dashboard layout, Sheet 7 title/so-what, Sheet 8 width |
+| 2 | Rebuild Sheet 2 as **dodged bars by month** (`MONTH` outer, `Line Group` inner); apply Size-slider polish for within-pair tightening | § Step 8b + § Step 8c (incl. step 6 — Size slider) | Sheet 2 |
+| 3 | Add Sheet 5 3-swatch legend (top-right of card); start with auto-legend + Format Legend → Layout spacing tweak; fall back to Text Object only if labels still truncate | § Step 10f-legend | Dashboard, Sheet 5 legend |
+| 4 | Update text content: intro paragraph rewrite (jargon expansion), Sheet 6 axis sub-titles `(WA)` / `(OTP)`, verify `[Bottom Line Text]` calc + caveats match canonical text | § Step 16a (intro) + § Step 9f (Sheet 6 sub-titles) + `DASHBOARD_MODEL.md` § "Canonical caption set" | Intro text object, Sheet 6 sub-titles, calc field, caveats |
+| 5 | Recolor intro / bottom-line / caveats text blocks: replace magenta with platform-palette phrase-level highlights (greens/blues + bold dark slate on numbers; italic only on `take 1/2/3` in bottom-line) | § Step 16a/16b/16c + `DASHBOARD_MODEL.md` § "Color treatment" | Intro, bottom-line, caveats text objects |
+| 6 | Width-cap **so-what insight boxes on full-width chart cards** to **770 px** (left-aligned). Salome's "annotation/analysis text sections" = the so-whats, not the intro/bottom-line/caveats. Floating Text Object with explicit Width in Layout pane | § Step 16d + `DASHBOARD_MODEL.md` § "Width cap" | So-what text objects on Sheet 6 / 7 / 2+3 / 4a / 8 / 5 / Trajectory |
+| 7 | Workbook-wide font bump: body/so-what 14pt, captions 12pt, axis ticks 11pt, annotations 12pt, KPI tile body 12pt + color contrast fix `#94a3b8` (was `#475569` — invisible on dark tile); section titles 16pt | `DASHBOARD_MODEL.md` § "Typography sizes" (full size table) | Workbook default format + every chart sheet |
+| 8 | QA: year-filter toggle test (verify Sheet 7, Trajectory, Sheet 4a do NOT change; everything else does); walk the 14 round-2 checkboxes appended to § Step 17 | § Step 17 (last 14 entries) | None (verification only) |
+
+**Detailed per-step instructions** for these 8 steps live in the linked Step Xs — they include the full Tableau click-paths. The table above is the order-of-operations map; the detailed steps tell you which menu to click.
+
+> **What was already-in-the-build vs. what's new in round 2.** The 5 CSV exports, star schema, KPI strip with 4 tiles, Sheet 6 centerpiece, Trajectory band, Sheet 4a, dim_complex 318+164 focus, year-dynamic bottom-line text, and the closing-gap narrative all pre-date round 2 (see § "What did NOT change" in `dashboard_feedback_v3.md` memory and the 2026-05-22 / 2026-05-28 entries). Round 2 is purely about **how the existing analysis is received** — accessibility, readability, layout polish — not the analytical findings.
+
+---
+
 ## Pre-flight
 
 1. Run `/export-tableau` to produce the 5 CSVs in `tableau_exports/`:
@@ -414,7 +435,9 @@ It computes per-cell because both `Real Delay` and `Real Inc` are aggregates —
 3. Style the callout: small font, subtle gray border.
 
 **So-what box (floating text on dashboard, below the chart):**
-> **So what:** broadly yes — Persons on Trackbed leads on both platforms, with Signals and Track close behind. The "delays/inc" labels show severity is comparable per-category across platforms. **The bigger surprise: in every one of the top three categories (Trackbed, Signals, Track), 1/2/3 actually carries *more* incidents on average than A/C/E — yet still wins on reliability.** The gap shown above *isn't* explained by a different mix of failures, nor by different severity per incident, nor by lower incident counts on 1/2/3. Both platforms see the same problem profile; 1/2/3 sees *more* of it. The gap must be in what happens *after* an incident — a service-frequency and recovery-operations story.
+> **So what (shortened 2026-06-02, ~50 words, pending workbook application):** In every one of the top three categories — Persons on Trackbed, Signals, Track — 1/2/3 carries *more* incidents than A/C/E, yet still wins on reliability. Same problem profile, 1/2/3 sees more of it. The gap must be in what happens *after* an incident — a recovery-operations story.
+
+> **Long version preserved.** Workbook carries a ~125-word version as of 2026-06-02 — see `dashboard_feedback_v3.md` memory § "Pending workbook application — so-what shortenings" → "Sheet 4" for the full text. Tanvi will apply the shortened version 2026-06-03.
 
 > The bolded sentence is the chart's punchline — bold it visually in the dashboard text object so the eye lands on it.
 
@@ -514,11 +537,13 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 
 > **2026-05-22 — feedback fix.** Sheet 3 was a stacked area chart of ridership over time. Two problems: (1) it didn't visibly answer the section question ("Is the gap real?" — the question is about the reliability gap, which the chart didn't draw), and (2) it silently used `monthly_ridership.csv` filtered by complex-based `line_group`, which covers all 35 stations along 1/2/3 and A/C/E lines — so the y-axis read 4–9M total while KPI 1 read ~2.9M (Penn-only complexes 318 + 164). The reviewer correctly flagged both: chart didn't answer its own header, and numbers didn't reconcile with the KPI. Replaced Sheet 3 with a Wait Assessment % by platform over time line chart, sourced from `service_quality.csv` (which already filters cleanly by platform and is what Sheet 6 uses). Ridership stays surfaced on KPI 1.
 
-### Sheet 2 — Incidents over time (stacked bar) — *unchanged*
+### Sheet 2 — Incidents over time (dodged bars by month) — *destacked 2026-06-02 per round-2 reviewer feedback*
 
 **Source:** `monthly_incidents_delays`
 
-**Goal:** Stacked bars showing total Signal + Track incidents per month, split by platform — the combined height shows system-wide stress; the green/blue split shows which platform absorbs more.
+**Goal:** Dodged bars — for each month, the 1/2/3 (green) and A/C/E (blue) bars sit immediately next to each other so the per-month comparison reads off the chart without eye-jump. Replaces the previous stacked-bar build per Salome's round-2 feedback ("stacking makes it genuinely hard to compare the two platforms independently").
+
+> **2026-06-02 — feedback fix.** Original Sheet 2 was a stacked bar (`Line Group` on Color, automatic stack). Reviewer flagged that stacking the two platforms makes individual platform heights hard to read. Replaced with **dodged bars per month** (`MONTH([Month])` as outer column, `Line Group` as inner column) — within each month group, the two platforms render as adjacent bars, so the reader sees green-vs-blue height directly in each month. Initial implementation used "two side-by-side panels by platform" (Line Group outer, MONTH inner); revised same day to MONTH-outer / Line-Group-inner because dodging gives stronger per-month comparison (the panels approach forced an eye-jump between panels to compare the same month).
 
 #### 8a — Filters
 
@@ -527,25 +552,29 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 
 #### 8b — Build
 
-1. Drag `MONTH([Month])` to **Columns** — right-click → **Discrete**
-2. Drag `SUM([Signal+Track Incidents])` to **Rows**
-3. Mark type: **Bar**
-4. Drag `Line Group` to **Color** — Tableau stacks automatically
-   - Do NOT put `Line Group` on Columns — that creates side-by-side bars, not stacked
+1. Drag `MONTH([Month])` to **Columns** — right-click → **Discrete** *(outer column — creates 12 month groups across the chart)*
+2. Drag `Line Group` to **Columns** AFTER MONTH *(inner column — within each month, one bar per platform sitting side-by-side)*
+3. Drag `SUM([Signal+Track Incidents])` to **Rows**
+4. Mark type: **Bar**
+5. Drag `Line Group` to **Color** — Tableau renders the inner column as dodged bars; the color encoding makes the 1/2/3 bar green and the A/C/E bar blue within each month group
+
+**Important:** verify Tableau is **dodging** and not stacking. If after step 2 the bars stack vertically (rather than sitting side-by-side within each month), check that `Line Group` is on Columns (not just on Color). Stacking happens when `Line Group` only appears on the Color shelf; dodging happens when it also appears on Columns as the inner dimension.
 
 #### 8c — Color and format
 
 1. Edit Colors: 1/2/3 = `#59a14f`, A/C/E = `#4e79a7`
-2. Stack order: right-click the Color legend → **Sort** → put `A/C/E` at the bottom so the worse-performing platform anchors the baseline
-3. Format → Lines → remove gridlines
-4. Right-click y-axis → Edit Axis → title: `Signal + Track Incidents`
+2. Format → Lines → remove gridlines
+3. Right-click y-axis → Edit Axis → title: `Signal + Track Incidents` · **Fixed** range from `0` to the larger platform-month's max + 20% padding
+4. The inner Line Group sub-headers will read `1/2/3` and `A/C/E` repeated 12 times — that's visually noisy. Hide them via right-click the `Line Group` header row → **Hide Field Labels for Columns**. The Color legend top-right does the same labeling work once for the whole chart.
+5. Keep the MONTH column labels visible (one per month group)
+6. **Tighten the within-month bar pairs.** Click **Size on the Marks card** → drag the slider **right** to ~60–75%. This widens both bars in each pair, shrinking the gap between the green 1/2/3 bar and the blue A/C/E bar within each month so they read visually as "a pair." All-the-way-right makes the bars touch within each month but also touches between months — losing the month-group rhythm. The 60–75% sweet spot keeps month groups distinct while making each pair feel tight. If the chart still feels too gappy: **Format → Cell Size → Width** lets you stretch the entire chart horizontally, which spreads month groups apart while keeping the within-pair size constant (relative tightening).
 
 #### 8c-title — Title (as question for the paired Sheets 2+3 section) and caption
 
 The pair (Sheets 2 + 3) lives under one section heading on the dashboard:
 
 - **Section title (above both):** `Is the gap real, or just an average that hides bad months?`
-- **Sheet 2 caption:** `Stacked monthly Signal + Track major incidents — 1/2/3 in green, A/C/E in blue. Combined height = system-wide stress; the split shows which platform absorbs it.`
+- **Sheet 2 caption:** `Monthly Signal + Track major incidents, dodged by platform — each month shows a green 1/2/3 bar next to a blue A/C/E bar so the per-month comparison reads at a glance. Destacked 2026-06-02 per reviewer feedback.`
 
 ---
 
@@ -596,7 +625,7 @@ The fixed 60–80 range is the same band the Sheet 6 centerpiece uses for WA —
 > **Title pattern:** the original descriptive label (`Wait Assessment % by platform, monthly`) didn't match the rest of the dashboard's question-form titles (`Which platform should you trust?`, `Do both platforms see the same kinds of failure?`, etc.). The revised title is narrower than the section header above (`Is the gap real, or just an average that hides bad months?`) — the section asks whether the gap exists; Sheet 3 specifically answers whether it appears month-by-month.
 
 **So-what box for the paired section (place below both charts):**
-> **So what:** the incident bars confirm the stress is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month. The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year (A/C/E rising toward a stable 1/2/3). Same data, drawn directly.
+> **So what (paired Sheets 2+3 shared, updated 2026-06-02 for dodged-bar restructure):** The dodged bars confirm the stress is structural, not a one-month anomaly — both platforms absorb Signal/Track incidents month after month, and 1/2/3 carries more in most months (one of the strongest visible patterns on the dashboard). The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year. Same data, drawn directly. · *Per-sheet alternative: use the standalone Sheet 2 so-what (DASHBOARD_MODEL.md canonical) and the standalone Sheet 3 so-what instead of this combined version. Pick one or the other; don't ship both.*
 
 ---
 
@@ -653,15 +682,15 @@ Container structure on the dashboard:
 
 ```
 Vertical container (outer — border #e2e8f0 1px, background #ffffff)
-├── Text: "Which platform should you trust?"          (shared title)
+├── Text: "Which platform should you trust?"                                   (shared title)
 ├── Horizontal container
 │   ├── Vertical container
-│   │   ├── Text: "Wait Assessment %"                 (sub-title 6a)
+│   │   ├── Text: "Wait Assessment (WA) % — trains within target headway"      (sub-title 6a; acronym intro per 2026-06-02 jargon-expansion fix)
 │   │   └── Sheet 6a
 │   └── Vertical container
-│       ├── Text: "Terminal On-Time Performance %"    (sub-title 6b)
+│       ├── Text: "Terminal On-Time Performance (OTP) % — trains on time at terminal"   (sub-title 6b; acronym intro per 2026-06-02 jargon-expansion fix)
 │       └── Sheet 6b
-└── Text: "So what: the 1/2/3 platform leads..."      (shared so-what)
+└── Text: "So what: the 1/2/3 platform leads..."                               (shared so-what)
 ```
 
 Border on the **outer** Vertical only — never on individual sheets, and not on the inner Horizontal (set inner Horizontal background to None so only the outer fill shows). To select the outer Vertical reliably, use Layout pane → **Item hierarchy** at the bottom-left and click the outermost Vertical node directly. There is **no "Add Container Above" menu option** in Tableau — to insert a container, drag from the Objects pane and watch for a thin blue line (sibling drop) vs full-rectangle blue overlay (drops into target as child).
@@ -753,14 +782,16 @@ Sheet 5 isn't a platform-comparison chart — the platform contrast lives on She
    - `Muted` → `#94a3b8` (gray)
 5. Verify: toggle `[Year Filter]` through 2022 → 2023 → 2024 — the red accent should *jump* to whichever categories are top-N by Severity Ratio in each year. If it doesn't move, re-check **Compute Using → Category** in step 3.
 
-> **Two-tier accent variant.** If you want top-1 and top-2 visually distinguishable (rank-2 in a lighter red), return three categorical values instead of two:
+> **Two-tier accent variant (current live build per Tanvi's choice, 2026-06-02).** Sheet 5 in the live workbook uses three categorical values — top-1, top-2, and rest — so the chart reads as "alert level 1 / alert level 2 / muted":
 > ```
 > IF RANK_UNIQUE([Severity Ratio], 'desc') = 1 THEN "Alert 1"
 > ELSEIF RANK_UNIQUE([Severity Ratio], 'desc') = 2 THEN "Alert 2"
 > ELSE "Muted"
 > END
 > ```
-> Colors: `Alert 1` → `#dc2626`, `Alert 2` → `#f87171` (lighter red), `Muted` → `#94a3b8`. Reads as "two bad ones, one *especially* bad." Default to flat top-N coloring unless you specifically want the rank visible.
+> Live workbook colors (Tanvi's choice): `Alert 1` → red/pink, `Alert 2` → yellow, `Muted` → gray. Earlier doc default `#f87171` (lighter red) for `Alert 2` is a tonal-continuity alternative — yellow gives sharper level-1-vs-level-2 contrast (traffic-light semantic), light-red would give a tonal hierarchy with less legend dependency. Either works; pick the one whose legend story you prefer.
+>
+> **Legend requirement.** When the chart uses three categorical colors that aren't self-explanatory (red ≠ "top", yellow ≠ "second" without prior context), **a legend is required** per 2026-06-02 round-2 reviewer feedback. See Step 10f-legend below.
 
 > **Filter context dependency.** `RANK_UNIQUE` against `Severity Ratio` only works if all of these are in **Context** (Year Match = True, Day Type = 1, Line Group in 1/2/3+A/C/E, Category ALL). Without context promotion, the FIXED LODs inside `Real Inc`/`Real Delay` ignore the year filter, the ratio stays stuck at the multi-year average, and the rank never recomputes.
 
@@ -784,6 +815,49 @@ The accent is a deliberate signal that this chart asks a *different* question th
 
 > **X-axis title clarification.** Earlier title was `Trains delayed per major incident (proxy)` — but `Real Delay` counts MTA delay-causing-incident reports (a granular MTA metric), not literal trains. Updated phrasing is semantically accurate; the `delays/inc` label is the shorthand.
 
+### 10f-legend — Add a 3-swatch legend (added 2026-06-02 per round-2 reviewer feedback; placement revised same day)
+
+When Sheet 5 uses the 3-tier accent (red + yellow + gray), the reader can't infer what each color means without a key. Salome flagged this in round 2: "the horizontal bar chart uses pink and yellow encoding with no visible legend explaining what each color represents." A 3-swatch legend resolves it.
+
+**Placement: top-right of the Sheet 5 card, inline with the title.** Matches the existing dashboard convention (Sheets 6 and 7 both put their color legends top-right). Decode-before-read order: the reader sees the encoding key as they enter the card, so the bars decode on first pass.
+
+**Two build paths — Tableau's auto Color legend (lighter touch) or a Floating Text Object (more control). Use the auto-legend first; fall back to the text object only if you can't get the auto-legend to behave.**
+
+### Path A — Tableau's auto Color legend (Tanvi's path, 2026-06-02 — confirmed working)
+
+1. On Sheet 5, right-click the Color shelf → **Show Legend** (or drag the legend from the right-pane onto the dashboard if you've already dismissed it).
+2. Position the legend at the **top-right of the Sheet 5 card**, inline with the title.
+3. Right-click the legend → **Floating** so you can position without disturbing the dashboard's tiled containers.
+4. Drag the legend's right edge to widen the container (give labels room to render in full).
+5. **If labels are still truncating with an ellipsis** even after widening: right-click the legend → **Format Legend** → **Layout** tab → reduce the **spacing between items** (and/or item padding). Tableau reserves horizontal room based on legend item spacing, so tightening that frees up label-text room. This is the fix that resolved label cut-off in the live workbook.
+6. **Relabel the workbook-internal calc values to reader-friendly labels** — the legend defaults to `Alert 1` / `Alert 2` / `Muted` (the calc-internal names from `Top Severity Highlight`). Right-click `Top Severity Highlight` in the Data pane → **Aliases…** and set:
+   - `Alert 1` → `Most severe`
+   - `Alert 2` → `2nd most severe`
+   - `Muted` → `All other causes`
+7. Optional: right-click the legend → **Title** → **Hide** to recover the row the title was occupying.
+
+### Path B — Floating Text Object (fallback if Path A spacing tweaks aren't enough)
+
+1. Delete the auto Color legend from the dashboard.
+2. Dashboard → **Objects pane** → drag a **Text** object onto the top-right corner of the Sheet 5 card, inline with the chart title.
+3. Right-click the text object → **Floating**.
+4. Layout pane → set **Width ~240 px**, **Height ~70 px** (numeric values; not "Fit content").
+5. Double-click to edit. Type these three lines:
+   ```
+   ■ Most severe
+   ■ 2nd most severe
+   ■ All other causes
+   ```
+6. Color each `■` square: first = red/pink (`Alert 1`, e.g. `#dc2626`), second = yellow (`Alert 2`, e.g. `#fbbf24`), third = gray `#94a3b8`.
+7. All label text → font **11pt**, color `#475569`.
+8. Background → white, padding ~6/10 px.
+
+> **When to pick which.** Path A keeps the legend semantically linked to the Color encoding (a future palette change updates the legend automatically). Path B gives total typographic control but is a static artifact — palette changes need a manual text-object update. Path A is the better default; Path B is the safety net when Path A's spacing tweaks can't fit the labels.
+
+> **Bullet character fallback** (Path B). The `■` character (`U+25A0` "Black Square") renders in most fonts but if your dashboard font is unusual, use `●` instead.
+
+> **Why a legend now and not before.** When Sheet 5 used the documented 2-tier path (red top-N + gray rest), no legend was needed — single-color spotlight reads as "the highlighted one matters most." Two distinct accents (red + yellow) introduce ambiguity: is yellow "second worst" or a different category dimension? The legend disambiguates. If you ever revert to the 2-tier path, drop the legend.
+
 ### 10f — Annotation (recommended: skip)
 
 **Recommended path: drop the annotation entirely.** The calc-driven red accent + the year-aware `delays/inc` labels + the question-form sheet title already carry the message. Adding a static annotation creates a year-aware/static mismatch — the colors move with the year filter, but a typed annotation doesn't.
@@ -802,7 +876,9 @@ If you want an annotation anyway, two options:
 ### 10g — So-what
 
 **So-what box (Option 3 framing):**
-> **So what:** the top-2 categories deliver the worst per-incident severity — rare but catastrophic days. Signals and Track are mid-severity but far more frequent, driving most of the total delay despite milder per-event impact. Severity dominates the worst single days; frequency dominates the average rider's experience.
+> **So what (shortened 2026-06-02, ~35 words, pending workbook application):** Signals dominate volume but rank middle on per-event severity. The worst severity sits with rare causes like 'Other' and 'Stations and Structure' — fewer events, much heavier when they hit. The reliability gap rides on frequency, not severity.
+
+> **Long version preserved.** Workbook carries a ~60-word version as of 2026-06-02 — see `dashboard_feedback_v3.md` memory § "Pending workbook application — so-what shortenings" → "Sheet 5" for the full text. Tanvi will apply the shortened version 2026-06-03.
 
 > **Verify the named categories in the active year before shipping.** Earlier doc text named "Other" and "Stations and Structure" as the top-2; with the multi-year extension, the ranking may differ. Glance at the top-2 red bars on your render and replace the generic "the top-2 categories" wording with the actual category names if you want the so-what to be more concrete. The "(per-platform severity on Cause Ladder labels)" parenthetical from earlier docs has been dropped — it forced a workbook-internal sheet reference and the Sheet-5-as-cross-cause-hierarchy framing doesn't need to cross-reference Sheet 4.
 
@@ -1057,16 +1133,17 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 | Position | Content | Type |
 |----------|---------|------|
 | Full width, top | Title + Year Filter parameter control | Floating text box + parameter (Compact List) |
-| Full width | Intro paragraph (multi-year, no hardcoded year) | Floating text box (`#ffffff` bg) |
+| Full width | Intro paragraph (multi-year, no hardcoded year — see Step 16a for color treatment; intro is headline-style and stays full-width — line-length cap from 2026-06-02 round-2 feedback applies to so-what boxes, not headers) | Floating text box (`#ffffff` bg) |
+| Full width (~240 px tall) | **Map (Sheet 7, MOVED above the KPI strip on 2026-06-02 per round-2 feedback — "a spatial anchor before diving into the metrics")** — `Where are these two platforms?` + orienting so-what + manual annotations on each dot; **ignores Year Filter** (multi-year synthesis) | Vertical container |
 | Full width, 4 cols | KPI 1 · KPI 2 · KPI 3 · KPI 4 (each with sub-tag) | Horizontal container, 4 sheets |
 | Full width | **Trajectory (Step 9g, added 2026-05-28)** — `1/2/3 holds; A/C/E catches up` + so-what; **ignores Year Filter** | Vertical container, ~160–200 px tall |
 | Full width — **CENTERPIECE** | Reliability Comparison (Sheet 6a + 6b side-by-side) + shared title above + so-what below | Outer Vertical container with border, inner Horizontal holding 6a + 6b each with their own metric sub-title — see Step 9f for the structure |
 | Full width | Sheets 2 + 3 (Incidents bars on top + WA% line below) + so-what box per sheet | Vertical container |
 | Half + half | Cause Ladder (Sheet 4) + so-what (with handshake → 4a) · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
 | Full width | **Sheet 4a (Step 6f, added 2026-05-28)** — `More incidents on both — A/C/E closes the gap anyway` + so-what; **ignores Year Filter** | Vertical container, ~260 px tall |
-| Full width (supporting) | Severity Bar (Sheet 5) + so-what | Vertical container |
-| Half + half | Map (Sheet 7, Penn 318+164, **size by ridership** post-2026-05-28) + so-what · Heatmap (Sheet 8) + so-what | Horizontal container |
-| Full width | Narrative footer ("The bottom line" + caveats block) | Floating text box (`#0f172a` bg) |
+| Full width (closer) | Heatmap (Sheet 8) + so-what — *moved out of slot-with-Map on 2026-06-02 when Sheet 7 was promoted; Heatmap now stands alone as the closer* | Vertical container |
+| Full width (supporting, post-closer) | Severity Bar (Sheet 5) + so-what | Vertical container |
+| Full width | Narrative footer ("The bottom line" + caveats block — see Steps 16b–16c for color treatment; footer is dark-card-framed and stays full-width — line-length cap from 2026-06-02 round-2 feedback applies to so-what boxes, not footers) | Floating text box (`#0f172a` bg) |
 
 > **Sheet San (Sankey) does NOT appear** in the Option 3 layout — removed 2026-05-22+. If built, Hide rather than delete (kept for Option 2 backup pivot).
 > **Sheet N (corridor scatter) does NOT appear** — retired. Same Hide-don't-delete rule applies.
@@ -1125,13 +1202,61 @@ When you extend `3_transform.sql` WHERE-year ranges and re-run the pipeline:
 
 ---
 
-## Step 16 — Narrative footer text box
+## Step 16 — Intro paragraph + Narrative footer text boxes
+
+### 16a — Intro paragraph (sits between Year Filter row and Sheet 7 map)
+
+1. Dashboard → Objects → Text → drag to position
+2. Set background: `#ffffff`, padding 14px 20px, **full-width** (intro is headline-style — width cap from item 6 does NOT apply here; see § 16d for scope clarification)
+3. Type the intro paragraph (see DASHBOARD_MODEL.md § "Canonical caption set" → "Intro paragraph" for exact wording — includes inline Wait Assessment definition + first-use `percentage points (pp)` expansion)
+4. **Color treatment (revised 2026-06-02 — replaces block-level magenta):**
+   - Body text → dark slate `#0f172a`, 14pt (post-Group-B size)
+   - `1/2/3` mentions → green `#59a14f` bold
+   - `A/C/E` mentions → blue `#4e79a7` bold
+   - Numbers (`+8.0 pp`, `~2.9M`, percentages) → bold dark slate, no color
+   - Closing line `Same name, different odds — narrowing.` → italic, body color
+5. Style: italic body font for narrative voice (same as before); ~17px in render mockup
+
+### 16b — Narrative footer text box (bottom of dashboard)
 
 1. Dashboard → Objects → Text → drag to bottom
-2. Set background: `#0f172a`, padding 20px
-3. Type the footer text (see DASHBOARD_MODEL.md for exact wording)
-4. Format bold text as `#f1f5f9`, body as `#64748b`, red emphasis as `#f87171`
-5. Set fixed height ~80px
+2. Set background: `#0f172a`, padding 20px, **full-width** (footer is dark-card framed — width cap from item 6 does NOT apply here; see § 16d for scope clarification)
+3. Drop the `[Bottom Line Text]` calc-field worksheet here (year-dynamic — see Step 9g equivalent for calc structure, or DASHBOARD_MODEL.md § "Bottom-line conclusion")
+4. **Color treatment (revised 2026-06-02 — replaces block-level magenta; no more red emphasis `#f87171`):**
+   - Body text → light gray `#cbd5e1`, 14pt
+   - `take 1/2/3` → light green `#86efac` bold italic (the only italic phrase — single call to action)
+   - Other `1/2/3` mentions → light green `#86efac` bold (no italic)
+   - `A/C/E` mentions → light blue `#93c5fd` bold
+   - Numbers → near-white `#f1f5f9` bold
+5. Below the bottom-line, separated by a 1px `#1e293b` border: caveats text object (see Step 16c)
+6. Fixed height: auto
+
+### 16c — Caveats block (inside the footer container, below the closer)
+
+1. Dashboard → Objects → Text → drop inside the footer container, below the closer
+2. Same background `#0f172a`, **full-width** (caveats inherits the footer's dark-card framing; width cap from item 6 does NOT apply)
+3. Type the caveats text (see DASHBOARD_MODEL.md § "Caveats block" — includes rising-incidents note + year-range)
+4. **Color treatment (revised 2026-06-02):**
+   - Body text → muted gray `#94a3b8`, 12pt (deliberately de-emphasized — honesty notes, not headline)
+   - `Caveats:` label and key terms (`Wait Assessment`, `rising-load backdrop`) → near-white `#f1f5f9` bold
+5. 1px top border `#1e293b` separating from the closer above
+
+### 16d — Width cap on so-what / analysis text boxes (2026-06-02 scope correction)
+
+Salome's round-2 item 6 ("Break up wide text blocks") specifically targeted *"annotation/analysis text sections"* — the **so-what insight callout boxes under each chart**, not the intro / bottom-line / caveats. Those three prose blocks are headline / footer-framed and stay full-width.
+
+**Apply the 770px cap to:** the so-what insight boxes on full-width chart cards. Those previously ran 100+ chars/line and were the hardest "analysis text" to read at width. Specifically:
+- Sheet 6 (centerpiece) shared so-what
+- Sheet 7 (map) orienting so-what
+- Sheet 2 + Sheet 3 shared so-what
+- Sheet 4a so-what
+- Sheet 8 so-what
+- Sheet 5 supporting so-what
+- Trajectory so-what
+
+**Do NOT cap:** so-what boxes on half-width charts (Sheet 4 + Sheet C side-by-side) — their parent card already constrains them to ~600px.
+
+**How in Tableau:** for each full-width chart's so-what text object, Layout pane → Width 770 px → align left within the parent vertical container. At the post-Group-B 14pt body, this gives ~70–80 chars per line — Otto Richardson's "newspaper-column zone" Salome's resource recommends.
 
 ---
 
@@ -1172,6 +1297,19 @@ When you extend `3_transform.sql` WHERE-year ranges and re-run the pipeline:
 - [ ] Year-aware Mark Labels (Sheet 7 Penn label, Sheet 8 Peak label) update when year changes
 - [ ] Reference line on Sheet 6a (Penn-avg WA%) and Sheet 6b (Penn-avg OTP%) — each set to **Average** of its own measure scoped Table, not Constant; labels read "Penn avg" since the average is across Penn-serving routes only, not system-wide
 - [ ] Footer copy + caveats block do not name a specific year
+
+**Round-2 accessibility / readability (added 2026-06-02 per Salome feedback):**
+- [ ] Intro paragraph spells out `percentage points (pp)` on first use of `pp`, and `Wait Assessment` carries its inline definition `(the share of peak-hour trains arriving within target headway)` on first use
+- [ ] Sheet 6 sub-titles read `Wait Assessment (WA) % — trains within target headway` and `Terminal On-Time Performance (OTP) % — trains on time at terminal` (acronyms introduced parenthetically)
+- [ ] **So-what insight boxes on full-width chart cards** (Sheet 6, Sheet 7, Sheet 2+3, Sheet 4a, Sheet 8, Sheet 5, Trajectory) are **width-capped at 770px** left-aligned. *Intro paragraph, bottom-line, and caveats are NOT capped — they're headline/footer-framed and stay full-width. The 2026-06-02 scope correction reads Salome's "annotation/analysis text sections" as the so-what callouts, not the headers/footers.*
+- [ ] Intro paragraph: no magenta — body in dark slate `#0f172a`, `1/2/3` in green `#59a14f` bold, `A/C/E` in blue `#4e79a7` bold, numbers in bold dark slate
+- [ ] Bottom-line: no magenta — body in light gray `#cbd5e1`, `take 1/2/3` in light green `#86efac` bold italic (only italic phrase), `A/C/E` in light blue `#93c5fd`, numbers in near-white `#f1f5f9` bold
+- [ ] Caveats: no magenta — body in muted gray `#94a3b8`, `Caveats:` label and key terms in near-white `#f1f5f9` bold
+- [ ] **Sheet 2** is **dodged bars by month** (within each month group, a green 1/2/3 bar sits next to a blue A/C/E bar) — NOT a single stacked bar, NOT two separate panels. Column dimension order: `MONTH([Month])` outer (discrete), `Line Group` inner. Color encoding still on Line Group. Inner Line Group field labels hidden (the Color legend labels both platforms once for the whole chart).
+- [ ] **Sheet 7 (Map)** sits **above the KPI strip** (immediately after the intro paragraph, before the 4 KPI tiles), full-width, title `Where are these two platforms?`. Year Match is NOT on this sheet's filter shelf. Manual per-dot annotations carry the WA% + ridership labels.
+- [ ] **Sheet 8 (Heatmap)** is now a stand-alone **full-width closer** (previously paired half-width with Sheet 7). The container row that held both is now a single-card row.
+- [ ] **Sheet 5** has a **3-swatch legend** below the chart (red = "Most severe", yellow = "2nd most severe", gray = "All other causes") since the 3-tier accent isn't self-explanatory. Position: between Sheet 5's bars and its so-what box.
+- [ ] **Font sizes bumped workbook-wide** per the Typography table in `DASHBOARD_MODEL.md` § "Typography sizes" — body / so-what 14pt, chart captions 12pt, KPI tile body 12pt, axis ticks 11pt, chart annotations 12pt. Section titles already 16pt. Verify by zooming the dashboard to 100% and visually checking that no text feels strain-inducing.
 
 ---
 

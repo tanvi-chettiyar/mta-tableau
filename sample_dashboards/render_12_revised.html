@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Penn Station — Option 3: Two Platforms, Two Reliability Stories</title>
+<title>Penn Station, Option 3: Two Platforms, Two Reliability Stories</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -131,14 +131,14 @@ body {
   <div class="journey-headline">
     <div class="hl-label">Headline</div>
     <div class="hl-text">
-      Penn Station looks like one place on a sign. Underneath, it's two platforms — and a closing gap.
+      Penn Station looks like one place on a sign. Underneath, it's two platforms, and a closing gap.
       The <span class="ln-123">1/2/3</span> platform has led <span class="ln-ace">A/C/E</span> on peak Wait Assessment
       (the share of peak-hour trains arriving within target headway) every year measured, but the lead has shrunk from
       <span class="num">+8.0 percentage points (pp)</span> in 2022 to <span class="num">+4.3 pp</span> in 2023
       to <span class="num">+3.8 pp</span> in 2024. <span class="ln-ace">A/C/E</span> climbed from
-      <span class="num">61% to 66%</span> while <span class="ln-123">1/2/3</span> held steady <span class="num">near 70%</span>
-      — and both platforms absorbed <span class="num">roughly 40% more</span> major incidents along the way.
-      <span class="close">Same name, different odds — narrowing.</span>
+      <span class="num">61% to 66%</span> while <span class="ln-123">1/2/3</span> held steady <span class="num">near 70%</span>,
+      and both platforms absorbed <span class="num">roughly 40% more</span> major incidents along the way.
+      <span class="close">Same name, different odds. Narrowing.</span>
     </div>
   </div>
 
@@ -146,8 +146,8 @@ body {
   <div class="card full">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
-        <div class="card-title">Where are these two platforms? <span class="badge b-promote">⬆ Sheet 7 — promoted above KPI strip, orienting card</span></div>
-        <div class="card-subtitle">Two platforms, one staircase apart — circle size = monthly ridership at each complex · multi-year view (ignores Year Filter)</div>
+        <div class="card-title">Where are these two platforms? <span class="badge b-promote">⬆ Sheet 7, promoted above KPI strip, orienting card</span></div>
+        <div class="card-subtitle">Filtered symbol map of complexes 318 + 164. Circle size = monthly ridership. Multi-year view, ignores Year Filter.</div>
       </div>
       <div style="font-size:10px;color:#94a3b8;text-align:right;line-height:1.6;flex-shrink:0;">
         <span style="color:#59a14f;">● 1/2/3 platform (complex 318)</span><br>
@@ -181,7 +181,7 @@ body {
     </svg>
 
     <div class="insight" style="margin-top:14px;">
-      <strong>So what:</strong> Two platforms, one staircase apart. The <strong style="color:#59a14f;">1/2/3</strong> and <strong style="color:#4e79a7;">A/C/E</strong> platforms share Penn's complex on the surface but run separate operations underneath — different lines, schedules, reliability profiles. Circle size marks each platform's monthly ridership; the labels carry the metrics the rest of this dashboard will explain. <em>Same name, different odds — the rest of the dashboard tells you why.</em>
+      <strong>So what:</strong> Two platforms, one staircase apart. The <strong style="color:#59a14f;">1/2/3</strong> (green) and <strong style="color:#4e79a7;">A/C/E</strong> (blue) share Penn's complex on the surface but run separate operations underneath: different lines, different schedules, different reliability profiles. Circle size = monthly ridership. <em>Same name, different odds. The rest of the dashboard tells you why.</em>
     </div>
   </div>
 
@@ -198,43 +198,93 @@ body {
     <div class="kpi-card">
       <div class="kpi-label">Routes converging</div>
       <div class="kpi-num" style="color:#fbbf24;">6</div>
-      <div class="kpi-desc">1 · 2 · 3 · A · C · E — <em>two platforms, one complex</em></div>
+      <div class="kpi-desc">1 · 2 · 3 · A · C · E <em>(two platforms, one complex)</em></div>
       <div style="font-size:10px;color:#fbbf24;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">Only Times Sq-42 St beats this count system-wide.</div>
     </div>
 
     <div class="kpi-card">
       <div class="kpi-label">Months hit by Signal/Track</div>
       <div class="kpi-num" style="color:#ef4444;">11<span style="font-size:18px;font-weight:400;color:#334155;">/12</span></div>
-      <div class="kpi-desc">at least one outage on Penn routes — <em>91.7% of 2024</em></div>
+      <div class="kpi-desc">at least one outage on Penn routes <em>(91.7% of 2024)</em></div>
       <div style="font-size:10px;color:#fbbf24;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">A clean month at Penn was the year's exception, not the rule.</div>
     </div>
 
     <div class="kpi-card">
       <div class="kpi-label">1/2/3 platform advantage</div>
       <div class="kpi-num" style="color:#86efac;">+3.8 pp</div>
-      <div class="kpi-desc">Wait Assessment % at peak — <em>vs the A/C/E platform</em></div>
+      <div class="kpi-desc">Wait Assessment % at peak <em>(vs the A/C/E platform)</em></div>
       <div style="font-size:10px;color:#86efac;margin-top:8px;border-top:1px solid #1e293b;padding-top:6px;line-height:1.3;">Compounded over a year of weekday peaks: ~8 extra on-time mornings per rider.</div>
     </div>
 
   </div>
 
-  <!-- 1. THE PUNCHLINE — Sheet 6 promoted to top of body -->
+  <!-- WA TRAJECTORY (added 2026-06-04, sits between KPI strip and Sheet 6 per CLAUDE.md spec) -->
   <div class="card full">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;">
       <div>
-        <div class="card-title">Which platform should you trust? <span class="badge b-promote">⬆ Sheet 6 — promoted to centerpiece</span></div>
-        <div class="card-subtitle">Wait Assessment % + Terminal OTP % at weekday peak — the punchline first, evidence below</div>
+        <div class="card-title">1/2/3 holds; A/C/E catches up <span class="badge b-new">+ Trajectory</span></div>
+        <div class="card-subtitle">Two-line chart, peak-weekday Wait Assessment per platform across 2022 to 2024. Axis labels carry the per-year gap. Multi-year view, ignores Year Filter.</div>
       </div>
       <div style="font-size:10px;color:#94a3b8;text-align:right;line-height:1.6;flex-shrink:0;">
         <span style="color:#59a14f;">● 1/2/3 platform</span><br>
         <span style="color:#4e79a7;">● A/C/E platform</span><br>
-        — system avg shown as dashed
+        <em>multi-year (ignores filter)</em>
+      </div>
+    </div>
+
+    <svg width="100%" height="190" viewBox="0 0 800 190" preserveAspectRatio="none" style="background:#fafafa;border-radius:4px;margin-top:4px;">
+      <line x1="0" y1="20"  x2="800" y2="20"  stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="70"  x2="800" y2="70"  stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="120" x2="800" y2="120" stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="2,2"/>
+      <line x1="0" y1="170" x2="800" y2="170" stroke="#e5e7eb" stroke-width="0.5"/>
+      <text x="32" y="24"  fill="#94a3b8" font-size="9">72%</text>
+      <text x="32" y="74"  fill="#94a3b8" font-size="9">68%</text>
+      <text x="32" y="124" fill="#94a3b8" font-size="9">64%</text>
+      <text x="32" y="174" fill="#94a3b8" font-size="9">60%</text>
+
+      <polyline points="120,45 400,45 680,50" fill="none" stroke="#59a14f" stroke-width="2.5"/>
+      <g fill="#59a14f">
+        <circle cx="120" cy="45" r="4"/><circle cx="400" cy="45" r="4"/><circle cx="680" cy="50" r="4"/>
+      </g>
+      <text x="120" y="34"  fill="#59a14f" font-size="10" font-weight="700" text-anchor="middle">70%</text>
+      <text x="400" y="34"  fill="#59a14f" font-size="10" font-weight="700" text-anchor="middle">70%</text>
+      <text x="700" y="44"  fill="#59a14f" font-size="10" font-weight="700">69.6%</text>
+
+      <polyline points="120,157 400,107 680,97" fill="none" stroke="#4e79a7" stroke-width="2.5"/>
+      <g fill="#4e79a7">
+        <circle cx="120" cy="157" r="4"/><circle cx="400" cy="107" r="4"/><circle cx="680" cy="97" r="4"/>
+      </g>
+      <text x="120" y="172" fill="#4e79a7" font-size="10" font-weight="700" text-anchor="middle">61%</text>
+      <text x="400" y="122" fill="#4e79a7" font-size="10" font-weight="700" text-anchor="middle">65%</text>
+      <text x="700" y="93"  fill="#4e79a7" font-size="10" font-weight="700">65.8%</text>
+
+      <text x="120" y="186" fill="#475569" font-size="11" font-weight="600" text-anchor="middle">2022 (+8.0 pp)</text>
+      <text x="400" y="186" fill="#475569" font-size="11" font-weight="600" text-anchor="middle">2023 (+4.3 pp)</text>
+      <text x="680" y="186" fill="#475569" font-size="11" font-weight="600" text-anchor="middle">2024 (+3.8 pp)</text>
+    </svg>
+
+    <div class="insight" style="margin-top:14px;">
+      <strong>So what:</strong> 1/2/3 holds steady near 70% across all three years; A/C/E climbs from 61% to 66%. The reliability gap narrows +8.0, +4.3, +3.8 pp. <em>A/C/E is catching up, not 1/2/3 degrading.</em> The closing gap is a real recovery-side story, not a quiet 1/2/3 backslide.
+    </div>
+  </div>
+
+  <!-- 1. THE PUNCHLINE: Sheet 6 promoted to top of body -->
+  <div class="card full">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="card-title">Which platform should you trust? <span class="badge b-promote">⬆ Sheet 6, centerpiece</span></div>
+        <div class="card-subtitle">Wait Assessment % and Terminal OTP % at weekday peak, side-by-side bars by platform. Dashed line marks system average. Year-aware.</div>
+      </div>
+      <div style="font-size:10px;color:#94a3b8;text-align:right;line-height:1.6;flex-shrink:0;">
+        <span style="color:#59a14f;">● 1/2/3 platform</span><br>
+        <span style="color:#4e79a7;">● A/C/E platform</span><br>
+        system avg shown as dashed
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
       <div>
-        <div style="font-size:12px;font-weight:600;color:#0f172a;margin-bottom:8px;">Wait Assessment (WA) % <span style="color:#475569;font-weight:400;">— trains within target headway</span></div>
+        <div style="font-size:12px;font-weight:600;color:#0f172a;margin-bottom:8px;">Wait Assessment (WA) % <span style="color:#475569;font-weight:400;">(trains within target headway)</span></div>
 
         <div class="rel-row">
           <span class="rel-label" style="color:#59a14f;">1/2/3</span>
@@ -248,11 +298,11 @@ body {
             <div class="rel-bar" style="width:66%;background:linear-gradient(90deg,#1d4ed8,#4e79a7);">65.8%</div>
           </div>
         </div>
-        <div style="margin-left:52px;font-size:9px;color:#94a3b8;margin-top:4px;">— system avg: ~68%</div>
+        <div style="margin-left:52px;font-size:9px;color:#94a3b8;margin-top:4px;">system avg: ~68%</div>
       </div>
 
       <div>
-        <div style="font-size:12px;font-weight:600;color:#0f172a;margin-bottom:8px;">Terminal On-Time Performance (OTP) % <span style="color:#475569;font-weight:400;">— trains on time at terminal</span></div>
+        <div style="font-size:12px;font-weight:600;color:#0f172a;margin-bottom:8px;">Terminal On-Time Performance (OTP) % <span style="color:#475569;font-weight:400;">(trains on time at terminal)</span></div>
 
         <div class="rel-row">
           <span class="rel-label" style="color:#59a14f;">1/2/3</span>
@@ -266,23 +316,23 @@ body {
             <div class="rel-bar" style="width:75%;background:linear-gradient(90deg,#1d4ed8,#4e79a7);">74.5%</div>
           </div>
         </div>
-        <div style="margin-left:52px;font-size:9px;color:#94a3b8;margin-top:4px;">— system avg: ~77%</div>
+        <div style="margin-left:52px;font-size:9px;color:#94a3b8;margin-top:4px;">system avg: ~77%</div>
       </div>
     </div>
 
     <div class="insight" style="margin-top:14px;">
-      <strong>So what:</strong> the 1/2/3 platform leads on both metrics, every quarter of 2024. A ~4-percentage-point Wait Assessment gap means roughly <strong>1 in 25 more trains arrive on schedule</strong> — which compounds across thousands of weekday commutes. <em>If you have both options on your MetroCard, take 1/2/3.</em>
+      <strong>So what:</strong> 1/2/3 leads on both metrics. A ~4-percentage-point Wait Assessment gap means roughly <strong>1 in 25 more trains arrive on schedule</strong>, which compounds across thousands of weekday commutes. The terminal OTP gap (+4.4 pp) tells the same story end-to-end. <em>If you have both options on your MetroCard, take 1/2/3.</em>
     </div>
   </div>
 
   <!-- 2. INCIDENTS + WA% OVER TIME — Sheets 2 + 3 (Sheet 2 destacked 2026-06-02; Sheet 3 rebuilt 2026-05-22) -->
   <div class="card full">
-    <div class="card-title">Is the gap real, or just an average that hides bad months? <span class="badge b-change">↻ Sheets 2 + 3 — Sheet 2 destacked, Sheet 3 rebuilt</span></div>
-    <div class="card-subtitle">Top: monthly Signal + Track incidents — dodged bars, green 1/2/3 next to blue A/C/E within each month so the per-month comparison reads at a glance. Bottom: monthly Wait Assessment % at peak weekday by platform (lines — the gap drawn directly). <em>Sheet 2 destacked 2026-06-02 per round-2 reviewer feedback (dodge by month, not by platform — the section question asks whether the gap holds each month). Sheet 3 replaced 2026-05-22 — ridership area chart didn't answer the section question and its 4–9M corridor-wide y-axis didn't reconcile with KPI 1's ~2.9M Penn-only number.</em></div>
+    <div class="card-title">Is the gap real, or just an average that hides bad months? <span class="badge b-change">↻ Sheets 2 + 3</span></div>
+    <div class="card-subtitle">Top: monthly Signal + Track incidents (dodged bars, green 1/2/3 next to blue A/C/E within each month for direct comparison). Bottom: monthly peak-weekday Wait Assessment by platform. Gap between the lines = 1/2/3's reliability advantage, drawn month by month so a bad month can't hide in an average. Year-aware.</div>
 
     <div style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
-        <div style="font-size:11px;font-weight:600;color:#0f172a;">Signal + Track incidents — dodged by platform each month</div>
+        <div style="font-size:11px;font-weight:600;color:#0f172a;">Signal + Track incidents (dodged by platform each month)</div>
         <div style="font-size:10px;color:#94a3b8;"><span style="color:#59a14f;">● 1/2/3</span> &nbsp; <span style="color:#4e79a7;">● A/C/E</span> &nbsp; (taller bar = more incidents that month)</div>
       </div>
       <!-- 12 month groups, each containing 2 dodged bars (1/2/3 green + A/C/E blue) -->
@@ -321,7 +371,7 @@ body {
     <!-- Sheet 3 (rebuilt): WA% over time, two lines, one per platform -->
     <div>
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
-        <div style="font-size:11px;font-weight:600;color:#0f172a;">Wait Assessment % by platform — monthly, peak weekday</div>
+        <div style="font-size:11px;font-weight:600;color:#0f172a;">Wait Assessment % by platform (monthly, peak weekday)</div>
         <div style="font-size:10px;color:#94a3b8;">y-axis: 60–80% · the gap between the lines = 1/2/3 reliability advantage</div>
       </div>
       <svg width="100%" height="120" viewBox="0 0 800 120" preserveAspectRatio="none" style="background:#fafafa;border-radius:4px;">
@@ -369,7 +419,7 @@ body {
     </div>
 
     <div class="insight" style="margin-top:14px;">
-      <strong>So what:</strong> the incident bars confirm the stress is structural, not a one-month anomaly — both platforms absorb comparable disruption month after month. The WA% lines confirm the <em>reliability</em> gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month of 2024, and toggling the year filter shows the gap narrowing year over year (A/C/E rising toward a stable 1/2/3). Same data, drawn directly.
+      <strong>So what:</strong> 1/2/3 carries more Signal/Track incidents than A/C/E in most months, but its WA% lines stay ~3–5 pp above A/C/E nearly every month, never crossing within a year. The reliability gap is <em>structural</em>, not a bad-month average. The trajectory chart above shows the gap closing; this one shows it's always-on.
     </div>
   </div>
 
@@ -377,8 +427,8 @@ body {
   <div class="row col-2">
 
     <div class="card">
-      <div class="card-title">Do both platforms see the same kinds of failure? <span class="badge b-change">↻ Sheet 4 — split by platform</span></div>
-      <div class="card-subtitle">Bar length = major incidents on that platform · label suffix = trains delayed per major incident (severity) · 2024 weekdays · <em>circle dropped 2026-05-22 per feedback to remove dual encoding</em></div>
+      <div class="card-title">Do both platforms see the same kinds of failure? <span class="badge b-change">↻ Sheet 4, split by platform</span></div>
+      <div class="card-subtitle">Bar length = major incidents per category. Label suffix = trains delayed per incident (severity). Top 4 categories, weekdays, year-aware.</div>
 
       <style>
         .cl-cat   { font-size:11px;font-weight:600;color:#475569;margin-top:10px;margin-bottom:3px; }
@@ -459,14 +509,14 @@ body {
       </div>
 
       <div class="insight">
-        <strong>So what:</strong> broadly yes — Signals, Track, and Persons-on-Trackbed are top categories on <em>both</em> platforms. The "× delay" labels also show severity is comparable per-category across platforms. The reliability gap on Sheet 6 isn't explained by a different mix of failures hitting each platform, nor by different severity per incident — both see the same problem profile. The gap must be in what happens <em>after</em> an incident: a service-frequency and recovery-operations story.
+        <strong>So what:</strong> Same top three categories on both platforms (Persons on Trackbed, Signals, Track), with comparable per-incident severity. But 1/2/3 carries <em>more</em> incidents in every one of the top three and still wins on reliability. The gap isn't fewer failures or milder ones; it's what happens <em>after</em>: a recovery-operations story.
       </div>
     </div>
 
     <!-- Quilt — Sheet C, kept, central to the platform-contrast story -->
     <div class="card">
-      <div class="card-title">Do the platforms fail at the same time? <span class="badge b-keep">✓ Sheet C — kept</span></div>
-      <div class="card-subtitle">If they did, the contrast wouldn't be useful — the answer determines whether choosing 1/2/3 ever backfires</div>
+      <div class="card-title">Do the platforms fail at the same time? <span class="badge b-keep">✓ Sheet C</span></div>
+      <div class="card-subtitle">Monthly incident-magnitude heat strips, one row per platform across 12 months. Darker shading = more incidents that month. Year-aware.</div>
 
       <div style="display:grid;grid-template-columns:40px repeat(12,1fr);gap:3px;margin-bottom:3px;">
         <div></div>
@@ -520,18 +570,69 @@ body {
         ⚠ <strong>September:</strong> A/C/E is clear, 1/2/3 is heavy. The one month where the headline advice would have failed.
       </div>
       <div class="insight insight-purple">
-        <strong>So what:</strong> the platforms don't fail in lockstep — they're operationally independent within the same complex. That's <em>good news</em> for the routing argument: when one is degraded, the other is usually still on schedule. The 1-month exception (September) is the honest qualifier on the headline.
+        <strong>So what:</strong> The platforms don't fail in lockstep. They're operationally independent within the same complex. That's <em>good news</em> for the routing argument: when one is degraded, the other is usually still on schedule. September is the honest qualifier: 1/2/3 ran heavy while A/C/E ran clear, the month the headline fails.
       </div>
     </div>
 
   </div>
 
-  <!-- 4. WHEN — Sheet 8 as the closer (Sheet 7 moved to slot 3 on 2026-06-02; Sheet 8 stands alone full-width now) -->
+  <!-- SHEET 4a CAUSE-SIDE TRAJECTORY (added 2026-06-04, sits between Sheet 4/C row and Sheet 8 per CLAUDE.md spec) -->
+  <div class="card full">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="card-title">More incidents on both, A/C/E closes the gap anyway <span class="badge b-new">+ Cause trajectory</span></div>
+        <div class="card-subtitle">Total incident events (all categories) per platform, 2022 to 2024. Side-by-side bars by year. Multi-year view, ignores Year Filter.</div>
+      </div>
+      <div style="font-size:10px;color:#94a3b8;text-align:right;line-height:1.6;flex-shrink:0;">
+        <span style="color:#59a14f;">● 1/2/3</span> &nbsp; <span style="color:#4e79a7;">● A/C/E</span><br>
+        <em>multi-year (ignores filter)</em>
+      </div>
+    </div>
+
+    <style>
+      .traj-yr { display:grid; grid-template-columns:60px 1fr 60px 1fr 60px 1fr; gap:10px; align-items:end; height:180px; margin-top:8px; }
+      .traj-bar-wrap { display:flex; gap:8px; height:100%; align-items:flex-end; padding:0 6px; }
+      .traj-bar { flex:1; border-radius:3px 3px 0 0; position:relative; }
+      .traj-bar-label { position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-size:10px; font-weight:700; white-space:nowrap; }
+      .traj-yr-label { text-align:center; font-size:11px; font-weight:600; color:#475569; margin-top:4px; }
+      .traj-gap     { text-align:center; font-size:9px; color:#94a3b8; }
+    </style>
+
+    <div class="traj-yr">
+      <div style="text-align:right;font-size:11px;color:#475569;font-weight:600;">2022</div>
+      <div class="traj-bar-wrap">
+        <div class="traj-bar" style="height:70%;background:#59a14f;"><span class="traj-bar-label" style="color:#3a7d34;">87</span></div>
+        <div class="traj-bar" style="height:60%;background:#4e79a7;"><span class="traj-bar-label" style="color:#1d4ed8;">74</span></div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569;font-weight:600;">2023</div>
+      <div class="traj-bar-wrap">
+        <div class="traj-bar" style="height:71%;background:#59a14f;"><span class="traj-bar-label" style="color:#3a7d34;">88</span></div>
+        <div class="traj-bar" style="height:66%;background:#4e79a7;"><span class="traj-bar-label" style="color:#1d4ed8;">82</span></div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569;font-weight:600;">2024</div>
+      <div class="traj-bar-wrap">
+        <div class="traj-bar" style="height:100%;background:#59a14f;"><span class="traj-bar-label" style="color:#3a7d34;">124</span></div>
+        <div class="traj-bar" style="height:81%;background:#4e79a7;"><span class="traj-bar-label" style="color:#1d4ed8;">101</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:60px 1fr 60px 1fr 60px 1fr;gap:10px;font-size:10px;color:#94a3b8;margin-top:6px;text-align:center;">
+      <div></div><div>1/2/3 lead: +13</div>
+      <div></div><div>+6</div>
+      <div></div><div>+23</div>
+    </div>
+
+    <div class="insight" style="margin-top:14px;">
+      <strong>So what:</strong> Both platforms absorbed <strong>~40% more</strong> incidents in 2024 than 2022: 1/2/3 grew 87 to 124, A/C/E 74 to 101. 1/2/3 carries more every year, with the load gap widening to <strong>+23 in 2024</strong>. So A/C/E's narrowing reliability gap isn't fewer disruptions; it's faster recovery from a rising backdrop.
+    </div>
+  </div>
+
+  <!-- 4. WHEN: Sheet 8 as the closer (Sheet 7 moved to slot 3 on 2026-06-02; Sheet 8 stands alone full-width now) -->
   <div class="row">
 
     <div class="card full">
-      <div class="card-title">If you had to pick one moment to avoid Penn, when? <span class="badge b-keep">✓ Sheet 8 — closer (Sheet 7 promoted out of this slot on 2026-06-02)</span></div>
-      <div class="card-subtitle">Day × hour heatmap at Penn — peak ridership × peak failures · darker = more delay</div>
+      <div class="card-title">If you had to pick one moment to avoid Penn, when? <span class="badge b-keep">✓ Sheet 8, closer</span></div>
+      <div class="card-subtitle">Day × hour heatmap at Penn. Color intensity = delay magnitude, darker = worse. Combined across both platforms. Year-aware.</div>
 
       <div style="display:grid;grid-template-columns:32px repeat(16,1fr);gap:2px;margin-bottom:2px;">
         <div></div>
@@ -605,7 +706,7 @@ body {
       </div>
 
       <div class="insight">
-        <strong>So what:</strong> Tuesday 8 AM is peak risk on <em>both</em> platforms — but it's also the hour with the largest absolute ridership × failure interaction, so the ~4 pp Wait Assessment gap saves the most riders the most time at exactly this cell. <em>The headline advice has its highest value here.</em>
+        <strong>So what:</strong> Tuesday 8 AM is peak risk on <em>both</em> platforms, and the hour with the largest ridership × failure interaction. So the ~4 pp Wait Assessment gap saves the most riders the most time at exactly this cell. <em>The headline advice has its highest value here.</em>
       </div>
     </div>
 
@@ -614,28 +715,28 @@ body {
   <!-- FOOTER NARRATIVE (text + color updated 2026-06-02 — magenta retone + 770px width cap; year-dynamic copy reflects 2024 selection) -->
   <div class="footer">
     <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:8px;">The bottom line</div>
-    For the <span class="num">2.92M paid entries</span> at Penn each month — riders who often hold both options on their MetroCard —
+    For the <span class="num">2.92M paid entries</span> at Penn each month (riders who often hold both options on their MetroCard),
     the data answers a single practical question: when both platforms are running, <span class="cta">take 1/2/3</span>.
-    The <span class="ln-ace">A/C/E</span> platform isn't unreliable — it's the second-best choice in a complex where the best choice
+    The <span class="ln-ace">A/C/E</span> platform isn't unreliable. It's the second-best choice in a complex where the best choice
     is one staircase away.
 
     <div style="margin-top:12px;">
-      In 2024, <span class="ln-123">1/2/3</span> leads <span class="ln-ace">A/C/E</span> by <span class="num">+3.8 pp</span> on peak Wait Assessment —
+      In 2024, <span class="ln-123">1/2/3</span> leads <span class="ln-ace">A/C/E</span> by <span class="num">+3.8 pp</span> on peak Wait Assessment,
       but that lead has been narrowing. The gap was <span class="num">+8.0 pp</span> in 2022, <span class="num">+4.3 pp</span> in 2023, and
       <span class="num">+3.8 pp</span> in 2024, even as both platforms absorbed <span class="num">~40% more</span> major incidents over the period.
-      <span class="ln-ace">A/C/E</span> climbed from <span class="num">61% to 66%</span> while <span class="ln-123">1/2/3</span> held steady <span class="num">near 70%</span>
-      — the convergence is recovery operations, not a calmer system.
+      <span class="ln-ace">A/C/E</span> climbed from <span class="num">61% to 66%</span> while <span class="ln-123">1/2/3</span> held steady <span class="num">near 70%</span>.
+      The convergence is recovery operations, not a calmer system.
     </div>
 
     <div style="margin-top:12px;">
-      The <span class="ln-123">1/2/3</span> still wins the head-to-head choice — and the choice matters most exactly when ridership peaks:
+      The <span class="ln-123">1/2/3</span> still wins the head-to-head choice, and the choice matters most exactly when ridership peaks:
       <strong>Tuesday 8 AM</strong>, on both platforms.
     </div>
 
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid #1e293b;font-size:12px;color:#94a3b8;line-height:1.65;">
       <strong style="color:#f1f5f9;">Caveats:</strong> Weekday peak-period data, 2022–2024. <strong style="color:#f1f5f9;">Wait Assessment</strong>
       measures peak-period headway adherence; it doesn't capture every dimension of "reliability." Major-incident counts
-      <strong style="color:#f1f5f9;">rose materially on both platforms</strong> across the period — the WA improvements happened against a
+      <strong style="color:#f1f5f9;">rose materially on both platforms</strong> across the period. The WA improvements happened against a
       <strong style="color:#f1f5f9;">rising-load backdrop</strong>, not a calmer system. Stations beyond Penn on either trunk have their own
       outage profiles that differ from the platform averages shown here. Use the year filter above to see how the gap evolved.
     </div>
@@ -643,37 +744,6 @@ body {
       Sources: data.ny.gov (Major Incidents, Delay-Causing Incidents, Wait Assessment, Terminal OTP, Hourly Ridership), MTA GTFS feed.
       Built by <strong style="color:#cbd5e1;">Tanvi Chettiyar</strong> · raw CSVs → Postgres star schema → Tableau workbook · The Data School application, 2026.
     </div>
-  </div>
-
-  <!-- CHANGE LIST -->
-  <div class="change-list">
-    <h3>📋 What changes vs current dashboard (render_9_synthesis.html)</h3>
-    <table>
-      <tr><th style="width:140px;">Component</th><th>Action</th><th>Why</th></tr>
-      <tr><td><strong>Title</strong></td><td>Replace with "Inside Penn: Two Platforms, Two Reliability Stories"</td><td>Penn-only, platform-contrast thesis</td></tr>
-      <tr><td><strong>Subtitle</strong></td><td>Rewrite — drop NJ commuter framing, add "the platform you choose changes your odds"</td><td>Reframes the audience and the call to action</td></tr>
-      <tr><td><strong>KPI 1</strong> (~2.9M)</td><td>Keep, relabel "Paid entries at Penn"</td><td>Same value, sharper subject</td></tr>
-      <tr><td><strong>KPI 2</strong> (11/12)</td><td>Keep — months with Signal/Track failure on Penn routes</td><td>Frequency anchors the "this happens often" beat</td></tr>
-      <tr><td><strong>KPI 3</strong> (99 outages)</td><td>Replace with <strong>"6 routes converging"</strong> (1·2·3·A·C·E)</td><td>Adds the "concentration" beat that makes a single complex story compelling</td></tr>
-      <tr><td><strong>KPI 4</strong> (72%)</td><td>Replace with <strong>"+3.8 pp" 1/2/3 Wait Assessment advantage</strong></td><td>This is the punchline — promote it to the strip; KPI 4 should preview the centerpiece chart</td></tr>
-      <tr><td><strong>Sheet 6</strong> (WA% / OTP%)</td><td><strong>Promote</strong> to top of body, full-width centerpiece</td><td>It's now the punchline; show it first, support it with everything else</td></tr>
-      <tr><td><strong>Sheets 2 + 3</strong></td><td>Keep — central. Both already split by line_group; relabel "platform" instead of "corridor"</td><td>Pure label change; underlying field <code>line_group</code> already separates 1/2/3 vs A/C/E</td></tr>
-      <tr><td><strong>Sheet 4</strong> (Cause Ladder)</td><td>Refactor — split bars + severity dots by platform; retitle "Do both platforms see the same kinds of failure?"</td><td>Title-chart-conclusion chain: chart shows similar failure profiles → so-what concludes the gap is downstream (recovery), not upstream (incident type)</td></tr>
-      <tr><td><strong>Sheet 5</strong> (Box plot)</td><td>Keep — supporting. Optional: split by platform for an extra contrast layer</td><td>Severity context</td></tr>
-      <tr><td><strong>Sheet 7</strong> (Map)</td><td>Refocus — show only complexes 318 + 164</td><td>The map is now "two complexes, one block apart" — corridor-wide is overkill</td></tr>
-      <tr><td><strong>Sheet 8</strong> (Heatmap)</td><td>Keep — supporting. Aggregate both Penn complexes</td><td>Tue 8 AM peak applies to both platforms; reinforces "this is when the choice matters most"</td></tr>
-      <tr><td><strong>Sheet C</strong> (Quilt C-1 + C-2)</td><td>Keep — central. The "platforms don't fail simultaneously" insight</td><td>Honest qualifier on the headline; September contradicts the average</td></tr>
-      <tr><td><strong>Sheet San</strong> (Sankey)</td><td>Keep but relabel — Category → Platform → Trains delayed</td><td>"Line Group" → "Platform" is the only change</td></tr>
-      <tr><td><strong>Sheet N</strong> (Corridor scatter)</td><td><strong>Retire</strong> — only casualty</td><td>35-station corridor + PATH is incompatible with Penn-only framing</td></tr>
-      <tr><td><strong>Footer narrative</strong></td><td>Rewrite as "the bottom line" — action-oriented closer + caveats block</td><td>Data School marks higher when the dashboard tells the reader what to do, not just what's true</td></tr>
-      <tr><td colspan="3" style="background:#fef3c7;font-weight:600;color:#78350f;padding:8px;">Text-insight layer — added to every section</td></tr>
-      <tr><td><strong>KPI sub-tags</strong></td><td>NEW — 1-line interpretive subtitle under each KPI ("More than the population of Boston…")</td><td>KPI numbers without context don't land; the sub-tag converts a number into a felt comparison</td></tr>
-      <tr><td><strong>Section titles</strong></td><td>Rewrite as questions ("Which platform should you trust?", "Do the platforms fail at the same time?")</td><td>Each chart now answers a stated question — readers track the argument, not just scan visuals</td></tr>
-      <tr><td><strong>"So what" boxes</strong></td><td>Added below every chart — interpretation, not description</td><td>Tells the reader what to <em>conclude</em> from the chart, which is what gets graded</td></tr>
-      <tr><td><strong>September callout</strong></td><td>NEW — explicit qualifier flagging the month that contradicts the average</td><td>Honest qualifiers signal analytical maturity; ignoring the exception weakens the thesis</td></tr>
-      <tr><td><strong>Caveats block</strong></td><td>NEW — bottom of footer, lists scope + measurement limits</td><td>Explicitly states what the data does and doesn't cover</td></tr>
-      <tr><td><strong>SQL changes</strong></td><td><strong>None required</strong> — every chart uses existing exports unchanged</td><td>The pivot is reframing, not redata; <code>line_group</code> already drives the contrast</td></tr>
-    </table>
   </div>
 
 </div>
