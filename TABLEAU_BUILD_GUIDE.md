@@ -17,7 +17,7 @@ Already built the dashboard from the original Step 1 → Step 17 flow? This 8-st
 | # | What | Reference step | Files touched |
 |---|------|----------------|---------------|
 | 1 | Move Sheet 7 (map) above the KPI strip, retitle, rewrite so-what; resize Sheet 8 to full-width closer | § Step 14 (assembly table) + § Step 11 (map build) | Dashboard layout, Sheet 7 title/so-what, Sheet 8 width |
-| 2 | Rebuild Sheet 2 as **dodged bars by month** (`MONTH` outer, `Line Group` inner); apply Size-slider polish for within-pair tightening | § Step 8b + § Step 8c (incl. step 6 — Size slider) | Sheet 2 |
+| 2 | Rebuild Sheet 2 as **grouped bars by month** (`MONTH` outer, `Line Group` inner); apply Size-slider polish for within-pair tightening | § Step 8b + § Step 8c (incl. step 6 — Size slider) | Sheet 2 |
 | 3 | Add Sheet 5 3-swatch legend (top-right of card); start with auto-legend + Format Legend → Layout spacing tweak; fall back to Text Object only if labels still truncate | § Step 10f-legend | Dashboard, Sheet 5 legend |
 | 4 | Update text content: intro paragraph rewrite (jargon expansion), Sheet 6 axis sub-titles `(WA)` / `(OTP)`, verify `[Bottom Line Text]` calc + caveats match canonical text | § Step 16a (intro) + § Step 9f (Sheet 6 sub-titles) + `DASHBOARD_MODEL.md` § "Canonical caption set" | Intro text object, Sheet 6 sub-titles, calc field, caveats |
 | 5 | Recolor intro / bottom-line / caveats text blocks: replace magenta with platform-palette phrase-level highlights (greens/blues + bold dark slate on numbers; italic only on `take 1/2/3` in bottom-line) | § Step 16a/16b/16c + `DASHBOARD_MODEL.md` § "Color treatment" | Intro, bottom-line, caveats text objects |
@@ -127,7 +127,7 @@ In the `monthly_incidents_delays` data source, create these fields:
 ```
 IF [Category] IN ("Signals", "Track") THEN [Real Inc] ELSE 0 END
 ```
-Used by Sheets 2, 7 (Quilt), and the Sankey. Always sum, never average.
+Used by Sheet 2 and the Sankey. Always sum, never average. *(Sheet C / Quilt previously used this calc but was broadened to all categories on 2026-06-11 — Sheet C now uses `Real Inc` directly. The "7 (Quilt)" callout in the old line referred to the v2 sheet numbering of the quilt before it was renumbered to Sheet C; either way, the quilt is no longer a consumer of this calc.)*
 
 **Signal Track Share** (used by KPI 4)
 ```
@@ -479,57 +479,70 @@ Use the `.insight` style for the **hero (1/2/3) green family**: light fill `#f0f
 
 ## Step 7 — Monthly Incident Pattern / Quilt (Sheets C-1 + C-2)
 
+> **2026-06-11 — scope broadened from Signal/Track to all categories.** Verified against rendered Sheet C images for 2022/2023/2024 that the all-categories quilt tells a different and stronger story than the Signal/Track-only build (peaks land on different months for each platform — see the verification call-outs in `DASHBOARD_MODEL.md` § Sheet C). Chart reframed around independent failure calendars. Build changes: remove `Category` filter; swap Color and Label measure from `Signal+Track Incidents` → `Real Inc`; drop the lavender "honest qualifier" callout from the layout; replace title/caption/so-what with the revised copy below.
+
 **Source:** `monthly_incidents_delays`
 
-**Goal:** A 2-row highlight table showing Signal + Track incident counts by month — one row per corridor, each with its own color palette so the corridors read as distinct.
+**Goal:** A 2-row highlight table showing major-incident counts by month, all categories — one row per platform, each with its own color palette so the platforms read as distinct.
 
 Tableau only allows one sequential palette per measure on a single sheet. Build two sheets and stack them on the dashboard — they'll read as one chart.
 
-### Sheet C-1 (1/2/3 corridor)
+### Sheet C-1 (1/2/3 platform)
 
 1. Mark type: **Square** (highlight table)
 2. Columns: `MONTH([Month])` — discrete (right-click → Discrete)
 3. Rows: `Line Group` — discrete
-4. Filter: `Line Group = "1/2/3"`, `Category IN ("Signals", "Track")`
-5. Color: `SUM([Signal+Track Incidents])` → Edit Colors → Custom Sequential → `#dcfce7` (low) to `#16a34a` (high) — 1/2/3 green family
-6. Label: `SUM([Signal+Track Incidents])` on each cell, white text for dark cells
+4. Filter: `Line Group = "1/2/3"` (Context), `Year Match = TRUE` (Context), `Day Type = 1` (Context). **No `Category` filter** — every category is in scope.
+5. Color: `SUM([Real Inc])` → Edit Colors → Custom Sequential → `#dcfce7` (low) to `#16a34a` (high) — 1/2/3 green family. **Set Start/End manually** to a range that covers both C-1 and C-2 maxes (eyeball the larger platform-month total across both rows; e.g. ~0–21 for 2024). Same numeric range on C-2 below — that's what keeps the magnitude comparison between rows honest.
+6. Label: `SUM([Real Inc])` on each cell, white text for dark cells
 7. **Hide column headers** (right-click month axis → Uncheck Show Header) — the bottom sheet will show them
 8. Hide axis titles
 
-### Sheet C-2 (A/C/E corridor)
+### Sheet C-2 (A/C/E platform)
 
 1. Same structure as C-1
-2. Filter: `Line Group = "A/C/E"`, `Category IN ("Signals", "Track")`
-3. Color: Custom Sequential → `#dbeafe` (low) to `#1e40af` (high) — A/C/E blue family
+2. Filter: `Line Group = "A/C/E"` (Context), `Year Match = TRUE` (Context), `Day Type = 1` (Context). **No `Category` filter.**
+3. Color: Custom Sequential → `#dbeafe` (low) to `#1e40af` (high) — A/C/E blue family. Use the **same manual Start/End range** as C-1.
 4. **Keep column headers** (months) on this sheet
 5. Same label format as C-1
+
+### Safe edit sequence (recover from Tableau internal error 9821F0F0)
+
+Tableau's generic "Internal Error 9821F0F0" can fire when a measure on Color/Label is swapped while Edit Colors is open or a Context-filter change is mid-flight. To avoid it during the broadening rebuild:
+
+1. Right-click Sheet C-1 in the sheet tab → **Duplicate**. Work on the duplicate; keep the original until the new one is verified.
+2. On the duplicate: remove the `Category` filter from the Filters shelf first. Save.
+3. Drag `SUM([Signal+Track Incidents])` off **Color** → drop `SUM([Real Inc])` on Color. Save.
+4. Repeat for **Label**. Save.
+5. Edit Colors last. Save.
+6. Repeat for C-2. Once both verified on the dashboard, delete the originals and rename.
+
+If 9821F0F0 fires anyway: `Ctrl+Z` to back out, **Save As** to a recovery file, then restart Tableau Desktop to clear cached query state before retrying.
 
 ### Dashboard assembly for the quilt
 
 - In a vertical container: place C-1 directly above C-2
 - Set both to the same fixed width so month columns align
 - Set inter-container padding to 0px so they appear seamless
-- The `Line Group` row label on the right side of each sheet acts as the corridor legend
+- The `Line Group` row label on the right side of each sheet acts as the platform legend
 
-### Title (as question), qualifier callout, and so-what
+### Title (as question), subtitle, and so-what
 
 Treat the two stacked sheets as one chart. Add a floating text box above the container:
 
-- **Title:** `Do the platforms fail at the same time?`
-- **Caption:** `Top row: 1/2/3 platform. Bottom row: A/C/E platform. Darker cell = more Signal+Track incidents that month.`
+- **Title:** `Do bad months hit both platforms together?`
+- **Subtitle / caption (22 words, em-dash-free):** `Top row: 1/2/3 platform. Bottom row: A/C/E platform. Darker cell means more major incidents that month, all categories combined.`
 
-> **2026-05-22 — feedback fix.** Earlier caption named the palettes in parentheses ("(green palette) / (blue palette)") — and earlier still, under v2, used "(red palette) / (purple palette)" before the platform colors flipped to green/blue. Reviewer caught that the workbook's live caption had typed the parentheticals **reversed** (1/2/3 labelled with the blue palette, A/C/E with green), which contradicted the contract held everywhere else on the dashboard. Cleanest fix: drop the palette parentheticals entirely. The row labels (1/2/3 in green text, A/C/E in blue text) already convey the mapping; restating it in prose only creates an opportunity to flip it.
+> **2026-05-22 — earlier feedback fix (still applies).** Earlier caption named the palettes in parentheses ("(green palette) / (blue palette)") — and earlier still, under v2, used "(red palette) / (purple palette)" before the platform colors flipped to green/blue. Reviewer caught that the workbook's live caption had typed the parentheticals **reversed** (1/2/3 labelled with the blue palette, A/C/E with green), which contradicted the contract held everywhere else on the dashboard. Cleanest fix: drop the palette parentheticals entirely. The row labels (1/2/3 in green text, A/C/E in blue text) already convey the mapping; restating it in prose only creates an opportunity to flip it.
 
 Hide each constituent sheet's individual title (Worksheet → Hide Title) so only the floating header is visible.
 
-**Honest qualifier callout (small lavender callout above the so-what):**
-After identifying the qualifier month from the data (the month where 1/2/3 is heavy while A/C/E is clear — verify in the active year before quoting), add:
-> ⚠ **{Month name}:** A/C/E is clear, 1/2/3 is heavy. The one month where the headline advice would have failed.
+**Honest qualifier callout — REMOVED 2026-06-11.** The Signal/Track-only build carried a lavender "⚠ {Month}: A/C/E is clear, 1/2/3 is heavy. The one month where the headline advice would have failed." callout above the so-what. Under the old reading ("same calendar shape"), the callout flagged the one off-pattern month. Under the new reading ("independent failure calendars"), every month is an exception, so the callout's premise no longer holds. Remove the lavender callout from the dashboard layout.
 
-To make this dynamic, build a calc field that returns the qualifier month name based on the active year filter. If you want the simpler path, type the month manually and update each year (mark it with a comment like `<!-- year-sensitive: verify {Month name} for active year -->`).
+**So-what box (insight-blue style — `#eff6ff` fill, `#1d4ed8` left border, `#1e3a8a` text; 49 words, em-dash-free):**
+> **So what:** the bright cells don't line up between rows. Each platform has its own bad months: 1/2/3 spikes when A/C/E is calm, and the reverse. But 1/2/3 carries more events in most cells overall. Independent failure patterns, plus a heavier total load on 1/2/3, yet still the better reliability record.
 
-**So-what box (insight-blue style — `#eff6ff` fill, `#1d4ed8` left border, `#1e3a8a` text):**
-> **So what:** the platforms don't fail in lockstep — they're operationally independent within the same complex. That's *good news* for the routing argument: when one is degraded, the other is usually still on schedule. The {N}-month exception is the honest qualifier on the headline.
+**Build-time verification:** before shipping, look at C-1 and C-2 side by side on the active year and confirm (a) at least one month where peaks land on opposite rows (e.g. 2023 Oct, 2024 Jan), and (b) 1/2/3's row reads darker overall. If a year flips either claim, soften the so-what (e.g. "broadly different shapes with some aligned months") rather than ship a contradicted caption.
 
 ---
 
@@ -537,13 +550,13 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 
 > **2026-05-22 — feedback fix.** Sheet 3 was a stacked area chart of ridership over time. Two problems: (1) it didn't visibly answer the section question ("Is the gap real?" — the question is about the reliability gap, which the chart didn't draw), and (2) it silently used `monthly_ridership.csv` filtered by complex-based `line_group`, which covers all 35 stations along 1/2/3 and A/C/E lines — so the y-axis read 4–9M total while KPI 1 read ~2.9M (Penn-only complexes 318 + 164). The reviewer correctly flagged both: chart didn't answer its own header, and numbers didn't reconcile with the KPI. Replaced Sheet 3 with a Wait Assessment % by platform over time line chart, sourced from `service_quality.csv` (which already filters cleanly by platform and is what Sheet 6 uses). Ridership stays surfaced on KPI 1.
 
-### Sheet 2 — Incidents over time (dodged bars by month) — *destacked 2026-06-02 per round-2 reviewer feedback*
+### Sheet 2 — Incidents over time (grouped bars by month) — *destacked 2026-06-02 per round-2 reviewer feedback*
 
 **Source:** `monthly_incidents_delays`
 
-**Goal:** Dodged bars — for each month, the 1/2/3 (green) and A/C/E (blue) bars sit immediately next to each other so the per-month comparison reads off the chart without eye-jump. Replaces the previous stacked-bar build per Salome's round-2 feedback ("stacking makes it genuinely hard to compare the two platforms independently").
+**Goal:** Grouped bars — for each month, the 1/2/3 (green) and A/C/E (blue) bars sit immediately next to each other so the per-month comparison reads off the chart without eye-jump. Replaces the previous stacked-bar build per Salome's round-2 feedback ("stacking makes it genuinely hard to compare the two platforms independently").
 
-> **2026-06-02 — feedback fix.** Original Sheet 2 was a stacked bar (`Line Group` on Color, automatic stack). Reviewer flagged that stacking the two platforms makes individual platform heights hard to read. Replaced with **dodged bars per month** (`MONTH([Month])` as outer column, `Line Group` as inner column) — within each month group, the two platforms render as adjacent bars, so the reader sees green-vs-blue height directly in each month. Initial implementation used "two side-by-side panels by platform" (Line Group outer, MONTH inner); revised same day to MONTH-outer / Line-Group-inner because dodging gives stronger per-month comparison (the panels approach forced an eye-jump between panels to compare the same month).
+> **2026-06-02 — feedback fix.** Original Sheet 2 was a stacked bar (`Line Group` on Color, automatic stack). Reviewer flagged that stacking the two platforms makes individual platform heights hard to read. Replaced with **grouped bars per month** (`MONTH([Month])` as outer column, `Line Group` as inner column) — within each month group, the two platforms render as adjacent bars, so the reader sees green-vs-blue height directly in each month. Initial implementation used "two side-by-side panels by platform" (Line Group outer, MONTH inner); revised same day to MONTH-outer / Line-Group-inner because grouping gives stronger per-month comparison (the panels approach forced an eye-jump between panels to compare the same month).
 
 #### 8a — Filters
 
@@ -556,9 +569,9 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 2. Drag `Line Group` to **Columns** AFTER MONTH *(inner column — within each month, one bar per platform sitting side-by-side)*
 3. Drag `SUM([Signal+Track Incidents])` to **Rows**
 4. Mark type: **Bar**
-5. Drag `Line Group` to **Color** — Tableau renders the inner column as dodged bars; the color encoding makes the 1/2/3 bar green and the A/C/E bar blue within each month group
+5. Drag `Line Group` to **Color** — Tableau renders the inner column as grouped bars; the color encoding makes the 1/2/3 bar green and the A/C/E bar blue within each month group
 
-**Important:** verify Tableau is **dodging** and not stacking. If after step 2 the bars stack vertically (rather than sitting side-by-side within each month), check that `Line Group` is on Columns (not just on Color). Stacking happens when `Line Group` only appears on the Color shelf; dodging happens when it also appears on Columns as the inner dimension.
+**Important:** verify Tableau is **grouping** and not stacking. If after step 2 the bars stack vertically (rather than sitting side-by-side within each month), check that `Line Group` is on Columns (not just on Color). Stacking happens when `Line Group` only appears on the Color shelf; grouping happens when it also appears on Columns as the inner dimension.
 
 #### 8c — Color and format
 
@@ -574,7 +587,7 @@ To make this dynamic, build a calc field that returns the qualifier month name b
 The pair (Sheets 2 + 3) lives under one section heading on the dashboard:
 
 - **Section title (above both):** `Is the gap real, or just an average that hides bad months?`
-- **Sheet 2 caption:** `Monthly Signal + Track major incidents, dodged by platform — each month shows a green 1/2/3 bar next to a blue A/C/E bar so the per-month comparison reads at a glance. Destacked 2026-06-02 per reviewer feedback.`
+- **Sheet 2 caption:** `Monthly Signal + Track major incidents, grouped by platform — each month shows a green 1/2/3 bar next to a blue A/C/E bar so the per-month comparison reads at a glance. Destacked 2026-06-02 per reviewer feedback.`
 
 ---
 
@@ -625,7 +638,7 @@ The fixed 60–80 range is the same band the Sheet 6 centerpiece uses for WA —
 > **Title pattern:** the original descriptive label (`Wait Assessment % by platform, monthly`) didn't match the rest of the dashboard's question-form titles (`Which platform should you trust?`, `Do both platforms see the same kinds of failure?`, etc.). The revised title is narrower than the section header above (`Is the gap real, or just an average that hides bad months?`) — the section asks whether the gap exists; Sheet 3 specifically answers whether it appears month-by-month.
 
 **So-what box for the paired section (place below both charts):**
-> **So what (paired Sheets 2+3 shared, updated 2026-06-02 for dodged-bar restructure):** The dodged bars confirm the stress is structural, not a one-month anomaly — both platforms absorb Signal/Track incidents month after month, and 1/2/3 carries more in most months (one of the strongest visible patterns on the dashboard). The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year. Same data, drawn directly. · *Per-sheet alternative: use the standalone Sheet 2 so-what (DASHBOARD_MODEL.md canonical) and the standalone Sheet 3 so-what instead of this combined version. Pick one or the other; don't ship both.*
+> **So what (paired Sheets 2+3 shared, updated 2026-06-02 for grouped-bar restructure):** The grouped bars confirm the stress is structural, not a one-month anomaly — both platforms absorb Signal/Track incidents month after month, and 1/2/3 carries more in most months (one of the strongest visible patterns on the dashboard). The WA% lines confirm the *reliability* gap is also structural: 1/2/3 sits ~3–5 pp above A/C/E nearly every month, and toggling the year filter shows the gap narrowing year over year. Same data, drawn directly. · *Per-sheet alternative: use the standalone Sheet 2 so-what (DASHBOARD_MODEL.md canonical) and the standalone Sheet 3 so-what instead of this combined version. Pick one or the other; don't ship both.*
 
 ---
 
@@ -1139,7 +1152,7 @@ The Sankey marks card has separate color controls per tab — click each tab to 
 | Full width | **Trajectory (Step 9g, added 2026-05-28)** — `1/2/3 holds; A/C/E catches up` + so-what; **ignores Year Filter** | Vertical container, ~160–200 px tall |
 | Full width — **CENTERPIECE** | Reliability Comparison (Sheet 6a + 6b side-by-side) + shared title above + so-what below | Outer Vertical container with border, inner Horizontal holding 6a + 6b each with their own metric sub-title — see Step 9f for the structure |
 | Full width | Sheets 2 + 3 (Incidents bars on top + WA% line below) + so-what box per sheet | Vertical container |
-| Half + half | Cause Ladder (Sheet 4) + so-what (with handshake → 4a) · Quilt (C-1 above C-2) + qualifier callout + so-what | Horizontal container |
+| Half + half | Cause Ladder (Sheet 4) + so-what (with handshake → 4a) · Quilt (C-1 above C-2) + so-what *(qualifier callout removed 2026-06-11 when Sheet C broadened to all categories — see Step 7)* | Horizontal container |
 | Full width | **Sheet 4a (Step 6f, added 2026-05-28)** — `More incidents on both — A/C/E closes the gap anyway` + so-what; **ignores Year Filter** | Vertical container, ~260 px tall |
 | Full width (closer) | Heatmap (Sheet 8) + so-what — *moved out of slot-with-Map on 2026-06-02 when Sheet 7 was promoted; Heatmap now stands alone as the closer* | Vertical container |
 | Full width (supporting, post-closer) | Severity Bar (Sheet 5) + so-what | Vertical container |
@@ -1288,7 +1301,7 @@ Salome's round-2 item 6 ("Break up wide text blocks") specifically targeted *"an
 - [ ] Cause Ladder (Sheet 4): bars are single-axis (no dual axis, no circles); each bar's label reads `<count> · <X.X>× delay`
 - [ ] Heatmap Tue 8 AM cell is visibly the darkest, with the dynamic Peak label visible
 - [ ] Reliability bars (Sheet 6a + 6b centerpiece): 1/2/3 is higher than A/C/E on both WA% (6a) and OTP% (6b); both sheets share Fixed 60–100 axis
-- [ ] Monthly quilt: platform-specific months stand out (top green panel ≠ bottom blue panel) and the qualifier callout flags the contradicting month. **Caption does not name palettes in parentheses** (the row labels carry the colors — restating them in prose is the bug the 2026-05-22 fix removed)
+- [ ] Monthly quilt (Sheet C, all categories as of 2026-06-11): no `Category` filter on either C-1 or C-2; Color and Label both bound to `SUM([Real Inc])`; manual Start/End color range is the same numeric range on both sheets; peaks visibly land on different months between rows for the active year (verify against rendered images for 2022/2023/2024 if in doubt); 1/2/3's row reads darker overall; **lavender qualifier callout is removed**; **caption does not name palettes in parentheses** (the row labels carry the colors — restating them in prose is the bug the 2026-05-22 fix removed)
 - [ ] Sankey: band widths reflect each platform's incident totals (visual asymmetry is OK; the reliability story is in Sheet 6, not here)
 - [ ] Sheet N (corridor scatter) is hidden or absent from the dashboard layout
 
@@ -1305,7 +1318,7 @@ Salome's round-2 item 6 ("Break up wide text blocks") specifically targeted *"an
 - [ ] Intro paragraph: no magenta — body in dark slate `#0f172a`, `1/2/3` in green `#59a14f` bold, `A/C/E` in blue `#4e79a7` bold, numbers in bold dark slate
 - [ ] Bottom-line: no magenta — body in light gray `#cbd5e1`, `take 1/2/3` in light green `#86efac` bold italic (only italic phrase), `A/C/E` in light blue `#93c5fd`, numbers in near-white `#f1f5f9` bold
 - [ ] Caveats: no magenta — body in muted gray `#94a3b8`, `Caveats:` label and key terms in near-white `#f1f5f9` bold
-- [ ] **Sheet 2** is **dodged bars by month** (within each month group, a green 1/2/3 bar sits next to a blue A/C/E bar) — NOT a single stacked bar, NOT two separate panels. Column dimension order: `MONTH([Month])` outer (discrete), `Line Group` inner. Color encoding still on Line Group. Inner Line Group field labels hidden (the Color legend labels both platforms once for the whole chart).
+- [ ] **Sheet 2** is **grouped bars by month** (within each month group, a green 1/2/3 bar sits next to a blue A/C/E bar) — NOT a single stacked bar, NOT two separate panels. Column dimension order: `MONTH([Month])` outer (discrete), `Line Group` inner. Color encoding still on Line Group. Inner Line Group field labels hidden (the Color legend labels both platforms once for the whole chart).
 - [ ] **Sheet 7 (Map)** sits **above the KPI strip** (immediately after the intro paragraph, before the 4 KPI tiles), full-width, title `Where are these two platforms?`. Year Match is NOT on this sheet's filter shelf. Manual per-dot annotations carry the WA% + ridership labels.
 - [ ] **Sheet 8 (Heatmap)** is now a stand-alone **full-width closer** (previously paired half-width with Sheet 7). The container row that held both is now a single-card row.
 - [ ] **Sheet 5** has a **3-swatch legend** below the chart (red = "Most severe", yellow = "2nd most severe", gray = "All other causes") since the 3-tier accent isn't self-explanatory. Position: between Sheet 5's bars and its so-what box.

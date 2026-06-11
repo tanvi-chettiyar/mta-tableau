@@ -16,7 +16,7 @@ Salome's round-2 feedback (7 items, accessibility / readability focused) reshape
 |---|---|
 | 1 — Jargon expansion (`pp`, `WA`, `OTP` first-use definitions) | § "Canonical caption set" → Intro paragraph (lines 15 + 45) |
 | 2 — Font size bump (workbook-wide) | § "Typography sizes" (size table below the footer section) |
-| 3 — Sheet 2 destack (dodged bars by month) | § "Canonical caption set" → Sheet 2 caption + so-what |
+| 3 — Sheet 2 destack (grouped bars by month) | § "Canonical caption set" → Sheet 2 caption + so-what |
 | 4 — Sheet 5 3-swatch legend (red / yellow / gray) | § "Canonical caption set" → Sheet 5 so-what (notes the legend + 3-tier accent) |
 | 5 — Magenta retone to platform palette | § "Color treatment (revised 2026-06-02 per round-2 reviewer feedback)" |
 | 6 — Line-length break-up (770px width cap) | § "Width cap (added 2026-06-02 per round-2 reviewer feedback)" |
@@ -39,8 +39,8 @@ The dashboard answers five questions in sequence, each anchored on a chart whose
 0. *(Orient — above the KPI strip, immediately after the intro paragraph)* **Where are these two platforms?** (Sheet 7 — moved here on 2026-06-02 per round-2 reviewer feedback, "a spatial anchor before diving into the metrics"). Then the KPI strip (4 tiles). Then the Trajectory band ("1/2/3 holds; A/C/E catches up").
 1. **Which platform should you trust?** (Sheet 6 — centerpiece, full width)
 2. **Is the gap real, or just an average that hides bad months?** (Sheets 2 + 3 — incidents + Wait Assessment % over time, both split by platform — Sheet 3 was ridership pre-feedback; replaced 2026-05-22 so the chart pair visibly answers the section question)
-3. **Do both platforms see the same kinds of failure?** (Sheet 4 — cause ladder, split by platform; Sheet 4a extends to cause-side trajectory)
-4. **Do the platforms fail at the same time?** (Sheet C — quilt; September is the honest qualifier)
+3. **Do bad months hit both platforms together?** (Sheet C — quilt; broadened to all incident categories 2026-06-11. The qualifier callout was dropped at the same time: once the chart shows independent failure calendars across all categories, the headline *is* the qualifier, and a separate callout no longer adds information.)
+4. **Do both platforms see the same kinds of failure?** (Sheet 4 — cause ladder, split by platform; Sheet 4a extends to cause-side trajectory)
 5. **If you had to pick one moment to avoid Penn, when?** (Sheet 8 heatmap — closer)
 
 The sequence: orient → punchline first → stress test → mechanism → qualifier → context. Each numbered section raises a stated question and answers it, then the next section either deepens or qualifies it. The orienting cards (slot 0) prime the reader on *what* and *where* before the analytical beats begin.
@@ -69,11 +69,11 @@ The so-what / caption / KPI sub-tag text below is the **canonical static text** 
 
 **Sheet 6 (Reliability comparison) — so what:** 1/2/3 leads A/C/E on both Wait Assessment and Terminal OTP in every year measured (2022–2024). The lead is now ~4 pp, down from ~8 pp in 2022, but the direction never flips. If both options are on your MetroCard, take 1/2/3.
 
-**Sheet 2 (Monthly Signal+Track incidents — dodged bars by month; destacked 2026-06-02 per round-2 reviewer feedback) — caption:** `Monthly Signal + Track major incidents, dodged by platform — each month shows a green 1/2/3 bar next to a blue A/C/E bar so the per-month comparison reads at a glance.` · **so what (shortened 2026-06-02, ~45 words, pending workbook application):** 1/2/3's green bar is taller than A/C/E's blue bar in most months — the busier platform absorbs more Signal/Track stress month after month, with no single spike that explains the gap. Steady and uneven, not noisy and lopsided. (Total burden has grown year over year — see the cause trajectory below.) · *Previous longer version (85 words, in the workbook as of 2026-06-02) kept on file in case the shorter version doesn't land — see `dashboard_feedback_v3.md` memory § "Pending workbook application — so-what shortenings."*
+**Sheet 2 (Monthly Signal+Track incidents — grouped bars by month; destacked 2026-06-02 per round-2 reviewer feedback) — caption:** `Monthly Signal + Track major incidents, grouped by platform — each month shows a green 1/2/3 bar next to a blue A/C/E bar so the per-month comparison reads at a glance.` · **so what (shortened 2026-06-02, ~45 words, pending workbook application):** 1/2/3's green bar is taller than A/C/E's blue bar in most months — the busier platform absorbs more Signal/Track stress month after month, with no single spike that explains the gap. Steady and uneven, not noisy and lopsided. (Total burden has grown year over year — see the cause trajectory below.) · *Previous longer version (85 words, in the workbook as of 2026-06-02) kept on file in case the shorter version doesn't land — see `dashboard_feedback_v3.md` memory § "Pending workbook application — so-what shortenings."*
 
 **Sheet 3 (Monthly WA% by platform — title: "Does the gap hold every month?") — so what:** The 1/2/3 line sits above A/C/E every month measured — not just on annual average. The trajectory chart at the top shows the gap is closing *year-over-year*; this chart shows it never *flips* within a year. Whatever the structural advantage is, it's always-on, not a peak-month artifact.
 
-**Sheet C (Monthly Incident Pattern quilt) — so what:** Same calendar shape, different magnitudes. The bright cells line up across both rows — same bad months, same quiet months — but 1/2/3 is the busier platform, carrying more incident events per month in most cells. The reliability lead persists despite a heavier infrastructure load — strong signal that the advantage is operational, not infrastructural.
+**Sheet C (Monthly Incident Pattern quilt; broadened from Signal/Track to all categories 2026-06-11) — title (question form):** `Do bad months hit both platforms together?` · **subtitle (mechanics, 22 words, em-dash-free):** `Top row: 1/2/3 platform. Bottom row: A/C/E platform. Darker cell means more major incidents that month, all categories combined.` · **so what (49 words, em-dash-free; revised 2026-06-11):** The bright cells don't line up between rows. Each platform has its own bad months: 1/2/3 spikes when A/C/E is calm, and the reverse. But 1/2/3 carries more events in most cells overall. Independent failure patterns, plus a heavier total load on 1/2/3, yet still the better reliability record. · *Prior so-what (pre-2026-06-11, when Sheet C was filtered to Signals+Track only): "Same calendar shape, different magnitudes. The bright cells line up across both rows — same bad months, same quiet months — but 1/2/3 is the busier platform, carrying more incident events per month in most cells." The "calendar shape lines up" claim was contradicted by the all-categories quilt — verified against rendered Sheet C images for 2022/2023/2024, which show peaks on opposite rows (2023 Oct: 1/2/3=16 vs A/C/E=5; 2023 May: 1/2/3=6 vs A/C/E=12; 2024 Jan: 1/2/3=21 vs A/C/E=7).*
 
 **Sheet 4 (Cause Ladder) — so what (shortened 2026-06-02, ~50 words, pending workbook application):** In every one of the top three categories — Persons on Trackbed, Signals, Track — 1/2/3 carries *more* incidents than A/C/E, yet still wins on reliability. Same problem profile, 1/2/3 sees more of it. The gap must be in what happens *after* an incident — a recovery-operations story. · *Workbook currently carries a longer ~125-word version with the three-pronged negation framing ("isn't explained by mix / severity / counts") and a forward-pointer to the chart below; the long form is preserved in `dashboard_feedback_v3.md` memory § "Pending workbook application — so-what shortenings."* · *(Build-time verification: confirm per-platform claim against active year's bars before shipping; soften if only 2 of 3 categories hold. This is a build note, not dashboard text.)*
 
@@ -136,54 +136,64 @@ Documented fallback if the platform-contrast framing weakens with more years of 
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Title + subtitle                       [Year Filter (param)] │
+│ Title + subtitle                      [Year Filter (param)] │
 ├─────────────────────────────────────────────────────────────┤
 │ Intro paragraph (italic, warm card) — multi-year framing    │
-├──────────┬──────────┬──────────┬──────────────────────────── │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 7 — Map (Penn 318 + 164, size by per-complex monthly  │
+│   ridership)                                                │
+│   "Where are these two platforms?"                          │
+│   Manual WA% annotations on each dot · so-what box          │
+├──────────┬──────────┬──────────┬────────────────────────────┤
 │  KPI 1   │  KPI 2   │  KPI 3   │  KPI 4   (dark navy tiles) │
 │  ~2.9M   │   6      │  N/12    │  +X pp                     │
-│  + sub-tag    + sub-tag    + sub-tag    + sub-tag           │
-├─────────────────────────────────────────────────────────────┤
-│ Trajectory — WA% by Line Group × year (2022→2024)            │
+│ +sub-tag │ +sub-tag │ +sub-tag │ +sub-tag                   │
+├──────────┴──────────┴──────────┴────────────────────────────┤
+│ Trajectory — WA% by Line Group × year (2022→2024)           │
 │   "1/2/3 holds; A/C/E catches up"  (assertion-form)         │
 │   Two lines · per-year gap on x-axis aliases · ignores      │
 │   [Year Filter] · so-what box                               │
 ├─────────────────────────────────────────────────────────────┤
-│ Sheet 6 — Reliability Comparison (CENTERPIECE, full width)  │
+│ Sheet 6 — Reliability Comparison (CENTERPIECE)              │
 │   "Which platform should you trust?"                        │
 │   WA% bars · OTP% bars · Penn-avg ref line · so-what box    │
 ├─────────────────────────────────────────────────────────────┤
-│ Sheets 2 + 3 — Incidents + WA% over time (full width, split)│
+│ Sheet 2 — Monthly Signal+Track Incidents                    │
 │   "Is the gap real, or just an average?"                    │
-│   2×1 grid: Sheet 2 stacked incidents bar (top, caption +   │
-│   so-what) · Sheet 3 WA% line by platform (bottom, so-what) │
-├────────────────────────┬────────────────────────────────────┤
-│ Sheet 4 — Cause Ladder │ Sheet C — Quilt (C-1 above C-2)    │
-│   "Same kinds of       │   "Do they fail at the same time?" │
-│    failure?"           │   September qualifier callout      │
-│   so-what box (with    │   so-what box                      │
-│   handshake → 4a)      │                                    │
+│   Grouped bars per month (green 1/2/3 next to blue A/C/E)   │
+│   · so-what box                                             │
 ├─────────────────────────────────────────────────────────────┤
-│ Sheet 4a — Cause-side trajectory (full width)                │
+│ Sheet 3 — Monthly WA% by platform                           │
+│   "Does the gap hold every month?"                          │
+│   Line chart (Line Group on Color, peak weekday) · so-what  │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet C — Monthly Incident Pattern Quilt (all categories)   │
+│   "Do bad months hit both platforms together?"              │
+│   Highlight table (C-1 above C-2, per-platform palette)     │
+│   so-what box (qualifier callout removed 2026-06-11)        │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 4 — Cause Ladder                                      │
+│   "Do both platforms see the same kinds of failure?"        │
+│   Horizontal bars by (category × platform) · so-what box    │
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 4a — Cause-side trajectory                            │
 │   "More incidents on both — A/C/E closes the gap anyway"    │
 │   Side-by-side bars per year × Line Group · all categories  │
 │   · ignores [Year Filter] · so-what box                     │
 ├─────────────────────────────────────────────────────────────┤
-│ Sheet 5 — Per-incident severity (labeled bar, full width)   │
+│ Sheet 5 — Per-incident severity (labeled bar)               │
 │   "How bad is bad — per-incident severity?"                 │
 │   Top-2 red accent (year-aware) · so-what box               │
-├────────────────────────┬────────────────────────────────────┤
-│ Sheet 7 — Map (Penn 318│ Sheet 8 — Day × Hour Heatmap        │
-│   + 164, size by       │   "If you had to pick one moment?" │
-│   ridership)           │   Tue 8 AM annotation              │
-│   "How close, really?" │   so-what box                      │
-│   so-what box          │                                    │
-├────────────────────────┴────────────────────────────────────┤
+├─────────────────────────────────────────────────────────────┤
+│ Sheet 8 — Day × Hour Heatmap                                │
+│   "If you had to pick one moment to avoid Penn, when?"      │
+│   Tue 8 AM annotation · so-what box                         │
+├─────────────────────────────────────────────────────────────┤
 │ Footer — "The bottom line" + caveats block (dark navy card) │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Sheet 5 sits between Sheet 4a and the map/heatmap row — supporting beat (severity), distinct from the volume-trend story Sheet 4a carries. Sheet San (Sankey) is **removed** from the primary layout (kept as hidden sheet in the workbook for Option 2 pivot). Sheet N (corridor scatter) is **retired** — it carries the wide-corridor + PATH framing that doesn't fit the Penn-only narrative.
+Sheet 5 sits between Sheet 4a and Sheet 8 — supporting beat (severity), distinct from the volume-trend story Sheet 4a carries. Sheet San (Sankey) is **removed** from the primary layout (kept as hidden sheet in the workbook for Option 2 pivot). Sheet N (corridor scatter) is **retired** — it carries the wide-corridor + PATH framing that doesn't fit the Penn-only narrative.
 
 **Two cards intentionally cross-year (ignore `[Year Filter]`):** the Trajectory card and Sheet 4a. Every other sheet respects the filter. The rule: snapshot questions keep `Year Match`; trajectory questions skip it. Trajectory cards must visually signal "I'm multi-year" via axis aliases (e.g. `2022 (+8.0 pp)`) so a reader doesn't misread them as the active year's data.
 
@@ -328,42 +338,36 @@ The bolded sentence is the chart's punchline — render it bold in the dashboard
 
 ---
 
-## Monthly Incident Pattern — "Quilt" (Sheets C-1 + C-2) — "Do the platforms fail at the same time?"
+## Monthly Incident Pattern — "Quilt" (Sheets C-1 + C-2) — "Do bad months hit both platforms together?"
+
+> **2026-06-11 — scope broadened.** Sheet C was originally filtered to `Category IN ("Signals","Track")` to mirror the KPI strip's Signal/Track framing. Verified against rendered Sheet C images for 2022, 2023, and 2024 that the broader, all-categories view tells a *different and stronger* story: peaks land on different months for each platform (2023 Oct: 1/2/3=16 vs A/C/E=5; 2023 May: 1/2/3=6 vs A/C/E=12; 2024 Jan: 1/2/3=21 vs A/C/E=7). The "calendar shape lines up" reading from the Signal/Track quilt didn't survive expansion. Reframed the chart around independent failure calendars + heavier total load on 1/2/3. Category filter removed; Color/Label measure swapped from `Signal+Track Incidents` to `Real Inc`. Qualifier callout removed (see below — once the chart's headline *is* independence, a separate "exception month" callout no longer adds information).
 
 **Source:** `monthly_incidents_delays.csv`
 
-**Purpose:** Show whether the platform-reliability gap holds month-to-month or is driven by a few outliers. Two sheets stacked because Tableau only allows one sequential palette per measure per sheet.
+**Purpose:** Show whether the two platforms' monthly disruption rhythms line up or run independently. Two sheets stacked because Tableau only allows one sequential palette per measure per sheet.
 
 **Sheet C-1 (1/2/3 platform):**
 - Mark type: Square (highlight table)
 - Columns: `MONTH([month])` — discrete, Jan–Dec
 - Rows: `Line Group` — discrete
-- Color: `SUM([Signal+Track Incidents])` → Custom Sequential palette `#dcfce7` → `#16a34a` (1/2/3 green family)
-- Filter: `Line Group = "1/2/3"`, `Category IN ("Signals","Track")` (Context), `Year Match = TRUE` (Context)
+- Color: `SUM([Real Inc])` → Custom Sequential palette `#dcfce7` → `#16a34a` (1/2/3 green family). Set a **manual Start/End range** that spans both C-1 and C-2 maxes so the magnitude comparison between rows is honest.
+- Filter: `Line Group = "1/2/3"` (Context), `Year Match = TRUE` (Context), `Day Type = 1` (Context). **No `Category` filter** — all categories are in scope.
 - Hide column headers (will appear on C-2 below)
 
 **Sheet C-2 (A/C/E platform):**
 - Same structure as C-1
-- Filter: `Line Group = "A/C/E"`, `Category IN ("Signals","Track")` (Context), `Year Match = TRUE` (Context)
-- Color palette: `#dbeafe` → `#1e40af` (A/C/E blue family)
+- Filter: `Line Group = "A/C/E"` (Context), `Year Match = TRUE` (Context), `Day Type = 1` (Context). **No `Category` filter.**
+- Color palette: `#dbeafe` → `#1e40af` (A/C/E blue family). Use the same manual Start/End range as C-1.
 - Keep column headers (months) on this sheet
 
-**Section title (question form):** *Do the platforms fail at the same time?*
+**Section title (question form):** *Do bad months hit both platforms together?*
 
-**Honest qualifier callout (above so-what box):** Identify the month where A/C/E is clear but 1/2/3 is heavy (year-aware — verify in the active year before quoting). Add a small lavender callout:
-> ⚠ **{Month name}:** A/C/E is clear, 1/2/3 is heavy. The one month where the headline advice would have failed.
+**Subtitle (mechanics, 22 words, em-dash-free):** *Top row: 1/2/3 platform. Bottom row: A/C/E platform. Darker cell means more major incidents that month, all categories combined.*
 
-To make this dynamic, identify the qualifier month with a calc field rather than typing the month name:
-```
-{FIXED [Line Group] :
-  IF [Line Group] = '1/2/3'
-  THEN MAX(IF SUM([Signal+Track Incidents]) > <threshold> THEN MONTH([Month]) END) END
-}
-```
-…or accept that this is editorial copy and update it manually each year.
+**So-what box (49 words, em-dash-free):**
+> The bright cells don't line up between rows. Each platform has its own bad months: 1/2/3 spikes when A/C/E is calm, and the reverse. But 1/2/3 carries more events in most cells overall. Independent failure patterns, plus a heavier total load on 1/2/3, yet still the better reliability record.
 
-**So-what box:**
-> The platforms don't fail in lockstep — they're operationally independent within the same complex. That's *good news* for the routing argument: when one is degraded, the other is usually still on schedule. The {N}-month exception is the honest qualifier on the headline.
+**Honest qualifier callout — REMOVED 2026-06-11.** The Signal/Track-only build carried a lavender "⚠ {Month}: A/C/E is clear, 1/2/3 is heavy. The one month where the headline advice would have failed." callout above the so-what. Under the old reading ("same calendar shape"), the callout flagged the one off-pattern month. Under the new reading ("independent failure calendars"), every month is an exception, so the callout's premise no longer holds. Drop the lavender callout from the dashboard layout.
 
 **Dashboard assembly:** stack C-1 directly above C-2 in a vertical container with 0px gap so they read as one chart. Per-platform palettes need separate sheets — Tableau limitation.
 
@@ -379,12 +383,15 @@ To make this dynamic, identify the qualifier month with a calc field rather than
 
 **Section title (question form):** *Is the gap real, or just an average that hides bad months?*
 
-**Sheet 2 — Incidents (stacked bar):** *(unchanged)*
-- Columns: `MONTH([month])` — discrete
+**Sheet 2 — Incidents (grouped bars per month):**
+
+> **2026-06-02 — feedback fix (Data School R3).** Original Sheet 2 was a stacked bar (`Line Group` on Color only, automatic stack). Reviewer flagged that stacking the two platforms makes individual platform heights hard to read — you can't compare green vs blue at a glance because they share a baseline that shifts month to month. Replaced with **grouped bars per month**: within each month group, the two platforms render as adjacent bars, so the reader sees green-vs-blue height directly. See `TABLEAU_BUILD_GUIDE.md` Step 4 (line 546) for the full implementation note, including a same-day revision from "two side-by-side panels" to "MONTH-outer / Line-Group-inner" grouping.
+
+- Columns: `MONTH([month])` (discrete, **outer**) → `Line Group` (discrete, **inner**)
 - Rows: `SUM([Signal+Track Incidents])`
 - Mark type: Bar
-- `Line Group` on **Color only** (not Columns) — Tableau stacks automatically
-- Stack order: 1/2/3 on bottom so green anchors the baseline
+- `Line Group` on **Color** (in addition to inner Columns) — green 1/2/3, blue A/C/E
+- Inner `Line Group` field labels hidden (Color legend labels both platforms once for the whole chart)
 - Filter: `Line Group IN ("1/2/3","A/C/E")` (Context), `Category IN ("Signals","Track")` (Context), `Year Match = TRUE` (Context)
 - Sheet title (visible on dashboard): `Monthly Signal + Track incidents by platform`
 
