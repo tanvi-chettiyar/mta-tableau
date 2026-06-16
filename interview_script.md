@@ -91,7 +91,7 @@ Target: ~5:00 viz walkthrough + short answers for "Tableau learning" and "about 
 ## Part 4 — Likely follow-up questions
 
 **"What was the hardest part of building this?"**
-> The narrative pivot. I started with a cost-of-delay angle, but when I saw the two-platforms split in the data, the story got sharper and I had to rework the dashboard. Letting the data redirect the thesis was harder than building the charts.
+> The narrative pivot. I started with a cost-of-delay angle, but when I saw the two-platforms split in the data, I had a real question to answer instead of a general problem to describe — and that meant rebuilding the dashboard around it. Letting the data redirect the thesis was harder than building the charts. The narrative didn't come from a thesis I picked at the start — it came from each round of feedback exposing a claim the current framing couldn't honestly carry. By the final round, the story was the version the data actually defended, not the version I'd planned.
 
 **"What would you do differently?"**
 > I'd start with the question, not the data. I built charts to display the data, not to answer specific questions — and round 1 of feedback was mostly about rebuilding them so each chart delivered an answer instead of just an observation.
@@ -164,6 +164,101 @@ Quick reference for if an interviewer drills into any single chart. The pipeline
 
 **"Why only Penn Station — why not a wider geography?"** *(scope choice)*
 > An earlier version of this dashboard covered 35 stations across a wider corridor. I narrowed it to Penn Station because the closing-gap story only holds at the platform level — averaged across many stations, the gap dissolves into noise. Penn is also the biggest hub in the system, which gives the dashboard a concrete "where" rather than an abstract corridor average. Smaller scope, sharper claim.
+
+---
+
+## Part 6 — Prep frameworks (internal notes, not scripted)
+
+Two questions you should have a clean answer to but probably won't be asked verbatim: *"how did you make your chart choices?"* and *"how did the narrative take shape?"* These are prep frameworks, not lines to memorize — internalize the logic so you can speak fluently when an interviewer probes either angle.
+
+### Chart choices — "question → chart type, not chart type → question"
+
+The strongest answer demonstrates each chart exists *because* a specific question demanded a specific encoding, not because it was on a Tableau catalog. You already seeded this in Part 4 ("design the encoding around the question"). To extend it, walk the interviewer through 1-2 charts where the choice was non-obvious.
+
+**Language patterns:**
+- *"The question was X, and that ruled out [chart type]. I needed [encoding] because [reason]."*
+- *"That chart's job is to answer one specific question — [Q]. So I picked the encoding that delivers the answer in the fewest seconds."*
+- *"I tried [first attempt] and it didn't land because [problem]. The version I shipped reads in one glance because [encoding choice]."*
+
+**Strongest concrete example to keep loaded:**
+- **Cause Ladder.** Question: "do both platforms see the same kinds of failure?" Originally dual-axis (bar = count + circle = severity, sharing one x-axis). Reviewer flagged that one axis was doing two semantic jobs. Replaced with single-axis bars where severity lives in the bar's label suffix (`38 · 3.2× delay`). One encoding per visual channel. Reads in seconds. *This is the example to lead with because it has a clear before/after with a documented reason — editorial judgment is visible, not just claimed.*
+
+**Backup examples** (pull only if pressed for more):
+- **Reliability head-to-head:** split into two side-by-side panels (WA + OTP) so the eye reads them as parallel verdicts rather than competing on one axis.
+- **Day × hour heatmap:** the only chart type that surfaces a single peak across two categorical dimensions without forcing a mental crosstab.
+- **Monthly Incident Pattern quilt:** two stacked rows put both platforms' calendar rhythms on one grid; a small-multiple alternative would force the reader to compare two separate charts.
+
+### Narrative shape — "what I started with → what the data taught me → what I shipped"
+
+This question is really asking: *can you let the data redirect you, and can you tell that story honestly?* You've nailed a piece of this in Part 4's "narrative pivot" answer. To extend it, talk about *iteration*, not eureka.
+
+**Language patterns:**
+- *"I started with [framing X]. When I looked at the data, [observation Y] changed what the dashboard could honestly claim — so I rebuilt around [framing Z]."*
+- *"The thesis didn't arrive all at once. It went through multiple versions, and each round of feedback exposed something the current framing couldn't carry."*
+- *"The narrative shape is downstream of two things: what the data actually supports, and what question a reader would naturally ask next."*
+
+**The arc, in beats you can pace yourself through:**
+1. **v2 cost-of-delay framing — rejected.** *"Started here because I thought the story was NYC commuter cost, but the wide corridor leaned on stations that weren't in the dataset, so I couldn't honestly defend it."*
+2. **Pivot moment.** *"Saw 1/2/3 = 69.6% WA vs A/C/E = 65.8% at the same complex. That's when I realized I had a real comparison to draw — same building, two services, measurably different reliability."*
+3. **First v3 round.** *"A reviewer pointed out the closing-gap claim lived only in the title — every chart was single-year. Added two trajectory cards so the headline gets chart-verified inside the dashboard, not just claimed."*
+4. **Round-2 honest reframe.** *"Discovered 1/2/3 actually carries more incidents than A/C/E. That broke the original cause-ladder framing — rewrote it as 'same problem, faster recovery,' which turned out to be the more interesting story anyway."*
+
+**The meta-line that ties it all together (potential closer for the "hardest part" or "what would you do differently" answer):**
+> *"The narrative didn't come from a thesis I picked at the start — it came from each round of feedback exposing a claim the current framing couldn't honestly carry. By the final round, the story was the version the data actually defended, not the version I'd planned."*
+
+### How to deploy this in the room
+- If asked literally *"how did you make your chart choices?"* — lead with the cause-ladder before/after, then surface the underlying rule ("one encoding per visual channel; question first, chart type second").
+- If asked *"how did the narrative take shape?"* — don't recite the four beats. Pick one pivot moment (the v2 → Option 3 flip, or the recovery-not-prevention reframe) and tell *that* story; the four-beat structure is for *you* to organize the answer, not for them to hear.
+- If asked something adjacent (*"what surprised you?"*, *"what did you change?"*) — the same content works, just lead with the surprise instead of the framework.
+
+### Major Incidents vs Delay-Causing Incidents — "earthquakes vs aftershocks"
+
+You're using **two** MTA incident datasets that look similar but measure different things. Be ready for *"why two? which one is the 'real' incident count?"* — it's a credible data-fluency probe.
+
+**The frame to hold in your head:**
+
+| | Major Incidents | Delay-Causing Incidents |
+|---|---|---|
+| **Counts** | Service-affecting events meeting MTA's "major" bar | Every event that delayed any train, no matter how small |
+| **Magnitude** | One major incident ≈ **80–110** downstream delay-causing reports | ~100× higher row counts than majors |
+| **Category system** | 6 **physical / infrastructure** buckets: Signals · Track · Subway Car · Stations and Structure · Persons on Trackbed/Police/Medical · Other | 6 **operational / cause** buckets: Crew Availability · External Factors · Infrastructure & Equipment · Operating Conditions · Planned ROW Work · Police & Medical |
+| **Time scope** | 2015+ | 2020+ |
+| **Where it shows up** | KPI 3, Sheet 2, Cause Ladder, Cause-side trajectory, the quilt | Cause Ladder severity suffix, Per-incident severity chart |
+
+**The memorable one-line framing:**
+> *"Major Incidents are the earthquake count — rare, big, named by physical cause. Delay-Causing Incidents are the aftershock log — frequent, granular, named by operational cause. Each answers a different question, so I use both."*
+
+**Why this matters technically (have this loaded for SQL questions):**
+> *"The two datasets don't share a category system, so the LEFT JOIN on `(month, line, day_type)` creates a Cartesian product — every major-incident category pairs with every delay-causing-category in the export. Raw `SUM` over-counts. I built `Real Inc` and `Real Delay` as `{FIXED}` LOD dedup calcs to collapse the cross-product back to true row counts, and promoted Category / Line Group / Day Type to Context filters so the LODs see the right scope."*
+
+That second paragraph is the technically heaviest answer in the script. Only land it if the interviewer is technical and pushing for SQL/Tableau internals — for a non-technical interviewer, stop at the earthquakes-vs-aftershocks line.
+
+### Data lineage — raw CSV → Postgres → Tableau export → chart
+
+Likely interviewer probes: *"walk me through your data pipeline,"* *"how does the raw data get into Tableau?"* *"why did you pre-aggregate?"* This table is the answer to all three at a glance.
+
+**The frame to lead with:**
+> *"Raw CSVs from data.ny.gov get loaded into Postgres staging, transformed into a star schema with facts and dimensions, then aggregated out into five flat CSVs that Tableau reads. Two layers of normalization upstream means Tableau is a presentation layer, not a data-prep layer — which is what made the 789K → 15K performance win possible."*
+
+**Lineage at a glance:**
+
+| Raw CSV (`datasets/`) | → Postgres fact/dim (`mta` schema) | → Tableau export (`tableau_exports/`) | Consumed by |
+|---|---|---|---|
+| **Major Incidents** (2015+) | `fact_major_incidents` | `monthly_incidents_delays.csv` *(joined with delays; Cartesian-product trap; deduped via `Real Inc`)* | KPI 3 · Incidents over time · Cause Ladder · Cause-side trajectory · Monthly Incident Pattern quilt · Per-incident severity |
+| **Delay-Causing Incidents** (2020+) | `fact_delay_causing_incidents` | same CSV as above | same set; supplies the delay-side severity ratio |
+| **Wait Assessment** (2015+) | `fact_wait_assessment` | `service_quality.csv` *(joined with OTP)* | KPI 4 · WA Trajectory · Reliability head-to-head · WA over time |
+| **Terminal OTP** (2015+) | `fact_otp` | same CSV as above | Reliability head-to-head |
+| **Hourly Ridership** (2024+) | `fact_hourly_ridership` | `hourly_ridership_corridor.csv` + `monthly_ridership.csv` *(pre-aggregated from ~789K → ~15K rows for Tableau Public)* | KPI 1 · Map (size) · Day × hour heatmap |
+| **Stations and Complexes** | `dim_complex` | `dim_corridor_complexes.csv` | Map |
+| **GTFS `routes.txt`** | `dim_route` + `bridge_complex_route` | *(not exported; powers SQL joins between facts and complexes)* | every chart indirectly |
+| **Daily Ridership** (2020+) | `fact_daily_ridership` | *(not exported; isolated — no station or route join possible)* | — |
+| **Trains Delayed** (2020+) | *(not loaded)* | — | — |
+
+**Three things this table lets you say confidently:**
+
+1. **"Tableau is a presentation layer, not a data-prep layer."** Everything heavy — joins, dedup, type casts, pre-aggregation — happens in SQL before Tableau ever sees the data. That's the data-engineering instinct the dashboard is built on.
+2. **"Pre-aggregation is the reason Public performs."** The hourly ridership row goes from ~789K rows in the raw CSV down to ~15K rows in the Tableau export, because the grain you actually visualize is hour × complex × line_group, not transaction-level. The ~50× reduction is what made Tableau Public render instantly instead of sluggishly.
+3. **"The Cartesian-product trap was the trickiest design challenge in the export layer."** Major Incidents and Delay-Causing Incidents have different category systems but you need both for the cause-and-severity story — so the export LEFT JOINs them on `(month, line, day_type)` and produces a cross-product CSV that the `Real Inc` / `Real Delay` LOD calcs dedup inside Tableau. The trade-off: one wide CSV is simpler to ship and maintain than two narrow ones, at the cost of needing dedup discipline on every consuming sheet.
 
 ---
 
